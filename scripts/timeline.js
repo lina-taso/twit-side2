@@ -964,9 +964,11 @@ class Timeline {
                 }
             }
 
-            // 更新データ（新しいもの順）
+            // 更新データ（新しいもの順のはず）
             tweets.push(target_id);
         }
+        // 更新データ（改めて新しいもの順）
+        tweets.sort().reverse();
 
         // 通知チェック
         // すべてのツイート（1つのみ表示）
@@ -1594,9 +1596,12 @@ class DmTimeline extends Timeline {
                 }
             }
 
-            // 更新データ（新しいもの順）
+            // 更新データ（新しいもの順のはず）
             tweets.push(target_id);
         }
+        // 更新データ（改めて新しいもの順）
+        tweets.sort().reverse();
+
         lastidx = this.record.ids.length+1;
 
         // 最終通知ID更新
