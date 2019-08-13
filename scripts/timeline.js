@@ -431,7 +431,8 @@ class Timeline {
                 this._state = TwitSideModule.TL_STATE.STARTED;
                 this.startAutoReload();
             }
-        }, interval);
+            // インターバルに1.3倍までのゆらぎ
+        }, interval * (Math.floor(Math.random()*3)/10+1));
     }
     stopAutoReload() {
         if (this._autoReloadTimer != null) clearTimeout(this._autoReloadTimer);
