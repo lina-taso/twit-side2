@@ -1,0 +1,1195 @@
+{
+    "extensionDescription" : {
+        "message" : "Display Twitter's timelines in a sidebar."
+    },
+    "extensionToggleSidebar" : {
+        "message" : "Toggle displaying Twit Side sidebar."
+    },
+    "extensionFocusNewtweet" : {
+        "message" : "Focus on an input area of new tweet."
+    },
+
+
+    "enterPinNumber" : {
+        "message" : "Enter PIN numbers."
+    },
+    "userAlready" : {
+        "message" : "This account is already authenticated."
+    },
+
+    "retweet_success" : {
+        "message" : "Retweet success."
+    },
+    "retweet_failed" : {
+        "message" : "Retweet failed."
+    },
+    "favorite_success" : {
+        "message" : "Favorite success."
+    },
+    "favorite_failed" : {
+        "message" : "Favorite failed."
+    },
+    "unfavorite_success" : {
+        "message" : "Unfavorite success."
+    },
+    "unfavorite_failed" : {
+        "message" : "Unfavorite failed."
+    },
+    "destroy_success" : {
+        "message" : "Delete a tweet success."
+    },
+    "destroy_failed" : {
+        "message" : "Delete failed."
+    },
+    "destroyList_success" : {
+        "message" : "Delete a list success."
+    },
+    "destroyUser_success" : {
+        "message" : "Remove a user success."
+    },
+    "subscribeList_success" : {
+        "message" : "Subscribe a list success."
+    },
+    "subscribeList_failed" : {
+        "message" : "Subscribe a list failed."
+    },
+    "unsubscribeList_success" : {
+        "message" : "Unsubscribe a list success."
+    },
+    "unsubscribeList_failed" : {
+        "message" : "Unsubscribe a list failed."
+    },
+    "createList_success" : {
+        "message" : "Create a list success."
+    },
+    "createList_failed" : {
+        "message" : "Create a list failed."
+    },
+    "updateList_success" : {
+        "message" : "Update a list success."
+    },
+    "updateList_failed" : {
+        "message" : "Update a list failed."
+    },
+
+    "tweetSent" : {
+        "message" : "Sent a tweet."
+    },
+    "dmSent" : {
+        "message" : "Sent a direct message."
+    },
+    "columnAdded" : {
+        "message" : "New column is added."
+    },
+
+    "commonError" : {
+        "message" : "Internal error."
+    },
+    "authError" : {
+        "message" : "Can't communicate with authentication server.\nPlease try it again at a little time.\nPlease make sure the clock of your PC is correct just in case."
+    },
+    "unknownError" : {
+        "message" : "Unknow Error."
+    },
+    "timeout" : {
+        "message" : "Timeout."
+    },
+    "overCapacity" : {
+        "message" : "Twitter is over capacity."
+    },
+    "protectedUser" : {
+        "message" : "Protected user."
+    },
+    "youAreBlocked" : {
+        "message" : "You are blocked."
+    },
+
+    "retweetLimit" : {
+        "message" : "Retweet failed : limit to 5 retweets/min."
+    },
+    "newdmLimit" : {
+        "message" : "Send direct message failed : limit to 50 messages/day."
+    },
+    "code17" : {
+        "message" : "User is not found. (404)"
+    },
+    "code32" : {
+        "message" : "Couldn't communicate with Twitter."
+    },
+    "code34" : {
+        "message" : "Not found. (404)"
+    },
+    "code44" : {
+        "message" : "The provided URL can't be attached to this tweet. (400)"
+    },
+    "code64" : {
+        "message" : "Your account is suspended and is not permitted to access this feature. (403)"
+    },
+    "code88" : {
+        "message" : "You reached an API limit.\nPlease try it again at a little time."
+    },
+    "code89" : {
+        "message" : "Try to re-authenticate your account."
+    },
+    "code130" : {
+        "message" : "Twitter is over capacity. (503)"
+    },
+    "code131" : {
+        "message" : "An error has occurred on Twitter. (500)"
+    },
+    "code135" : {
+        "message" : "Authentication server shows the wrong time.\nPlease contact the developer."
+    },
+    "code179" : {
+        "message" : "This user is protected."
+    },
+    "code185" : {
+        "message" : "You reached a daily update limit."
+    },
+    "code187" : {
+        "message" : "Same tweet text has tweeted."
+    },
+    "code215" : {
+        "message" : "Invalid authentication information."
+    },
+    "http400" : {
+        "message" : "Invalid request (HTTP400)"
+    },
+    "http401" : {
+        "message" : "Unauthorized (HTTP401)"
+    },
+    "http403" : {
+        "message" : "Forbidden (HTTP403)"
+    },
+    "http404" : {
+        "message" : "Not Found (HTTP404)"
+    },
+    "http406" : {
+        "message" : "Not Acceptable(HTTP406)"
+    },
+    "http410" : {
+        "message" : "Gone (HTTP410)"
+    },
+    "http420" : {
+        "message" : "Enhance Your Calm (HTTP420)"
+    },
+    "http422" : {
+        "message" : "Unprocessable Entity (HTTP422)"
+    },
+    "http429" : {
+        "message" : "Too Many Requests (HTTP429)"
+    },
+    "http500" : {
+        "message" : "Internal Server Error (HTTP500)"
+    },
+    "http502" : {
+        "message" : "Bad Gateway (HTTP502)"
+    },
+    "http503" : {
+        "message" : "Service Unavailable (HTTP503)"
+    },
+    "http504" : {
+        "message" : "Gateway Timeout (HTTP504)"
+    },
+
+
+    "no_notif" : {
+        "message" : "No notification"
+    },
+    "clear_notif" : {
+        "message" : "Clear all notifications"
+    },
+    "clear_notif_next" : {
+        "message" : "Clear below notifications and show next $COUNT$ notifications",
+        "placeholders" : {
+            "count" : {
+                "content" : "$1",
+                "example" : "10"
+            }
+        }
+    },
+    "never_notify" : {
+        "message" : "Never notify this message"
+    },
+    "newTweet" : {
+        "message" : "$USER$ posts a tweet",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newMention" : {
+        "message" : "Mention from $USER$",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newRetweet" : {
+        "message" : "%$1S retweets your tweet",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newFavorited" : {
+        "message" : "$USER$ adds your tweet to favorites",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newUnFavorited" : {
+        "message" : "$USER$ removes your tweet from favorites",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newFollowed" : {
+        "message" : "$USER$ follows you",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newSearched" : {
+        "message" : "New $USER$ search results",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newSearchQuery" : {
+        "message" : "Keyword: "
+    },
+    "newDirectMessage" : {
+        "message" : "Direct message from $USER$",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+
+
+    "confirmTweet" : {
+        "message" : "Post a tweet?"
+    },
+    "confirmMessage" : {
+        "message" : "Send a direct message?"
+    },
+    "confirmFollow" : {
+        "message" : "Follow this user?"
+    },
+    "confirmUnfollow" : {
+        "message" : "Unfollow this user?"
+    },
+    "confirmRetweet" : {
+        "message" : "Retweet?"
+    },
+    "confirmRemoveFavorite" : {
+        "message" : "Remove from favorites?"
+    },
+    "confirmAddFavorite" : {
+        "message" : "Add to favorites?"
+    },
+    "confirmRemoveTweet" : {
+        "message" : "Delete your (re)tweet?"
+    },
+    "confirmRemoveList" : {
+        "message" : "Delete the list?"
+    },
+    "confirmRemoveMessage" : {
+        "message" : "Delete the direct message?"
+    },
+    "confirmDeleteColumn" : {
+        "message" : "Delete the column?"
+    },
+    "confirmDeleteTsMute" : {
+        "message" : "Delete from mutes?"
+    },
+    "confirmRemoveUser" : {
+        "message" : "Remove the user?"
+    },
+    "confirmMute" : {
+        "message" : "Mute the user?"
+    },
+    "confirmUnmute" : {
+        "message" : "Unmute the user?"
+    },
+    "confirmBlock" : {
+        "message" : "Block the user?"
+    },
+    "confirmUnblock" : {
+        "message" : "Unblock the user?"
+    },
+    "confirmNoretweet" : {
+        "message" : "Hide retweets from this user?"
+    },
+    "confirmWantretweet" : {
+        "message" : "Receive retweets from this user?"
+    },
+    "confirmLogout" : {
+        "message" : "Logout all accounts?"
+    },
+    "confirmAniGif" : {
+        "message" : "Is this GIF image an animated GIF image?"
+    },
+    "messageUploadType" : {
+        "message" : "One type of images (up to 4) or an animated GIF (only 1) or a video (only 1) can be uploaded"
+    },
+    "messageUploadFilesizeImages" : {
+        "message" : "Uploadable file size is up to 5MB per image"
+    },
+    "messageUploadFilesizeAniGifs" : {
+        "message" : "Uploadable file size is up to 15MB per animation GIF"
+    },
+    "messageUploadFilesizeVideos" : {
+        "message" : "Uploadable file size is up to 512MB per video"
+    },
+
+
+    "windowProfileDefaulttitle" : {
+        "message" : "Profile"
+    },
+    "windowProfileUsertitle" : {
+        "message" : "$USER$'s profile",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "windowSearchTitle" : {
+        "message" : "Search"
+    },
+    "windowColumnsTitle" : {
+        "message" : "Columns management"
+    },
+    "windowTsMutesTitle" : {
+        "message" : "TS mutes management"
+    },
+    "windowNewdmTitle" : {
+        "message" : "New DM"
+    },
+    "windowTextTitle" : {
+        "message" : "Tweet text"
+    },
+    "windowMuteTitle" : {
+        "message" : "Mutes list"
+    },
+    "windowBlockTitle" : {
+        "message" : "Blocks list"
+    },
+    "windowNoretweetTitle" : {
+        "message" : "Noretweet list"
+    },
+    "windowListmemberTitle" : {
+        "message" : "List members : $USER$'s list : $LISTNAME$ : ",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            },
+            "listname" : {
+                "content" : "$2"
+            }
+        }
+    },
+    "windowListsubscriberTitle" : {
+        "message" : "List subscribers : $USER$'s list : $LISTNAME$ : ",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            },
+            "listname" : {
+                "content" : "$2"
+            }
+        }
+    },
+    "windowPhotoTitle" : {
+        "message" : "Photos"
+    },
+    "windowApiTitle" : {
+        "message" : "API"
+    },
+
+    "label_list" : {
+        "message" : "$USER$'s list : $LISTNAME$",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            },
+            "listname" : {
+                "content" : "$2"
+            }
+        }
+    },
+
+    "column_timeline" : {
+        "message" : "Timeline"
+    },
+    "column_connect" : {
+        "message" : "Connect"
+    },
+    "column_retweeted" : {
+        "message" : "Retweeted"
+    },
+    "column_favorite" : {
+        "message" : "Favorite"
+    },
+    "column_search" : {
+        "message" : "Search"
+    },
+    "column_directmessage" : {
+        "message" : "Direct Message"
+    },
+    "column_listtimeline" : {
+        "message" : "List"
+    },
+    "column_autoreload" : {
+        "message" : "Auto reloading"
+    },
+
+    "column_follow" : {
+        "message" : "Follow"
+    },
+    "column_follower" : {
+        "message" : "Follower"
+    },
+    "column_ownershiplists" : {
+        "message" : "Own lists"
+    },
+    "column_subscriptionlists" : {
+        "message" : "Subscription lists"
+    },
+    "column_membershiplists" : {
+        "message" : "Followed lists"
+    },
+
+
+    "authRequest" : {
+        "message" : "(1) Authorize this application"
+    },
+    "authPin" : {
+        "message" : "(2) Enter PIN number"
+    },
+    "authAccess" : {
+        "message" : "(3) Allow this application"
+    },
+
+    "topUploadimage" : {
+        "message" : "Upload pictures"
+    },
+    "topUploadvideo" : {
+        "message" : "Upload a video"
+    },
+    "topUploadanigif" : {
+        "message" : "Upload an animation gif"
+    },
+    "topSharepicture" : {
+        "message" : "Share pictures or a video"
+    },
+    "topSharepage" : {
+        "message" : "Share the web page"
+    },
+    "topAdditionalreplyto" : {
+        "message" : "Reply to: "
+    },
+    "topTweet" : {
+        "message" : "Tweet"
+    },
+    "topReplytweet" : {
+        "message" : "Reply to"
+    },
+    "topInlinetweet" : {
+        "message" : "Retweet w/your comment to"
+    },
+
+    "topPerson" : {
+        "message" : "User profile"
+    },
+    "topSearch" : {
+        "message" : "Search"
+    },
+    "topAdduser" : {
+        "message" : "Add an account"
+    },
+    "topManagecolumns" : {
+        "message" : "Columns management"
+    },
+    "topManagetsmutes" : {
+        "message" : "TS mutes management"
+    },
+    "topPref" : {
+        "message" : "Preferences"
+    },
+    "topHelp" : {
+        "message" : "Help"
+    },
+    "topLogout" : {
+        "message" : "Logout all"
+    },
+
+    "tweetRetweets" : {
+        "message" : "retweeted"
+    },
+    "tweetRtcount" : {
+        "message" : "retweets"
+    },
+    "tweetMore" : {
+        "message" : "Load more tweets"
+    },
+
+    "tweetClear_replies" : {
+        "message" : "Clear all conversations"
+    },
+    "tweetReplyto" : {
+        "message" : "Reply to: "
+    },
+    "tweetReplies" : {
+        "message" : "Conversations: "
+    },
+
+    "tweetRetweet" : {
+        "message" : "Retweet"
+    },
+    "tweetQuote" : {
+        "message" : "Retweet w/your comment"
+    },
+    "tweetRt" : {
+        "message" : "Inline retweet"
+    },
+    "tweetShowtext" : {
+        "message" : "Text selection"
+    },
+    "tweetOpentweeturl" : {
+        "message" : "Open the tweet in a tab"
+    },
+    "tweetReply" : {
+        "message" : "Reply"
+    },
+    "tweetReplyall" : {
+        "message" : "Reply all"
+    },
+    "tweetFavorite" : {
+        "message" : "Favorite"
+    },
+    "tweetUnfavorite" : {
+        "message" : "Unfavorite"
+    },
+    "tweetShowreply" : {
+        "message" : "Show conversations"
+    },
+    "tweetDestroy" : {
+        "message" : "Delete"
+    },
+    "tweetShowretweetedusers" : {
+        "message" : "Show retweeted users"
+    },
+    "tweetUsers" : {
+        "message" : "Users"
+    },
+    "tweetHashtags" : {
+        "message" : "Hashtags"
+    },
+    "tweetUrls" : {
+        "message" : "URL"
+    },
+
+    "tweetDestroylist" : {
+        "message" : "Delete the list"
+    },
+    "tweetUpdatelist" : {
+        "message" : "Edit the list"
+    },
+    "tweetShowmembers" : {
+        "message" : "List members"
+    },
+    "tweetShowsubscribers" : {
+        "message" : "List subscribers"
+    },
+    "tweetSubscribe" : {
+        "message" : "Subscribe the list"
+    },
+    "tweetUnsubscribe" : {
+        "message" : "Unsubscribe the list"
+    },
+    "tweetAddcolumn" : {
+        "message" : "Add into columns"
+    },
+
+    "tweetDestroyuser" : {
+        "message" : "Remove the user"
+    },
+
+
+    "profileTweet" : {
+        "message" : "Tweet"
+    },
+    "profileSenddm" : {
+        "message" : "Send a DM to"
+    },
+    "profileRestriction1" : {
+        "message" : "API limits"
+    },
+    "profileRestriction2" : {
+        "message" : "Mutes list"
+    },
+    "profileRestriction3" : {
+        "message" : "Blocks list"
+    },
+    "profileRestriction4" : {
+        "message" : "Noretweets list"
+    },
+    "profileRelation1following" : {
+        "message" : "Following"
+    },
+    "profileRelation1follow" : {
+        "message" : "Follow"
+    },
+    "profileRelation1requesting" : {
+        "message" : "Follow requesting"
+    },
+    "profileRelation2followed" : {
+        "message" : "Followed"
+    },
+    "profileRelation2notfollowed" : {
+        "message" : "Not followed"
+    },
+    "profileRelation2blocked" : {
+        "message" : "Blocked"
+    },
+    "profileRelation3muting" : {
+        "message" : "Muting"
+    },
+    "profileRelation3mute" : {
+        "message" : "Mute"
+    },
+    "profileRelation4blocking" : {
+        "message" : "Blocking"
+    },
+    "profileRelation4block" : {
+        "message" : "Block"
+    },
+    "profileRelation5noretweeting" : {
+        "message" : "Retweets hiding"
+    },
+    "profileRelation5noretweet" : {
+        "message" : "Show retweets"
+    },
+    "profileAddlist" : {
+        "message" : "Add a list"
+    },
+    "profileEditlist" : {
+        "message" : "Edit a list"
+    },
+    "profileListlabel" : {
+        "message" : "Label"
+    },
+    "profileListdescription" : {
+        "message" : "Description"
+    },
+    "profileListmode" : {
+        "message" : "Public/Private"
+    },
+    "profilePublic" : {
+        "message" : "Public"
+    },
+    "profilePrivate" : {
+        "message" : "Private"
+    },
+    "profileMessageEnterlistlabel" : {
+        "message" : "Enter label text"
+    },
+    "profileMessageToolonglistlabel" : {
+        "message" : "Enter label text with up to $LENGTH$",
+        "placeholders" : {
+            "length" : {
+                "content" : "$1",
+                "example" : "10"
+            }
+        }
+    },
+    "profileMessageToolonglistdesc" : {
+        "message" : "Enter description with up to $LENGTH$",
+        "placeholders" : {
+            "length" : {
+                "content" : "$1",
+                "example" : "10"
+            }
+        }
+    },
+
+
+    "searchAutoreload" : {
+        "message" : "Auto reloading"
+    },
+    "searchUsage" : {
+        "message" : "Ex) : KEYWORD\nEx) for OR search : KEYWORD1 OR KEYWORD2\nEx) for AND search : KEYWORD1 KEYWORD2\nEx) for phrase search : \"KEYWORD1 KEYWORD2\"\nEx) for hashtag search : #HASHTAG\nEx) for reply search : @SCREENNAME\nEx) for author search : from:SCREENNAME\nEx) for source search : KEYWORD source:APPLICATION"
+    },
+
+
+    "closeButton" : {
+        "message" : "Close"
+    },
+
+
+    "columnsDraggable" : {
+        "message" : "You can change the order of columns by dragging."
+    },
+    "columnsColumnlabel" : {
+        "message" : "Label"
+    },
+    "columnsScreenname" : {
+        "message" : "Screenname"
+    },
+    "columnsType" : {
+        "message" : "Type"
+    },
+    "columnsNotif" : {
+        "message" : "Notify"
+    },
+    "columnsOnstart" : {
+        "message" : "Loading on startup"
+    },
+    "columnsAutoreload" : {
+        "message" : "Auto reloading"
+    },
+    "columnsVeil" : {
+        "message" : "Privacy mode"
+    },
+    "columnsOther" : {
+        "message" : "Misc"
+    },
+    "columnsAdd" : {
+        "message" : "Add a column"
+    },
+    "columnsRemove" : {
+        "message" : "Delete the column"
+    },
+    "columnsEdit" : {
+        "message" : "Edit the column"
+    },
+    "columnsMessageEntercolumnlabel" : {
+        "message" : "Enter label text"
+    },
+
+
+    "tsMutesDescription" : {
+        "message" : "Here is management window of mute feature only enabled on Twit Side.You can manage Twitter official mute feature on User Profile window."
+    },
+    "tsMutesTabKeywords" : {
+        "message" : "Keywords"
+    },
+    "tsMutesTabUsers" : {
+        "message" : "Users"
+    },
+    "tsMutesKeyword" : {
+        "message" : "Keyword"
+    },
+    "tsMutesType" : {
+        "message" : "Type"
+    },
+    "tsMutesTypeText" : {
+        "message" : "PlainText"
+    },
+    "tsMutesTypeRegexp" : {
+        "message" : "Regexp"
+    },
+    "tsMutesUntil" : {
+        "message" : "Term"
+    },
+    "tsMutesInf" : {
+        "message" : "Indefinite"
+    },
+    "tsMutesScreenname" : {
+        "message" : "Screenname"
+    },
+    "tsMutesUser" : {
+        "message" : "User"
+    },
+    "tsMutesTerm" : {
+        "message" : "Term"
+    },
+    "tsMutesTerm300" : {
+        "message" : "5 minutes"
+    },
+    "tsMutesTerm600" : {
+        "message" : "10 minutes"
+    },
+    "tsMutesTerm900" : {
+        "message" : "15 minutes"
+    },
+    "tsMutesTerm1800" : {
+        "message" : "30 minutes"
+    },
+    "tsMutesTerm3600" : {
+        "message" : "1 hour"
+    },
+    "tsMutesTerm10800" : {
+        "message" : "3 hours"
+    },
+    "tsMutesTerm21600" : {
+        "message" : "6 hours"
+    },
+    "tsMutesTerm43200" : {
+        "message" : "12 hours"
+    },
+    "tsMutesTerm86400" : {
+        "message" : "1 day"
+    },
+    "tsMutesAdd" : {
+        "message" : "Add a mute"
+    },
+    "tsMutesRemove" : {
+        "message" : "Delete a mute"
+    },
+
+
+    "newdmFrom" : {
+        "message" : "FROM"
+    },
+    "newdmTo" : {
+        "message" : "TO"
+    },
+    "newdmSend" : {
+        "message" : "Send a message"
+    },
+
+
+    "photoUrl" : {
+        "message" : "Photo's URL"
+    },
+    "photoOpenurl" : {
+        "message" : "Open the original URL"
+    },
+
+
+    "apiApi" : {
+        "message" : "API"
+    },
+    "apiRemaining" : {
+        "message" : "remaining [times]"
+    },
+    "apiLimit" : {
+        "message" : "limit [times]"
+    },
+    "apiReset_time" : {
+        "message" : "reset time"
+    },
+
+
+
+    "prefLabelSave_button" : {
+        "message" : "Save preferences on this section."
+    },
+    "prefLabelUpdate" : {
+        "message" : "Update"
+    },
+    "prefLabelUpdateParameters" : {
+        "message" : "Parameters"
+    },
+    "prefTimeout" : {
+        "message" : "Timeout [sec]"
+    },
+    "prefTimeout_upload" : {
+        "message" : "Timeout for uploading [sec]"
+    },
+    "prefTimeline_count" : {
+        "message" : "Number of tweets obtaining at once (Timeline)"
+    },
+    "prefConnect_count" : {
+        "message" : "Number of tweets obtaining at once (Connect)"
+    },
+    "prefRetweeted_count" : {
+        "message" : "Number of tweets obtaining at once (Retweet)"
+    },
+    "prefFavorite_count" : {
+        "message" : "Number of tweets obtaining at once (Favorite)"
+    },
+    "prefSearch_count" : {
+        "message" : "Number of tweets obtaining at once (Search)"
+    },
+    "prefProfile_count" : {
+        "message" : "Number of tweets obtaining at once  (User timeline)"
+    },
+    "prefLabelUpdateAutopager" : {
+        "message" : "Autopager"
+    },
+    "prefAutopager" : {
+        "message" : "Enable autopager"
+    },
+    "prefAutopager_count" : {
+        "message" : "Number of tweets obtaining at once with autopager"
+    },
+    "prefLabelUpdateAutoreload" : {
+        "message" : "Auto reloading"
+    },
+    "prefAutoreload_time" : {
+        "message" : "If autoreload is enabled, auto reloading every [sec]"
+    },
+    "prefAutosearch_time" : {
+        "message" : "But for search column, auto reloading every [sec]"
+    },
+    "prefAutoreload_aftertweet" : {
+        "message" : "After posting a tweet, auto reload ones timelines."
+    },
+    "prefAutoreload_totop" : {
+        "message" : "Keep on top of columns"
+    },
+    "prefLabelExtra" : {
+        "message" : "Additional settings"
+    },
+    "prefLabelExtraMute" : {
+        "message" : "Mutes"
+    },
+    "prefMute_onsearch" : {
+        "message" : "Hide tweets from muted users on a Search column"
+    },
+    "prefMute_ts" : {
+        "message" : "Enable mute feature only enabled on Twit Side (TS mutes)"
+    },
+    "prefLabelExtraMultiuser" : {
+        "message" : "Multi account"
+    },
+    "prefAutoUserSelection" : {
+        "message" : "Change the account automatically when a different account's column was focused."
+    },
+    "prefLabelStyle" : {
+        "message" : "Style"
+    },
+    "prefLabelStyleRestart_required" : {
+        "message" : "Some changes are restart Firefox required"
+    },
+    "prefLabelStyleDesign" : {
+        "message" : "Design"
+    },
+    "prefTheme" : {
+        "message" : "Theme"
+    },
+    "prefColor_retweets" : {
+        "message" : "Color the background of retweets"
+    },
+    "prefScreenname_first" : {
+        "message" : "Display user in format '@screenname (name)'"
+    },
+    "prefCircle_icon" : {
+        "message" : "Round the user icon"
+    },
+    "prefLabelStyleTimestamp" : {
+        "message" : "Timestamp"
+    },
+    "prefTimeSample" : {
+        "message" : "Display example: "
+    },
+    "prefTimeLocale" : {
+        "message" : "Datetime format"
+    },
+    "prefTimeLocaleDefault" : {
+        "message" : "Follow the locale setting (This is not affected by the other prefs.)"
+    },
+    "prefTimeDate" : {
+        "message" : "Omitting"
+    },
+    "prefTimeDateYear" : {
+        "message" : "no omitting (year, month, day)"
+    },
+    "prefTimeDateMonth" : {
+        "message" : "omit year from timestamp (month, day)"
+    },
+    "prefTimeDateDay" : {
+        "message" : "omit year and month from timestamp (day)"
+    },
+    "prefTimeWeekday" : {
+        "message" : "Display weekday"
+    },
+    "prefTimeHour12" : {
+        "message" : "Use 12-hour"
+    },
+    "prefTimeSec" : {
+        "message" : "Display second"
+    },
+    "prefLabelStyleUrl" : {
+        "message" : "URL"
+    },
+    "prefExURL" : {
+        "message" : "Extract shorten URLs"
+    },
+    "prefExURL_cut" : {
+        "message" : "Display URLs same as Twitter"
+    },
+    "prefURL_tabactive" : {
+        "message" : "Active the opened tab"
+    },
+    "prefLabelStylePhoto" : {
+        "message" : "Photo"
+    },
+    "prefViewthumbnail" : {
+        "message" : "Display thumbnail images"
+    },
+    "prefPopup_photo" : {
+        "message" : "Show photos in a dialog (when unchecked, open photo's url in a tab)"
+    },
+    "prefLabelStyleMisc" : {
+        "message" : "Misc"
+    },
+    "prefViewsource" : {
+        "message" : "Display source"
+    },
+    "prefLinefeed" : {
+        "message" : "Display line break"
+    },
+    "prefAnimation" : {
+        "message" : "Enable animation"
+    },
+    "prefLabelScale" : {
+        "message" : "Scale"
+    },
+    "prefLabelScaleMinwidth" : {
+        "message" : "Minimum width"
+    },
+    "prefLabelScaleMinwidth_notice" : {
+        "message" : "The value affect a number of column displayed"
+    },
+    "prefColumn_minwidth" : {
+        "message" : "Minimum width of a column [px]"
+    },
+    "prefLabelScaleSize" : {
+        "message" : "Size"
+    },
+    "prefLabelScaleFontsize_notice" : {
+        "message" : "If some text don't become small, check Minimum font size preference of your Firefox"
+    },
+    "prefFont_size" : {
+        "message" : "Font size (default:12) [px]"
+    },
+    "prefIcon_size" : {
+        "message" : "Icon size"
+    },
+    "prefButton_size" : {
+        "message" : "Button size"
+    },
+    "prefLabelNotification" : {
+        "message" : "Notification"
+    },
+    "prefLabelNotificationTurnonnotif" : {
+        "message" : "Please enable notify on Columns management window"
+    },
+    "prefNotif_all" : {
+        "message" : "Notify all tweets (pop up only)"
+    },
+    "prefNotif_forme" : {
+        "message" : "Notify the tweet addressed to you"
+    },
+    "prefNotif_directmessage" : {
+        "message" : "Notify that you get direct message"
+    },
+    "prefNotif_count" : {
+        "message" : "Number of notifications displaying on a page"
+    },
+    "prefLabelTweetmenu" : {
+        "message" : "Tweet menu"
+    },
+    "prefLabelTweetmenuContextmenu" : {
+        "message" : "Context menu"
+    },
+    "prefLabelTweetmenuFortypist" : {
+        "message" : "For the user that uses keyboard operation mainly"
+    },
+    "prefMenu_reply" : {
+        "message" : "Display 'reply' menu"
+    },
+    "prefMenu_favorite" : {
+        "message" : "Display 'favotite' menu"
+    },
+    "prefMenu_conversation" : {
+        "message" : "Display 'Show conversation' menu"
+    },
+    "prefMenu_url" : {
+        "message" : "Display URL menu"
+    },
+    "prefLabelTweetmenuHovermenu" : {
+        "message" : "Hover menu"
+    },
+    "prefLabelTweetmenuUpto2menu" : {
+        "message" : "You can add shortcuts up to 2 (up to 4 total)"
+    },
+    "prefLabelTweetmenuDraggable" : {
+        "message" : "You can change the order of menus by dragging"
+    },
+    "prefHover_retweet" : {
+        "message" : "Retweet"
+    },
+    "prefHover_quote" : {
+        "message" : "Retweet w/your comment"
+    },
+    "prefHover_rt" : {
+        "message" : "Inline retweet"
+    },
+    "prefHover_showtext" : {
+        "message" : "Text selection"
+    },
+    "prefHover_opentweeturl" : {
+        "message" : "Open a tweet's URL"
+    },
+    "prefHover_replyall" : {
+        "message" : "Reply / Reply all"
+    },
+    "prefHover_favorite" : {
+        "message" : "Favorite / Unfavorite (Required)"
+    },
+    "prefHover_showreply" : {
+        "message" : "Show conversations (Required)"
+    },
+    "prefLabelConfirm" : {
+        "message" : "Confirm dialog"
+    },
+    "prefConfirm_tweet" : {
+        "message" : "Confirm before posting a new tweet with Ctrl+Enter"
+    },
+    "prefConfirm_retweet" : {
+        "message" : "Confirm before retweeting a tweet"
+    },
+    "prefConfirm_favorite" : {
+        "message" : "Confirm before adding to / removing from favorites"
+    },
+    "prefConfirm_delete" : {
+        "message" : "Confirm before deleting a (re)tweet or a list, a user"
+    },
+    "prefConfirm_follow" : {
+        "message" : "Confirm before (un)following"
+    },
+    "prefConfirm_mute" : {
+        "message" : "Confirm before (un)muting a user"
+    },
+    "prefConfirm_block" : {
+        "message" : "Confirm before (un)blocking a user"
+    },
+    "prefConfirm_noretweet" : {
+        "message" : "Confirm before turning off/on retweets from a user"
+    },
+    "prefConfirm_deletecolumn" : {
+        "message" : "Confirm before deleting a column"
+    }
+
+}

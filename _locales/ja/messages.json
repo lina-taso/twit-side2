@@ -1,0 +1,1196 @@
+{
+    "extensionDescription" : {
+        "message" : "サイドバーにツイッターのタイムラインを表示します。"
+    },
+    "extensionToggleSidebar" : {
+        "message" : "Twit Side サイドバーの表示を切り替えます。"
+    },
+    "extensionFocusNewtweet" : {
+        "message" : "ツイート入力ボックスにフォーカスします。"
+    },
+
+
+    "enterPinNumber" : {
+        "message" : "PINを入力して下さい。"
+    },
+    "userAlready" : {
+        "message" : "ユーザは既に認証されています。"
+    },
+
+    "retweet_success" : {
+        "message" : "リツイートに成功"
+    },
+    "retweet_failed" : {
+        "message" : "リツイートに失敗"
+    },
+    "favorite_success" : {
+        "message" : "お気に入りに追加成功"
+    },
+    "favorite_failed" : {
+        "message" : "お気に入りに追加失敗"
+    },
+    "unfavorite_success" : {
+        "message" : "お気に入りの削除成功"
+    },
+    "unfavorite_failed" : {
+        "message" : "お気に入りの削除失敗"
+    },
+    "destroy_success" : {
+        "message" : "ツイートの削除成功"
+    },
+    "destroy_failed" : {
+        "message" : "削除失敗"
+    },
+    "destroyList_success" : {
+        "message" : "リストの削除成功"
+    },
+    "destroyUser_success" : {
+        "message" : "ユーザの削除成功"
+    },
+    "subscribeList_success" : {
+        "message" : "リストの購読成功"
+    },
+    "subscribeList_failed" : {
+        "message" : "リストの購読失敗"
+    },
+    "unsubscribeList_success" : {
+        "message" : "リストの購読解除成功"
+    },
+    "unsubscribeList_failed" : {
+        "message" : "リストの購読解除失敗"
+    },
+    "createList_success" : {
+        "message" : "リストの追加成功"
+    },
+    "createList_failed" : {
+        "message" : "リストの追加失敗"
+    },
+    "updateList_success" : {
+        "message" : "リストの更新成功"
+    },
+    "updateList_failed" : {
+        "message" : "リストの更新失敗"
+    },
+
+    "tweetSent" : {
+        "message" : "ツイートを送信しました。"
+    },
+    "dmSent" : {
+        "message" : "ダイレクトメッセージを送信しました。"
+    },
+    "columnAdded" : {
+        "message" : "カラムを追加しました。"
+    },
+
+    "commonError" : {
+        "message" : "内部エラーです。"
+    },
+    "authError" : {
+        "message" : "認証サーバと通信ができませんでした。\nしばらく時間を空けてから再試行して下さい。\n念のためPCの時刻が正確か確認して下さい。"
+    },
+    "unknownError" : {
+        "message" : "不明なエラーです。"
+    },
+    "timeout" : {
+        "message" : "通信がタイムアウトしました。"
+    },
+    "overCapacity" : {
+        "message" : "ツイッターが過負荷です。"
+    },
+    "protectedUser" : {
+        "message" : "鍵アカウントです。"
+    },
+    "youAreBlocked" : {
+        "message" : "ブロックされています。"
+    },
+
+    "retweetLimit" : {
+        "message" : "リツイート失敗。リツイートは5回/分に制限しています。"
+    },
+    "newdmLimit" : {
+        "message" : "DM送信失敗。DM送信は50回/日に制限しています。"
+    },
+    "code17" : {
+        "message" : "ユーザは存在しません。（404）"
+    },
+    "code32" : {
+        "message" : "内部エラーです。ツイッターと認証できませんでした。（401）"
+    },
+    "code34" : {
+        "message" : "既にその項目は存在しません。（404）"
+    },
+    "code44" : {
+        "message" : "ツイートに添付できないURLです。（400）"
+    },
+    "code64" : {
+        "message" : "アカウントが凍結されています。（403）"
+    },
+    "code88" : {
+        "message" : "API制限の最大値に到達しました。\nしばらく時間を空けてから再試行して下さい。"
+    },
+    "code89" : {
+        "message" : "認証をやり直してみて下さい。"
+    },
+    "code130" : {
+        "message" : "Twitterが過負荷のため使用できません。（503）"
+    },
+    "code131" : {
+        "message" : "Twitterが原因不明のエラーです。（500）"
+    },
+    "code135" : {
+        "message" : "認証サーバの時刻が不正です。\n開発者にご連絡下さい。"
+    },
+    "code179" : {
+        "message" : "プロテクトされたユーザです。"
+    },
+    "code185" : {
+        "message" : "1日のツイート数を超過しました。"
+    },
+    "code187" : {
+        "message" : "既に同じ内容をツイートしています。"
+    },
+    "code215" : {
+        "message" : "正しくない認証情報です。"
+    },
+    "http400" : {
+        "message" : "正しくない要求です。（HTTP400）"
+    },
+    "http401" : {
+        "message" : "認証が行われていません。（HTTP401）"
+    },
+    "http403" : {
+        "message" : "Forbidden（HTTP403）"
+    },
+    "http404" : {
+        "message" : "要求した項目が見つかりません。（HTTP404）"
+    },
+    "http406" : {
+        "message" : "Not Acceptable（HTTP406）"
+    },
+    "http410" : {
+        "message" : "Gone（HTTP410）"
+    },
+    "http420" : {
+        "message" : "API制限の最大値に到達しました。\nしばらく時間を空けてから再試行して下さい。（HTTP420）"
+    },
+    "http422" : {
+        "message" : "処理出来ませんでした。（HTTP422）"
+    },
+    "http429" : {
+        "message" : "要求が多すぎます。しばらく時間を空けてから再試行して下さい。（HTTP429）"
+    },
+    "http500" : {
+        "message" : "Twitterが原因不明のエラーです。（HTTP500）"
+    },
+    "http502" : {
+        "message" : "Bad Gateway（HTTP502）"
+    },
+    "http503" : {
+        "message" : "Twitterが過負荷のため使用できません。（HTTP503）"
+    },
+    "http504" : {
+        "message" : "Twitterが何らかの原因で処理に失敗しました。再試行して下さい。（HTTP504）"
+    },
+
+
+    "no_notif" : {
+        "message" : "通知はありません"
+    },
+    "clear_notif" : {
+        "message" : "すべての通知を削除"
+    },
+    "clear_notif_next" : {
+        "message" : "このページの通知を削除して、次の$COUNT$件の通知を表示",
+        "placeholders" : {
+            "count" : {
+                "content" : "$1",
+                "example" : "10"
+            }
+        }
+    },
+    "never_notify" : {
+        "message" : "このメッセージを今後表示しない"
+    },
+    "newTweet" : {
+        "message" : "$USER$ がツイート",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newMention" : {
+        "message" : "$USER$ からのメンション",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newRetweet" : {
+        "message" : "$USER$ がリツイート",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newFavorited" : {
+        "message" : "$USER$ がお気に入りに追加",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newUnFavorited" : {
+        "message" : "$USER$ がお気に入りから削除",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newFollowed" : {
+        "message" : "$USER$ があなたをフォロー",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newSearched" : {
+        "message" : "$USER$件の新着検索結果",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "newSearchQuery" : {
+        "message" : "キーワード："
+    },
+    "newDirectMessage" : {
+        "message" : "$USER$からのダイレクトメッセージ",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+
+
+    "confirmTweet" : {
+        "message" : "ツイートしますか？"
+    },
+    "confirmMessage" : {
+        "message" : "ダイレクトメッセージを送信しますか？"
+    },
+    "confirmFollow" : {
+        "message" : "フォローしますか？"
+    },
+    "confirmUnfollow" : {
+        "message" : "フォロー解除しますか？"
+    },
+    "confirmRetweet" : {
+        "message" : "リツイートしますか？"
+    },
+    "confirmRemoveFavorite" : {
+        "message" : "お気に入りから削除しますか？"
+    },
+    "confirmAddFavorite" : {
+        "message" : "お気に入りに追加しますか？"
+    },
+    "confirmRemoveTweet" : {
+        "message" : "ツイート/リツイートを削除しますか？"
+    },
+    "confirmRemoveList" : {
+        "message" : "リストを削除しますか？"
+    },
+    "confirmRemoveMessage" : {
+        "message" : "ダイレクトメッセージを削除しますか？"
+    },
+    "confirmDeleteColumn" : {
+        "message" : "カラムを削除しますか？"
+    },
+    "confirmDeleteTsMute" : {
+        "message" : "ミュートから削除しますか？"
+    },
+    "confirmRemoveUser" : {
+        "message" : "ユーザを削除しますか？"
+    },
+    "confirmMute" : {
+        "message" : "ミュートに追加しますか？"
+    },
+    "confirmUnmute" : {
+        "message" : "ミュートを解除しますか？"
+    },
+    "confirmBlock" : {
+        "message" : "ブロックしますか？"
+    },
+    "confirmUnblock" : {
+        "message" : "ブロックを解除しますか？"
+    },
+    "confirmNoretweet" : {
+        "message" : "このユーザのリツイートを非表示にしますか？"
+    },
+    "confirmWantretweet" : {
+        "message" : "このユーザのリツイートを表示しますか？"
+    },
+    "confirmLogout" : {
+        "message" : "全アカウントをログアウトしますか？"
+    },
+    "confirmAniGif" : {
+        "message" : "選択したGIF画像はアニメーションGIFですか？"
+    },
+    "messageUploadType" : {
+        "message" : "画像（4枚まで）、アニメーションGIF（1枚まで）または動画（1本まで）のうち1種類のみアップロードできます"
+    },
+    "messageUploadFilesizeImages" : {
+        "message" : "画像は1枚につき5MBまでアップロードできます"
+    },
+    "messageUploadFilesizeAniGifs" : {
+        "message" : "アニメーションGIFは15MBまでアップロードできます"
+    },
+    "messageUploadFilesizeVideos" : {
+        "message" : "動画は512MBまでアップロードできます"
+    },
+
+
+    "windowProfileDefaulttitle" : {
+        "message" : "プロフィール"
+    },
+    "windowProfileUsertitle" : {
+        "message" : "$USER$のプロフィール",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            }
+        }
+    },
+    "windowSearchTitle" : {
+        "message" : "検索"
+    },
+    "windowColumnsTitle" : {
+        "message" : "カラム管理"
+    },
+    "windowTsMutesTitle" : {
+        "message" : "TSミュート管理"
+    },
+    "windowNewdmTitle" : {
+        "message" : "DMの作成"
+    },
+    "windowTextTitle" : {
+        "message" : "ツイートのテキスト"
+    },
+    "windowMuteTitle" : {
+        "message" : "ミュート一覧"
+    },
+    "windowBlockTitle" : {
+        "message" : "ブロック一覧"
+    },
+    "windowNoretweetTitle" : {
+        "message" : "リツイート非表示一覧"
+    },
+    "windowListmemberTitle" : {
+        "message" : "メンバー一覧：$USER$のリスト：$LISTNAME$",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            },
+            "listname" : {
+                "content" : "$2"
+            }
+        }
+    },
+    "windowListsubscriberTitle" : {
+        "message" : "購読者一覧：$USER$のリスト：$LISTNAME$：",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            },
+            "listname" : {
+                "content" : "$2"
+            }
+        }
+    },
+    "windowPhotoTitle" : {
+        "message" : "写真"
+    },
+    "windowApiTitle" : {
+        "message" : "API"
+    },
+
+    "label_list" : {
+        "message" : "$USER$のリスト：$LISTNAME$",
+        "placeholders" : {
+            "user" : {
+                "content" : "$1",
+                "example" : "@screenname"
+            },
+            "listname" : {
+                "content" : "$2"
+            }
+        }
+    },
+
+    "column_timeline" : {
+        "message" : "タイムライン"
+    },
+    "column_connect" : {
+        "message" : "つながり"
+    },
+    "column_retweeted" : {
+        "message" : "リツイート"
+    },
+    "column_favorite" : {
+        "message" : "お気に入り"
+    },
+    "column_search" : {
+        "message" : "検索"
+    },
+    "column_directmessage" : {
+        "message" : "ダイレクトメッセージ"
+    },
+    "column_listtimeline" : {
+        "message" : "リスト"
+    },
+    "column_autoreload" : {
+        "message" : "自動更新"
+    },
+
+    "column_follow" : {
+        "message" : "フォロー"
+    },
+    "column_follower" : {
+        "message" : "フォロワー"
+    },
+    "column_ownershiplists" : {
+        "message" : "保有リスト"
+    },
+    "column_subscriptionlists" : {
+        "message" : "購読リスト"
+    },
+    "column_membershiplists" : {
+        "message" : "被メンバリスト"
+    },
+
+
+    "authRequest" : {
+        "message" : "(1) アプリケーションを認証"
+    },
+    "authPin" : {
+        "message" : "(2) PINを入力"
+    },
+    "authAccess" : {
+        "message" : "(3) アプリケーションを許可"
+    },
+
+    "topUploadimage" : {
+        "message" : "画像を投稿します"
+    },
+    "topUploadvideo" : {
+        "message" : "動画を投稿します"
+    },
+    "topUploadanigif" : {
+        "message" : "アニメーションGIFを投稿します"
+    },
+    "topSharepicture" : {
+        "message" : "画像や動画を共有する"
+    },
+    "topSharepage" : {
+        "message" : "ページを共有する"
+    },
+    "topAdditionalreplyto" : {
+        "message" : "返信先: "
+    },
+    "topTweet" : {
+        "message" : "ツイート"
+    },
+    "topReplytweet" : {
+        "message" : "以下のツイートに返信"
+    },
+    "topInlinetweet" : {
+        "message" : "以下のツイートを引用"
+    },
+
+    "topPerson" : {
+        "message" : "ユーザプロフィール"
+    },
+    "topSearch" : {
+        "message" : "検索"
+    },
+    "topAdduser" : {
+        "message" : "アカウントを追加"
+    },
+    "topManagecolumns" : {
+        "message" : "カラム管理"
+    },
+    "topManagetsmutes" : {
+        "message" : "TSミュート管理"
+    },
+    "topPref" : {
+        "message" : "設定"
+    },
+    "topHelp" : {
+        "message" : "ヘルプ"
+    },
+    "topLogout" : {
+        "message" : "全てログアウト"
+    },
+
+    "tweetRetweets" : {
+        "message" : "がリツイート"
+    },
+    "tweetRtcount" : {
+        "message" : "人がリツイート"
+    },
+    "tweetMore" : {
+        "message" : "続きを読み込む"
+    },
+
+    "tweetClear_replies" : {
+        "message" : "会話を全て閉じる"
+    },
+    "tweetReplyto" : {
+        "message" : "返信先: "
+    },
+    "tweetReplies" : {
+        "message" : "会話: "
+    },
+
+    "tweetRetweet" : {
+        "message" : "リツイート"
+    },
+    "tweetQuote" : {
+        "message" : "引用リツイート"
+    },
+    "tweetRt" : {
+        "message" : "引用RT"
+    },
+    "tweetShowtext" : {
+        "message" : "ツイートテキストを選択"
+    },
+    "tweetOpentweeturl" : {
+        "message" : "ツイートをタブで開く"
+    },
+    "tweetReply" : {
+        "message" : "返信"
+    },
+    "tweetReplyall" : {
+        "message" : "全員に返信"
+    },
+    "tweetFavorite" : {
+        "message" : "お気に入り"
+    },
+    "tweetUnfavorite" : {
+        "message" : "お気に入り取消"
+    },
+    "tweetShowreply" : {
+        "message" : "会話を表示"
+    },
+    "tweetDestroy" : {
+        "message" : "削除"
+    },
+    "tweetShowretweetedusers" : {
+        "message" : "リツイートしたユーザ"
+    },
+    "tweetUsers" : {
+        "message" : "ユーザ"
+    },
+    "tweetHashtags" : {
+        "message" : "ハッシュタグ"
+    },
+    "tweetUrls" : {
+        "message" : "URL"
+    },
+
+    "tweetDestroylist" : {
+        "message" : "リストを削除"
+    },
+    "tweetUpdatelist" : {
+        "message" : "リストを編集"
+    },
+    "tweetShowmembers" : {
+        "message" : "メンバー一覧"
+    },
+    "tweetShowsubscribers" : {
+        "message" : "購読者一覧"
+    },
+    "tweetSubscribe" : {
+        "message" : "リストを購読"
+    },
+    "tweetUnsubscribe" : {
+        "message" : "リストの購読解除"
+    },
+    "tweetAddcolumn" : {
+        "message" : "カラムに追加"
+    },
+
+    "tweetDestroyuser" : {
+        "message" : "ユーザを削除"
+    },
+
+
+    "profileTweet" : {
+        "message" : "ツイート"
+    },
+    "profileSenddm" : {
+        "message" : "DMを送る"
+    },
+    "profileRestriction1" : {
+        "message" : "API制限"
+    },
+    "profileRestriction2" : {
+        "message" : "ミュート一覧"
+    },
+    "profileRestriction3" : {
+        "message" : "ブロック一覧"
+    },
+    "profileRestriction4" : {
+        "message" : "リツイート非表示一覧"
+    },
+    "profileRelation1following" : {
+        "message" : "フォロー中"
+    },
+    "profileRelation1follow" : {
+        "message" : "フォローする"
+    },
+    "profileRelation1requesting" : {
+        "message" : "フォローリクエスト中"
+    },
+    "profileRelation2followed" : {
+        "message" : "フォローされている"
+    },
+    "profileRelation2notfollowed" : {
+        "message" : "フォローされていない"
+    },
+    "profileRelation2blocked" : {
+        "message" : "ブロックされている"
+    },
+    "profileRelation3muting" : {
+        "message" : "ミュート中"
+    },
+    "profileRelation3mute" : {
+        "message" : "ミュートする"
+    },
+    "profileRelation4blocking" : {
+        "message" : "ブロック中"
+    },
+    "profileRelation4block" : {
+        "message" : "ブロックする"
+    },
+    "profileRelation5noretweeting" : {
+        "message" : "リツイート非表示中"
+    },
+    "profileRelation5noretweet" : {
+        "message" : "リツイートを非表示"
+    },
+    "profileAddlist" : {
+        "message" : "リスト追加"
+    },
+    "profileEditlist" : {
+        "message" : "リスト編集"
+    },
+    "profileListlabel" : {
+        "message" : "リストラベル"
+    },
+    "profileListdescription" : {
+        "message" : "説明"
+    },
+    "profileListmode" : {
+        "message" : "公開/非公開"
+    },
+    "profilePublic" : {
+        "message" : "公開"
+    },
+    "profilePrivate" : {
+        "message" : "非公開"
+    },
+    "profileMessageEnterlistlabel" : {
+        "message" : "リストラベルを入力してください"
+    },
+    "profileMessageToolonglistlabel" : {
+        "message" : "リストラベルは$LENGTH$文字以下で入力してください",
+        "placeholders" : {
+            "length" : {
+                "content" : "$1",
+                "example" : "10"
+            }
+        }
+    },
+    "profileMessageToolonglistdesc" : {
+        "message" : "説明は$LENGTH$文字以下で入力してください",
+        "placeholders" : {
+            "length" : {
+                "content" : "$1",
+                "example" : "10"
+            }
+        }
+    },
+
+
+
+    "searchAutoreload" : {
+        "message" : "自動更新"
+    },
+    "searchUsage" : {
+        "message" : "検索例：キーワード\nOR検索例：キーワード1 OR キーワード2\nAND検索例：キーワード1 キーワード2\nフレーズ検索例：\"キーワード1 キーワード2\"\nハッシュタグ検索例：#ハッシュタグ\nリプライ検索例：@スクリーンネーム\n投稿者検索例：from:スクリーンネーム\nソース検索例：キーワード source:アプリ名"
+    },
+
+
+    "closeButton" : {
+        "message" : "閉じる"
+    },
+
+
+    "columnsDraggable" : {
+        "message" : "ドラッグでカラムの順序を変更できます"
+    },
+    "columnsColumnlabel" : {
+        "message" : "カラムラベル"
+    },
+    "columnsScreenname" : {
+        "message" : "スクリーンネーム"
+    },
+    "columnsType" : {
+        "message" : "種別"
+    },
+    "columnsNotif" : {
+        "message" : "通知"
+    },
+    "columnsOnstart" : {
+        "message" : "起動時に開始"
+    },
+    "columnsAutoreload" : {
+        "message" : "自動更新"
+    },
+    "columnsVeil" : {
+        "message" : "プライバシーモード"
+    },
+    "columnsOther" : {
+        "message" : "その他"
+    },
+    "columnsAdd" : {
+        "message" : "カラム追加"
+    },
+    "columnsRemove" : {
+        "message" : "カラム削除"
+    },
+    "columnsEdit" : {
+        "message" : "カラム編集"
+    },
+    "columnsMessageEntercolumnlabel" : {
+        "message" : "カラムラベルを入力してください"
+    },
+
+
+    "tsMutesDescription" : {
+        "message" : "ここはTwit Sideでのみ有効なミュート機能の管理画面です。Twitter公式のミュート機能は、ユーザプロフィールから管理できます。"
+    },
+    "tsMutesTabKeywords" : {
+        "message" : "キーワード一覧"
+    },
+    "tsMutesTabUsers" : {
+        "message" : "ユーザ一覧"
+    },
+    "tsMutesKeyword" : {
+        "message" : "キーワード"
+    },
+    "tsMutesType" : {
+        "message" : "種別"
+    },
+    "tsMutesTypeText" : {
+        "message" : "テキスト"
+    },
+    "tsMutesTypeRegexp" : {
+        "message" : "正規表現"
+    },
+    "tsMutesUntil" : {
+        "message" : "期限"
+    },
+    "tsMutesInf" : {
+        "message" : "無期限"
+    },
+    "tsMutesScreenname" : {
+        "message" : "スクリーンネーム"
+    },
+    "tsMutesUser" : {
+        "message" : "ユーザ"
+    },
+    "tsMutesTerm" : {
+        "message" : "期間"
+    },
+    "tsMutesTerm300" : {
+        "message" : "5分間"
+    },
+    "tsMutesTerm600" : {
+        "message" : "10分間"
+    },
+    "tsMutesTerm900" : {
+        "message" : "15分間"
+    },
+    "tsMutesTerm1800" : {
+        "message" : "30分間"
+    },
+    "tsMutesTerm3600" : {
+        "message" : "1時間"
+    },
+    "tsMutesTerm10800" : {
+        "message" : "3時間"
+    },
+    "tsMutesTerm21600" : {
+        "message" : "6時間"
+    },
+    "tsMutesTerm43200" : {
+        "message" : "12時間"
+    },
+    "tsMutesTerm86400" : {
+        "message" : "1日間"
+    },
+    "tsMutesAdd" : {
+        "message" : "ミュート追加"
+    },
+    "tsMutesRemove" : {
+        "message" : "ミュート削除"
+    },
+
+
+    "newdmFrom" : {
+        "message" : "送信元"
+    },
+    "newdmTo" : {
+        "message" : "送信先"
+    },
+    "newdmSend" : {
+        "message" : "DM送信"
+    },
+
+
+    "photoUrl" : {
+        "message" : "写真のURL"
+    },
+    "photoOpenurl" : {
+        "message" : "オリジナルのURLを開く"
+    },
+
+
+    "apiApi" : {
+        "message" : "API"
+    },
+    "apiRemaining" : {
+        "message" : "残り [回]"
+    },
+    "apiLimit" : {
+        "message" : "制限 [回]"
+    },
+    "apiReset_time" : {
+        "message" : "リセット日時"
+    },
+
+
+
+    "prefLabelSave_button" : {
+        "message" : "このセクションの設定を保存"
+    },
+    "prefLabelUpdate" : {
+        "message" : "更新"
+    },
+    "prefLabelUpdateParameters" : {
+        "message" : "パラメータ"
+    },
+    "prefTimeout" : {
+        "message" : "タイムアウト [秒]"
+    },
+    "prefTimeout_upload" : {
+        "message" : "アップロードのタイムアウト [秒]"
+    },
+    "prefTimeline_count" : {
+        "message" : "一度に取得するツイート数（タイムライン）"
+    },
+    "prefConnect_count" : {
+        "message" : "一度に取得するツイート数（つながり）"
+    },
+    "prefRetweeted_count" : {
+        "message" : "一度に取得するツイート数（リツイート）"
+    },
+    "prefFavorite_count" : {
+        "message" : "一度に取得するツイート数（お気に入り）"
+    },
+    "prefSearch_count" : {
+        "message" : "一度に取得するツイート数（検索）"
+    },
+    "prefProfile_count" : {
+        "message" : "一度に取得するツイート数（ユーザタイムライン）"
+    },
+    "prefLabelUpdateAutopager" : {
+        "message" : "オートページャ"
+    },
+    "prefAutopager" : {
+        "message" : "カラムの下の方へスクロールしたら続きを読み込む"
+    },
+    "prefAutopager_count" : {
+        "message" : "一度に取得するツイート数（オートページャ）"
+    },
+    "prefLabelUpdateAutoreload" : {
+        "message" : "自動更新"
+    },
+    "prefAutoreload_time" : {
+        "message" : "自動更新が有効なカラムを次の時間毎に更新する [秒]"
+    },
+    "prefAutosearch_time" : {
+        "message" : "ただし、検索カラムは次の時間毎に更新する [秒]"
+    },
+    "prefAutoreload_aftertweet" : {
+        "message" : "ツイート投稿後にそのアカウントのタイムラインを更新する"
+    },
+    "prefAutoreload_totop" : {
+        "message" : "カラムの最上部を維持する"
+    },
+    "prefLabelExtra" : {
+        "message" : "追加機能"
+    },
+    "prefLabelExtraMute" : {
+        "message" : "ミュート"
+    },
+    "prefMute_onsearch" : {
+        "message" : "ミュート設定したユーザのツイートを検索カラムでも表示しない"
+    },
+    "prefMute_ts" : {
+        "message" : "Twit Side独自ミュート機能を有効にする"
+    },
+    "prefLabelExtraMultiuser" : {
+        "message" : "マルチアカウント"
+    },
+    "prefAutoUserSelection" : {
+        "message" : "異なるアカウントのカラムを選択したときに、自動的にそのアカウントに切り替える"
+    },
+    "prefLabelStyle" : {
+        "message" : "スタイル"
+    },
+    "prefLabelStyleRestart_required" : {
+        "message" : "既に読み込んだツイートに反映するには、Firefoxを再起動する必要があります"
+    },
+    "prefLabelStyleDesign" : {
+        "message" : "デザイン"
+    },
+    "prefTheme" : {
+        "message" : "テーマ"
+    },
+    "prefColor_retweets" : {
+        "message" : "リツイートの背景色を変える"
+    },
+    "prefScreenname_first" : {
+        "message" : "スクリーンネーム (ユーザ名) の順で表示する"
+    },
+    "prefCircle_icon" : {
+        "message" : "ユーザアイコンを丸くする"
+    },
+    "prefLabelStyleTimestamp" : {
+        "message" : "タイムスタンプ"
+    },
+    "prefTimeSample" : {
+        "message" : "表示サンプル："
+    },
+    "prefTimeLocale" : {
+        "message" : "日時の表示形式"
+    },
+    "prefTimeLocaleDefault" : {
+        "message" : "Firefox標準（他の設定の影響を受けません）"
+    },
+    "prefTimeDate" : {
+        "message" : "日付の省略"
+    },
+    "prefTimeDateYear" : {
+        "message" : "省略しない（年＋月＋日）"
+    },
+    "prefTimeDateMonth" : {
+        "message" : "年を省略する（月＋日）"
+    },
+    "prefTimeDateDay" : {
+        "message" : "年月を省略する（日）"
+    },
+    "prefTimeWeekday" : {
+        "message" : "曜日を表示する"
+    },
+    "prefTimeHour12" : {
+        "message" : "12時間表記にする"
+    },
+    "prefTimeSec" : {
+        "message" : "秒を表示する"
+    },
+    "prefLabelStyleUrl" : {
+        "message" : "URL"
+    },
+    "prefExURL" : {
+        "message" : "短縮URLを展開する"
+    },
+    "prefExURL_cut" : {
+        "message" : "展開したURLをTwitter公式と同様省略する"
+    },
+    "prefURL_tabactive" : {
+        "message" : "開いたタブをアクティブにする"
+    },
+    "prefLabelStylePhoto" : {
+        "message" : "画像表示"
+    },
+    "prefViewthumbnail" : {
+        "message" : "サムネイル画像を表示する"
+    },
+    "prefPopup_photo" : {
+        "message" : "画像を別ダイアログで表示する（チェックを外すと画像URLをタブで開きます）"
+    },
+    "prefLabelStyleMisc" : {
+        "message" : "その他"
+    },
+    "prefViewsource" : {
+        "message" : "ツイートに投稿ソースを表示する"
+    },
+    "prefLinefeed" : {
+        "message" : "改行を反映する"
+    },
+    "prefAnimation" : {
+        "message" : "アニメーションを有効にする"
+    },
+    "prefLabelScale" : {
+        "message" : "スケール"
+    },
+    "prefLabelScaleMinwidth" : {
+        "message" : "最小幅"
+    },
+    "prefLabelScaleMinwidth_notice" : {
+        "message" : "この値で、表示できるカラム数が変わります"
+    },
+    "prefColumn_minwidth" : {
+        "message" : "カラムの最小幅 [ピクセル]"
+    },
+    "prefLabelScaleSize" : {
+        "message" : "サイズ"
+    },
+    "prefLabelScaleFontsize_notice" : {
+        "message" : "フォントサイズが小さくならない場合は、Firefoxの最小フォントサイズ設定を確認して下さい"
+    },
+    "prefFont_size" : {
+        "message" : "フォントサイズ（標準12） [ピクセル]"
+    },
+    "prefIcon_size" : {
+        "message" : "アイコンサイズ"
+    },
+    "prefButton_size" : {
+        "message" : "ボタンサイズ"
+    },
+    "prefLabelNotification" : {
+        "message" : "通知"
+    },
+    "prefLabelNotificationTurnonnotif" : {
+        "message" : "カラムの設定で通知機能を有効にしてください"
+    },
+    "prefNotif_all" : {
+        "message" : "すべてのツイートを通知する（ポップアップのみ）"
+    },
+    "prefNotif_forme" : {
+        "message" : "あなた宛のツイートが届いたことを通知する"
+    },
+    "prefNotif_directmessage" : {
+        "message" : "ダイレクトメッセージが届いたことを通知する"
+    },
+    "prefNotif_count" : {
+        "message" : "1ページに表示する通知の件数"
+    },
+    "prefLabelTweetmenu" : {
+        "message" : "ツイートメニュー"
+    },
+    "prefLabelTweetmenuContextmenu" : {
+        "message" : "右クリック"
+    },
+    "prefLabelTweetmenuFortypist" : {
+        "message" : "ツイートのアイコンをクリックする以外に、キーボードによる操作をする方向け"
+    },
+    "prefMenu_reply" : {
+        "message" : "「返信」メニューを表示する"
+    },
+    "prefMenu_favorite" : {
+        "message" : "「お気に入り」メニューを表示する"
+    },
+    "prefMenu_conversation" : {
+        "message" : "「会話を表示」メニューを表示する"
+    },
+    "prefMenu_url" : {
+        "message" : "URLメニューを表示する"
+    },
+    "prefLabelTweetmenuHovermenu" : {
+        "message" : "ホバーメニュー"
+    },
+    "prefLabelTweetmenuUpto2menu" : {
+        "message" : "2つまでショートカットを追加出来ます（合計4つまで）"
+    },
+    "prefLabelTweetmenuDraggable" : {
+        "message" : "ドラッグでメニューの順序を変更できます"
+    },
+    "prefHover_retweet" : {
+        "message" : "リツイート"
+    },
+    "prefHover_quote" : {
+        "message" : "引用リツイート"
+    },
+    "prefHover_rt" : {
+        "message" : "引用RT"
+    },
+    "prefHover_showtext" : {
+        "message" : "ツイートテキストを選択"
+    },
+    "prefHover_opentweeturl" : {
+        "message" : "ツイートをタブ開く"
+    },
+    "prefHover_replyall" : {
+        "message" : "返信 / 全員に返信"
+    },
+    "prefHover_favorite" : {
+        "message" : "お気に入り / お気に入り取消（必須）"
+    },
+    "prefHover_showreply" : {
+        "message" : "会話を表示（必須）"
+    },
+    "prefLabelConfirm" : {
+        "message" : "確認画面"
+    },
+    "prefConfirm_tweet" : {
+        "message" : "Ctrl+Enterでツイートするときに確認画面を表示する"
+    },
+    "prefConfirm_retweet" : {
+        "message" : "リツイートするときに確認画面を表示する"
+    },
+    "prefConfirm_favorite" : {
+        "message" : "お気に入りに追加/削除するときに確認画面を表示する"
+    },
+    "prefConfirm_delete" : {
+        "message" : "ツイート/リストを削除するときに確認画面を表示する"
+    },
+    "prefConfirm_follow" : {
+        "message" : "ユーザをフォロー/アンフォローするときに確認画面を表示する"
+    },
+    "prefConfirm_mute" : {
+        "message" : "ユーザをミュート/アンミュートするときに確認画面を表示する"
+    },
+    "prefConfirm_block" : {
+        "message" : "ユーザをブロック/アンブロックするときに確認画面を表示する"
+    },
+    "prefConfirm_noretweet" : {
+        "message" : "ユーザのリツイート非表示/表示するときに確認画面を表示する"
+    },
+    "prefConfirm_deletecolumn" : {
+        "message" : "カラムを削除するときに確認画面を表示する"
+    }
+
+}
