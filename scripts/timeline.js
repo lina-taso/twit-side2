@@ -118,24 +118,63 @@ class Timeline {
         return this.record.ids.slice();
     }
     // 1ツイート取得
-    tweetInfo(id) {
-        const idPath  = id.split('_'),
-              isMore  = /_more$/.test(id),
-              isQuote = /_inline_/.test(id),
-              isReply = /_reply_/.test(id);
+    tweetInfo(boxid) {
+        const idPath  = boxid.split('_'),
+              isMore  = /_more$/.test(boxid),
+              isQuote = /_inline_/.test(boxid),
+              isReply = /_reply_/.test(boxid);
 
+        // morebox
         if (isMore) {
-            return JSON.parse(JSON.stringify(this.record.data[id]));
+            const idx    = this.record.ids.indexOf(boxid),
+                  nextid = this.record.ids[idx+1] != null
+                  ? this.record.ids[idx+1] : null;
+            return {
+                tweetinfo : JSON.parse(JSON.stringify(this.record.data[boxid])),
+                nextid    : nextid
+            };
         }
         else if (isQuote) {
-            return isReply
-                ? JSON.parse(JSON.stringify(this.record.data[idPath[0]].quoted.replies.filter(reply => reply.meta.boxid === id)[0]))
-                : JSON.parse(JSON.stringify(this.record.data[idPath[0]].quoted));
+            // reply of quoted tweet
+            if (isReply) {
+                const idx    = this.record.data[idPath[0]].quoted.replies.findIndex(reply => reply.meta.boxid === boxid),
+                      nextid = this.record.data[idPath[0]].quoted.replies[idx+1] != null
+                      ? this.record.data[idPath[0]].quoted.replies[idx+1]
+                      : null;
+                return {
+                    tweetinfo : JSON.parse(JSON.stringify(this.record.data[idPath[0]].quoted.replies[idx])),
+                    nextid    : nextid
+                };
+            }
+            // quoted tweet
+            else
+                return {
+                    tweetinfo : JSON.parse(JSON.stringify(this.record.data[idPath[0]].quoted)),
+                    nextid    : null
+                };
         }
         else {
-            return isReply
-                ? JSON.parse(JSON.stringify(this.record.data[idPath[0]].replies.filter(reply => reply.meta.boxid === id)[0]))
-                : JSON.parse(JSON.stringify(this.record.data[idPath[0]]));
+            // reply
+            if (isReply) {
+                const idx    = this.record.data[idPath[0]].replies.findIndex(reply => reply.meta.boxid === boxid),
+                      nextid = this.record.data[idPath[0]].replies[idx+1] != null
+                      ? this.record.data[idPath[0]].replies[idx+1]
+                      : null;
+                return {
+                    tweetinfo : JSON.parse(JSON.stringify(this.record.data[idPath[0]].replies[idx])),
+                    nextid    : nextid
+                };
+            }
+            // tweet
+            else {
+                const idx    = this.record.ids.indexOf(boxid),
+                      nextid = this.record.ids[idx+1] != null
+                      ? this.record.ids[idx+1] : null;
+                return {
+                    tweetinfo : JSON.parse(JSON.stringify(this.record.data[boxid])),
+                    nextid    : nextid
+                };
+            }
         }
     }
     // タイムラインオプション
@@ -227,19 +266,10 @@ class Timeline {
               : (result.data.length > 5);
 
         // 受信データを登録
-        const tweets = await this._saveTweets(result.data, more, notif),
-              nextid = (() => {
-                  // 最後のIDの次を検索
-                  if (tweets.length) {
-                      const lastidx = this.record.ids.indexOf(tweets[tweets.length-1]);
-                      if (lastidx >= 0) return this.record.ids[lastidx+1];
-                  }
-                  return null;
-              })();
+        const tweets = await this._saveTweets(result.data, more, notif);
         await TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.TWEET_LOADED,
             tweets   : tweets,
-            nextid   : nextid,
             tl_type  : this._tl_type,
             columnid : this._columnid,
             keep_position : true
@@ -377,19 +407,10 @@ class Timeline {
               : (result.data.length > 5);
 
         // 受信データを登録
-        const tweets = await this._saveTweets(result.data, more),
-              nextid = (() => {
-                  // 最後のIDの次を検索
-                  if (tweets.length) {
-                      const lastidx = this.record.ids.indexOf(tweets[tweets.length-1]);
-                      if (lastidx >= 0) return this.record.ids[lastidx + 1];
-                  }
-                  return null;
-              })();
+        const tweets = await this._saveTweets(result.data, more);
         await TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.TWEET_LOADED,
             tweets   : tweets,
-            nextid   : nextid,
             tl_type  : this._tl_type,
             columnid : this._columnid
         }, null, this._win_type);
@@ -569,66 +590,58 @@ class Timeline {
             }, null, this._win_type);
         }
     }
-    async replies(tweetid, parentid, replyid) {
+    async replies(boxid, replyid) {
         const error = (result) => {
             this._reportError(result);
             return Promise.reject();
         };
 
-        let target_id, target_replies;
+        const idPath      = boxid.split('_'),
+              isQuote     = /_inline_/.test(boxid),
+              parentTweet = this.record.data[idPath[0]];
+
+        let targetReplies;
 
         // 最初のツイート
         if (!replyid) {
             // 引用ツイートの会話
-            if (parentid) {
-                // 保存先
-                target_id      = this.record.data[parentid].quoted.meta.boxid+'_reply_';
-                target_replies = this.record.data[parentid].quoted.replies = [];
-
-                if (!this.record.data[parentid].raw.retweeted_status)
-                    replyid = this.record.data[parentid].raw.quoted_status.in_reply_to_status_id_str;
-                else
-                    replyid = this.record.data[parentid].raw.retweeted_status.quoted_status
-                    .in_reply_to_status_id_str;
+            if (isQuote) {
+                targetReplies = parentTweet.quoted.replies = [];
+                replyid = parentTweet.raw.retweeted_status
+                    ? parentTweet.raw.retweeted_status.quoted_status.in_reply_to_status_id_str
+                    : parentTweet.raw.quoted_status.in_reply_to_status_id_str;
             }
             // 通常ツイートの会話
             else {
-                // 保存先
-                target_id      = this.record.data[tweetid].meta.boxid+'_reply_';
-                target_replies = this.record.data[tweetid].replies = [];
-
-                if (!this.record.data[tweetid].raw.retweeted_status)
-                    replyid = this.record.data[tweetid].raw.in_reply_to_status_id_str;
-                else
-                    replyid = this.record.data[tweetid].raw.retweeted_status.in_reply_to_status_id_str;
+                targetReplies = parentTweet.replies = [];
+                replyid = parentTweet.raw.retweeted_status
+                    ? parentTweet.raw.retweeted_status.in_reply_to_status_id_str
+                    : parentTweet.raw.in_reply_to_status_id_str;
             }
         }
+        // リプライ2つめ以降
         else
-            target_id      = parentid
-            ? this.record.data[parentid].quoted.meta.boxid+'_reply_'
-            : this.record.data[tweetid].meta.boxid+'_reply_';
-            target_replies = parentid
-            ? this.record.data[parentid].quoted.replies
-            : this.record.data[tweetid].replies;
+            targetReplies = isQuote
+            ? parentTweet.quoted.replies
+            : parentTweet.replies;
 
-        const result = await this._tweet.show({ id : replyid }).catch(error);
+        const result   = await this._tweet.show({ id : replyid }).catch(error);
 
-        target_replies.push({
-            meta : this._getMetadata(result.data, target_id + result.data.id_str),
+        const targetId = boxid + '_reply_' + this._zeroFillId(result.data);
+        targetReplies.push({
+            meta : this._getMetadata(result.data, targetId),
             raw  : result.data
         });
         await TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.REPLY_LOADED,
-            tweetid  : tweetid,
-            parentid : parentid,
-            index    : target_replies.length - 1,
+            boxid    : targetId,
             tl_type  : this._tl_type,
             columnid : this._columnid
         }, null, this._win_type);
 
         // 続きを読み込み
         if (result.data.in_reply_to_status_id_str)
-            await this.replies(tweetid, parentid, result.data.in_reply_to_status_id_str);
+            await this.replies(boxid, result.data.in_reply_to_status_id_str);
     }
     async destroy(tweetid, parentid) {
         const error = (result) => {
@@ -1430,19 +1443,10 @@ class DmTimeline extends Timeline {
         const more = result.more;
 
         // 受信データを登録
-        const tweets = await this._saveTweets(result.data, more, notif),
-              nextid = (() => {
-                  // 最後のIDの次を検索
-                  if (tweets.length) {
-                      const lastidx = this.record.ids.indexOf(tweets[tweets.length-1]);
-                      if (lastidx >= 0) return this.record.ids[lastidx+1];
-                  }
-                  return null;
-              })();
+        const tweets = await this._saveTweets(result.data, more, notif);
         await TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.TWEET_LOADED,
             tweets   : tweets,
-            nextid   : nextid,
             tl_type  : this._tl_type,
             columnid : this._columnid,
             keep_position : true
@@ -1779,19 +1783,10 @@ class ListTimeline extends Timeline {
         const more = result.more;
 
         // 受信データを登録
-        const tweets = await this._saveTweets(result.data, more, notif),
-              nextid = (() => {
-                  // 最後のIDの次を検索
-                  if (tweets.length) {
-                      const lastidx = this.record.ids.indexOf(tweets[tweets.length-1]);
-                      if (lastidx >= 0) return this.record.ids[lastidx+1];
-                  }
-                  return null;
-              })();
+        const tweets = await this._saveTweets(result.data, more, notif);
         await TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.TWEET_LOADED,
             tweets   : tweets,
-            nextid   : nextid,
             tl_type  : this._tl_type,
             columnid : this._columnid,
             keep_position : true
@@ -2198,19 +2193,10 @@ class FriendTimeline extends Timeline {
         const more = result.more;
 
         // 受信データを登録
-        const tweets = await this._saveTweets(result.data, more, notif),
-              nextid = (() => {
-                  // 最後のIDの次を検索
-                  if (tweets.length) {
-                      const lastidx = this.record.ids.indexOf(tweets[tweets.length-1]);
-                      if (lastidx >= 0) return this.record.ids[lastidx+1];
-                  }
-                  return null;
-              })();
+        const tweets = await this._saveTweets(result.data, more, notif);
         await TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.TWEET_LOADED,
             tweets   : tweets,
-            nextid   : nextid,
             tl_type  : this._tl_type,
             columnid : this._columnid,
             keep_position : true

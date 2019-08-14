@@ -90,7 +90,7 @@ const initialize = () => {
                            'timeline',
                            parseInt(searchParams.win_type));
 
-    photos = tl.tweetInfo(searchParams.boxid).meta.pics;
+    photos = tl.tweetInfo(searchParams.boxid).tweetinfo.meta.pics;
 
     // 写真を追加
     for (let i=0; i<photos.length; i++) {

@@ -306,14 +306,11 @@ const UI = {
             return UI._showTweets(data.tl_type,
                                   data.columnid,
                                   data.tweets,
-                                  data.nextid,
                                   data.keep_position);
         case TwitSideModule.UPDATE.REPLY_LOADED:
             return UI._showReply(data.tl_type,
                                  data.columnid,
-                                 data.tweetid,
-                                 data.parentid,
-                                 data.index);
+                                 data.boxid);
         case TwitSideModule.UPDATE.PROGRESS:
             showProgressbar(data.data);
             break;
@@ -370,7 +367,7 @@ const UI = {
      * ツイート操作
      */
     // ツイートを表示
-    _showTweets : function(type, columnid, tweets, nextid, keep) {
+    _showTweets : function(type, columnid, tweets, keep) {
         if (!tweets.length) return;
         let offsetBottom, keepTop;
         const timelineBox = $('#'+columnid).children('.timelineBox')[0],
@@ -392,16 +389,14 @@ const UI = {
 
         // 小さいID（古いツイート・逆）順にinsertbefore
         for (let id of tweets.slice().reverse()) {
-            const box   = document.getElementById(columnid+'_'+id);
-            let nextBox = nextid
-                ? document.getElementById(columnid+'_'+nextid)
-                : null;
+            const box     = document.getElementById(columnid+'_'+id),
+                  datum   = tl.tweetInfo(id),
+                  nextbox = datum.nextid
+                  ? document.getElementById(columnid+'_'+datum.nextid)
+                  : null;
 
             // 存在する場合はツイートを置換（削除→追加）
-            if (box) {
-                nextBox = box.nextSibling;
-                $(box).remove();
-            }
+            if (box) $(box).remove();
 
             // ツイートを挿入
             switch (type) {
@@ -409,16 +404,16 @@ const UI = {
             case TwitSideModule.TL_TYPE.TEMP_DIRECTMESSAGE:
                 timelineBox.insertBefore(
                     this._createDmTweetBox(
-                        type, tl.tweetInfo(id), columnid, false
-                    ), nextBox
+                        type, datum.tweetinfo, columnid, false
+                    ), nextbox
                 );
                 break;
             case TwitSideModule.TL_TYPE.TEMP_FOLLOW:
             case TwitSideModule.TL_TYPE.TEMP_FOLLOWER:
                 timelineBox.insertBefore(
                     this._createFriendTweetBox(
-                        type, tl.tweetInfo(id), columnid
-                    ), nextBox
+                        type, datum.tweetinfo, columnid
+                    ), nextbox
                 );
                 break;
             case TwitSideModule.TL_TYPE.TEMP_MUTE:
@@ -428,8 +423,8 @@ const UI = {
             case TwitSideModule.TL_TYPE.TEMP_LISTSUBSCRIBER:
                 timelineBox.insertBefore(
                     this._createUserListBox(
-                        type, tl.tweetInfo(id), columnid
-                    ), nextBox
+                        type, datum.tweetinfo, columnid
+                    ), nextbox
                 );
                 break;
             case TwitSideModule.TL_TYPE.TEMP_OWNERSHIPLISTS:
@@ -437,20 +432,17 @@ const UI = {
             case TwitSideModule.TL_TYPE.TEMP_MEMBERSHIPLISTS:
                 timelineBox.insertBefore(
                     this._createListTweetBox(
-                        type, tl.tweetInfo(id), columnid
-                    ), nextBox
+                        type, datum.tweetinfo, columnid
+                    ), nextbox
                 );
                 break;
             default:
                 timelineBox.insertBefore(
                     UI._createTweetBox(
-                        type, tl.tweetInfo(id), columnid, null
-                    ), nextBox
+                        type, datum.tweetinfo, columnid, null
+                    ), nextbox
                 );
             }
-
-            // nextid更新
-            nextid = id;
         }
 
         // 挿入後にスクロール位置修正
@@ -463,27 +455,26 @@ const UI = {
     },
 
     // リプライを表示
-    _showReply : function(type, columnid, tweetid, parentid, index) {
-        const boxid      = parentid
-              ? parentid+'_inline_'+tweetid
-              : tweetid,
-              tweetboxid = '#'+columnid+'_'+boxid,
-              $replyBox  = $(tweetboxid).find('.replyTweetBox').last(),
-              $replies   = $replyBox.find('> .replies'),
-              tl         = TwitSideModule.ManageColumns.getTimelineInfo(
-                  TwitSideModule.ManageColumns.searchTimeline({ id : columnid }, this._win_type),
-                  'timeline',
-                  this._win_type
+    _showReply : function(type, columnid, boxid) {
+        const parentboxid = '#'+columnid+'_'+boxid.split('_reply_')[0],
+              $replyBox   = $(parentboxid).find('.replyTweetBox').last(),
+              tl          = TwitSideModule.ManageColumns.getTimelineInfo(
+                  TwitSideModule.ManageColumns.searchTimeline(
+                      { id : columnid },
+                      this._win_type
+                  ), 'timeline', this._win_type
               ),
-              reply      = tl.tweetInfo(boxid).replies[index];
+              datum      = tl.tweetInfo(boxid);
 
         // 閉じられているときは表示しない
         if ($replyBox.attr('data-reply-open') != 'true') return;
 
         // リプライは機能制限
-        const $reply =  $(this._createTweetBox(type, reply, columnid, null));
+        const $reply = $(this._createTweetBox(
+            type, datum.tweetinfo, columnid, null
+        ));
         $reply.children('.tweetContent').children().remove(':not(.tweetMainContent)');
-        $replies.append($reply);
+        $replyBox.find('> .replies').append($reply);
     },
 
     // サムネイル更新
@@ -494,7 +485,7 @@ const UI = {
                   'timeline',
                   this._win_type
               ),
-              pic       = tl.tweetInfo(boxid).meta.pics[index];
+              pic       = tl.tweetInfo(boxid).tweetinfo.meta.pics[index];
 
         $thumbimg.attr({
             src            : pic.thumburl,
@@ -534,17 +525,17 @@ const UI = {
             return $('<span>' + source.replace(/&/g, '&amp;') + '</span>').text();
         };
 
-        const boxid = columnid+'_'+record.meta.boxid;
+        const fullboxid = columnid+'_'+record.meta.boxid;
 
         // more
-        if (/_more$/.test(boxid)) {
+        if (/_more$/.test(fullboxid)) {
             return this.$tweetMoreBoxTemplate.clone().attr({
-                    id            : boxid,
+                    id            : fullboxid,
                     'data-origid' : record.raw.id_str
                 })[0];
         }
 
-        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', boxid),
+        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
               $tweetContent = $tweetBox.children('.tweetContent').eq(0),
               $tweetInline  = $tweetContent.children('.inlineTweetBox').eq(0);
 
@@ -718,7 +709,7 @@ const UI = {
             icon : 'fa-external-link'
         };
         // 会話
-        if (!/_reply_/.test(boxid) && record.raw.retweeted_status
+        if (!/_reply_/.test(fullboxid) && record.raw.retweeted_status
             ? record.raw.retweeted_status.in_reply_to_status_id_str
             : record.raw.in_reply_to_status_id_str) {
 
@@ -891,18 +882,18 @@ const UI = {
 
     // リスト用
     _createListTweetBox : function(type, record, columnid) {
-        const boxid = columnid+'_'+record.meta.boxid;
+        const fullboxid = columnid+'_'+record.meta.boxid;
 
         // more
-        if (/_more$/.test(boxid)) {
+        if (/_more$/.test(fullboxid)) {
             return this.$tweetMoreBoxTemplate.clone()
                 .attr({
-                    id            : boxid,
+                    id            : fullboxid,
                     'data-origid' : record.raw.id_str
                 })[0];
         }
 
-        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', boxid),
+        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
               $tweetContent = $tweetBox.children('.tweetContent').eq(0),
               $tweetInline  = $tweetContent.children('.inlineTweetBox').eq(0),
               recordStatus  = record.raw;
@@ -1000,18 +991,18 @@ const UI = {
 
     // フォロー、フォロワー用
     _createFriendTweetBox : function(type, record, columnid) {
-        const boxid = columnid+'_'+record.meta.boxid;
+        const fullboxid = columnid+'_'+record.meta.boxid;
 
         // more
-        if (/_more$/.test(boxid)) {
+        if (/_more$/.test(fullboxid)) {
             return this.$tweetMoreBoxTemplate.clone()
                 .attr({
-                    id            : boxid,
+                    id            : fullboxid,
                     'data-origid' : record.raw.id_str
                 })[0];
         }
 
-        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', boxid),
+        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
               $tweetContent = $tweetBox.children('.tweetContent').eq(0),
               recordStatus  = record.raw;
 
@@ -1044,18 +1035,18 @@ const UI = {
 
     // ダイレクトメッセージ用
     _createDmTweetBox : function(type, record, columnid, inline) {
-        const boxid = columnid+'_'+record.meta.boxid;
+        const fullboxid = columnid+'_'+record.meta.boxid;
 
         // more
-        if (/_more$/.test(boxid)) {
+        if (/_more$/.test(fullboxid)) {
             return this.$tweetMoreBoxTemplate.clone()
                 .attr({
-                    id            : boxid,
+                    id            : fullboxid,
                     'data-origid' : record.raw.id_str
                 })[0];
         }
 
-        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', boxid),
+        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
               $tweetContent = $tweetBox.children('.tweetContent').eq(0),
               $tweetInline  = $tweetContent.children('.inlineTweetBox').eq(0),
               recordStatus  = record.raw;
@@ -1196,18 +1187,18 @@ const UI = {
 
     // mute, block, noretweet用
     _createUserListBox : function(type, record, columnid) {
-        const boxid = columnid+'_'+record.meta.boxid;
+        const fullboxid = columnid+'_'+record.meta.boxid;
 
         // more
-        if (/_more$/.test(boxid)) {
+        if (/_more$/.test(fullboxid)) {
             return this.$tweetMoreBoxTemplate.clone()
                 .attr({
-                    id            : boxid,
+                    id            : fullboxid,
                     'data-origid' : record.raw.id_str
                 })[0];
         }
 
-        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', boxid),
+        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
               $tweetContent = $tweetBox.children('.tweetContent').eq(0),
               recordStatus  = record.raw;
 
@@ -1862,7 +1853,7 @@ const onClickQuote = async (tweetBox, tweetinfo, userid) => {
             'timeline',
             UI._win_type
         );
-        tweetinfo = tl.tweetInfo(boxid);
+        tweetinfo = tl.tweetInfo(boxid).tweetinfo;
         userid = tl.userid;
     }
 
@@ -1956,7 +1947,7 @@ const onClickReply = async (tweetBox, tweetinfo, userid) => {
             'timeline',
             UI._win_type
         );
-        tweetinfo = tl.tweetInfo(boxid);
+        tweetinfo = tl.tweetInfo(boxid).tweetinfo;
         userid = tl.userid;
     }
 
@@ -1992,7 +1983,7 @@ const onClickReplyall = (tweetBox, tweetinfo, userid) => {
             'timeline',
             UI._win_type
         );
-        tweetinfo = tl.tweetInfo(boxid);
+        tweetinfo = tl.tweetInfo(boxid).tweetinfo;
         userid = tl.userid;
     }
 
@@ -2055,7 +2046,7 @@ const onClickShowreply = (tweetBox) => {
         getColumnIndexFromBox(tweetBox),
         'timeline',
         UI._win_type
-    ).replies(tweetBox.dataset.tweetid, tweetBox.dataset.parentid);
+    ).replies(tweetBox.id.replace(/^[a-zA-Z]{5}_/, '')); // columnidを除去
 
     $replyBox.attr('data-reply-open', 'true');
 };
