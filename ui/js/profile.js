@@ -676,14 +676,14 @@ const onAcceptForAddList = async () => {
 
     switch (type) {
     case 'add':
-        await TwitSideModule.ManageColumns.getTimeline(4, 'timeline', UI._win_type).createList(listinfo);
+        await TwitSideModule.ManageColumns.getTimelineInfo(4, 'timeline', UI._win_type).createList(listinfo);
         addListContainerToggle(false);
         loadNewer(4);
         break;
     case 'edit':
         listinfo.list_id = $('#addListContainer').attr('data-listid');
 
-        await TwitSideModule.ManageColumns.getTimeline(4, 'timeline', UI._win_type).updateList(listinfo);
+        await TwitSideModule.ManageColumns.getTimelineInfo(4, 'timeline', UI._win_type).updateList(listinfo);
         addListContainerToggle(false);
         loadNewer(4);
         break;
@@ -736,7 +736,7 @@ const onClickShowSubscribers = (vbox) => {
 
 // リストの購読
 const onClickSubscribe = (vbox) => {
-    TwitSideModule.ManageColumns.getTimeline(
+    TwitSideModule.ManageColumns.getTimelineInfo(
         getColumnIndexFromBox(vbox),
         'timeline',
         UI._win_type
@@ -745,7 +745,7 @@ const onClickSubscribe = (vbox) => {
 
 // リストの購読解除
 const onClickUnsubscribe = (vbox) => {
-    TwitSideModule.ManageColumns.getTimeline(
+    TwitSideModule.ManageColumns.getTimelineInfo(
         getColumnIndexFromBox(vbox),
         'timeline',
         UI._win_type
