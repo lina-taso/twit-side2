@@ -1509,7 +1509,7 @@ input[type="text"], textarea, select {
         align-items: center;
 
         @at-root .tweetRetweeterImage {
-            flex-shrink: 1;
+            flex-shrink: 0;
             width: 16px;
             height: 16px;
             cursor: pointer;

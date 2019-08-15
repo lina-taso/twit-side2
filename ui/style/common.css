@@ -2624,7 +2624,7 @@ input[type="text"], textarea, select {
     display: flex;
     align-items: center; }
     .tweetRetweeterImage {
-      flex-shrink: 1;
+      flex-shrink: 0;
       width: 16px;
       height: 16px;
       cursor: pointer; }
