@@ -1878,8 +1878,6 @@ class ListTimeline extends Timeline {
             columnid : this._columnid
         }, null, this._win_type);
 
-        await this._removeTweets([moreid]);
-
         // 状態遷移
         this._state2 = TwitSideModule.TL_STATE.STOPPED;
         TwitSideModule.windows.sendMessage({
@@ -2049,7 +2047,6 @@ class ListTimeline extends Timeline {
     // ツイートを保存して変更があったid一覧を返す
     async _saveTweets(data, more, notif) {
         // 更新したツイートID
-        let lastidx = null;
         const tweets = [];
 
         for (let datum of data) {
@@ -2072,16 +2069,17 @@ class ListTimeline extends Timeline {
             // 更新データ（取得順）
             tweets.push(target_id);
         }
-        lastidx = this.record.ids.length+1;
+
+        const moreid = NINE_FILL + '_more';
+        await this._removeTweets([moreid]);
 
         // more格納
-        if (more && data.length) {
-            const moreid = data[data.length-1].id_str + '_more';
+        if (more) {
             this.record.data[moreid] = {
                 meta : { boxid : moreid },
                 raw  : { id_str : moreid }
             };
-            this.record.ids.splice(lastidx, 0, moreid);
+            this.record.ids.push(moreid);
             tweets.push(moreid);
         }
         return tweets;
@@ -2287,8 +2285,6 @@ class FriendTimeline extends Timeline {
             tl_type  : this._tl_type,
             columnid : this._columnid
         }, null, this._win_type);
-
-        await this._removeTweets([moreid]);
 
         // 状態遷移
         this._state2 = TwitSideModule.TL_STATE.STOPPED;
@@ -2598,7 +2594,6 @@ class FriendTimeline extends Timeline {
     // ツイートを保存して変更があったid一覧を返す
     async _saveTweets(data, more, notif) {
         // 更新したツイートID
-        let lastidx = null;
         const tweets = [];
 
         for (let datum of data) {
@@ -2617,16 +2612,17 @@ class FriendTimeline extends Timeline {
             // 更新データ（取得順）
             tweets.push(target_id);
         }
-        lastidx = this.record.ids.length+1;
+
+        const moreid = NINE_FILL + '_more';
+        await this._removeTweets([moreid]);
 
         // more格納
-        if (more && data.length) {
-            const moreid = data[data.length-1].id_str + '_more';
+        if (more) {
             this.record.data[moreid] = {
                 meta : { boxid : moreid },
                 raw  : { id_str : moreid }
             };
-            this.record.ids.splice(lastidx, 0, moreid);
+            this.record.ids.push(moreid);
             tweets.push(moreid);
         }
         return tweets;
