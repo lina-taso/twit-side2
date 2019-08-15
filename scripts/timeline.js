@@ -495,13 +495,13 @@ class Timeline {
     /**
      * ツイート操作系
      */
-    async retweet(tweetid, parentid) {
+    async retweet(boxid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'retweet',
                 result   : 'failed',
-                id       : tweetid,
+                boxid    : boxid,
                 columnid : this._columnid,
                 message  : TwitSideModule.Message.transMessage(result)
             }, null, this._win_type);
@@ -518,14 +518,19 @@ class Timeline {
             return;
         }
 
-        const result = await this._tweet.retweet({}, tweetid).catch(error);
+        const idPath   = boxid.split('_'),
+              isQuote  = /_inline_/.test(boxid),
+              parentId = idPath[0],
+              targetId = idPath.pop();
+
+        const result = await this._tweet.retweet({}, targetId).catch(error);
 
         // アクション完了
         TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
             action   : 'retweet',
             result   : 'success',
-            id       : tweetid,
+            boxid    : boxid,
             columnid : this._columnid
         }, null, this._win_type);
 
@@ -535,7 +540,7 @@ class Timeline {
         await TwitSideModule.config.setPref('limit_retweet', JSON.stringify(limitHistory));
 
         // ツイート再読込
-        const result_show = await this._tweet.show({ id : parentid || tweetid });
+        const result_show = await this._tweet.show({ id : parentId });
 
         // 受信データを登録
         const tweets = await this._saveTweets([result_show.data]);
@@ -546,13 +551,13 @@ class Timeline {
             columnid : this._columnid
         }, null, this._win_type);
     }
-    async favorite(tweetid, sw, parentid) {
+    async favorite(boxid, sw) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : sw ? 'favorite' : 'unfavorite',
                 result   : 'failed',
-                id       : tweetid,
+                boxid    : boxid,
                 columnid : this._columnid,
                 message  : TwitSideModule.Message.transMessage(result)
             }, null, this._win_type);
@@ -560,25 +565,30 @@ class Timeline {
             return Promise.reject();
         };
 
+        const idPath   = boxid.split('_'),
+              isQuote  = /_inline_/.test(boxid),
+              parentId = idPath[0],
+              targetId = idPath.pop();
+
         const result = sw
-              ? await this._tweet.favorite({ id : tweetid }).catch(error)
-              : await this._tweet.unfavorite({ id : tweetid }).catch(error);
+              ? await this._tweet.favorite({ id : targetId }).catch(error)
+              : await this._tweet.unfavorite({ id : targetId }).catch(error);
 
         // アクション完了
         TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
             action   : sw ? 'favorite' : 'unfavorite',
             result   : 'success',
-            id       : tweetid,
+            boxid    : boxid,
             columnid : this._columnid
         }, null, this._win_type);
 
         if (this._tl_type === TwitSideModule.TL_TYPE.FAVORITE
             || this._tl_type === TwitSideModule.TL_TYPE.TEMP_FAVORITE)
-            await this._removeTweets([tweetid]);
+            await this._removeTweets([boxid]);
         else {
             // ツイート再読込
-            const result_show = await this._tweet.show({ id : parentid || tweetid });
+            const result_show = await this._tweet.show({ id : parentId });
 
             // 受信データを登録
             const tweets = await this._saveTweets([result_show.data]);
@@ -643,19 +653,28 @@ class Timeline {
         if (result.data.in_reply_to_status_id_str)
             await this.replies(boxid, result.data.in_reply_to_status_id_str);
     }
-    async destroy(tweetid, parentid) {
+    async destroy(boxid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'destroy',
                 result   : 'failed',
-                id       : tweetid,
+                boxid    : boxid,
                 columnid : this._columnid,
                 message  : TwitSideModule.Message.transMessage(result)
             }, null, this._win_type);
 
             return Promise.reject();
         };
+
+        const idPath   = boxid.split('_'),
+              isQuote  = /_inline_/.test(boxid),
+              parentId = idPath[0],
+              targetId = idPath.pop();
+
+        const targetTweet = isQuote
+              ? this.record.data[parentId].quoted
+              : this.record.data[parentId];
 
         // ツイート取得
         const callback_show = async (result) => {
@@ -667,14 +686,12 @@ class Timeline {
                     reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                     action   : 'destroy',
                     result   : 'success',
-                    id       : tweetid,
+                    boxid    : boxid,
                     columnid : this._columnid
                 }, null, this._win_type);
 
-                // 削除
-                await this._removeTweets([result_destroy.data.id_str]);
                 // リツイートされたツイートの再読込
-                const result_show = await this._tweet.show({ id : parentid || tweetid });
+                const result_show = await this._tweet.show({ id : parentId });
 
                 // 受信データを登録
                 const tweets = await this._saveTweets([result_show.data]);
@@ -684,6 +701,38 @@ class Timeline {
                     tl_type  : this._tl_type,
                     columnid : this._columnid
                 }, null, this._win_type);
+            }
+        };
+        // ツイート取得
+        const callback_show_mine = async (result) => {
+            // リツイートしたことが確認出来た
+            if (result.data.current_user_retweet) {
+                const result_destroy = await this._tweet.destroy({ }, result.data.current_user_retweet.id_str);
+                // アクション完了
+                TwitSideModule.windows.sendMessage({
+                    reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
+                    action   : 'destroy',
+                    result   : 'success',
+                    boxid    : boxid,
+                    columnid : this._columnid
+                }, null, this._win_type);
+
+                if (isQuote) {
+                    // 引用元ツイートの再読込
+                    const result_show = await this._tweet.show({ id : parentId });
+
+                    // 受信データを登録
+                    const tweets = await this._saveTweets([result_show.data]);
+                    await TwitSideModule.windows.sendMessage({
+                        reason   : TwitSideModule.UPDATE.REPLACE_LOADED,
+                        tweets   : tweets,
+                        tl_type  : this._tl_type,
+                        columnid : this._columnid
+                    }, null, this._win_type);
+                }
+                else
+                    // 削除
+                    await this._removeTweets([targetId]);
             }
         };
         // 自分のツイートを削除
@@ -693,15 +742,13 @@ class Timeline {
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'destroy',
                 result   : 'success',
-                id       : tweetid,
+                boxid    : boxid,
                 columnid : this._columnid
             }, null, this._win_type);
 
-            // 削除
-            await this._removeTweets([tweetid]);
-            // 引用元ツイートの再読込
-            if (parentid) {
-                const result_show = await this._tweet.show({ id : parentid });
+            if (isQuote) {
+                // 引用元ツイートの再読込
+                const result_show = await this._tweet.show({ id : parentId });
 
                 // 受信データを登録
                 const tweets = await this._saveTweets([result_show.data]);
@@ -712,97 +759,76 @@ class Timeline {
                     columnid : this._columnid
                 }, null, this._win_type);
             }
+            else
+                // 削除
+                await this._removeTweets([targetId]);
         };
 
-        // IDが無い場合削除判断できない
-        if (this.record.ids.indexOf(tweetid) < 0)
-            return;
-
-        // parentidがない時
-        else if (!parentid) {
-            // リツイート元ツイートの場合はリツイートしたIDを確認
-            if (this.record.data[tweetid].raw.retweeted
-                && !this.record.data[tweetid].raw.retweeted_status)
-                callback_show(await this._tweet.show({
-                    id : this.record.data[tweetid].raw.id_str,
+        if (targetTweet.meta.isMine) {
+            // リツイート
+            if (targetTweet.raw.retweeted
+                && targetTweet.raw.retweeted_status)
+                callback_show_mine(await this._tweet.show({
+                    id : targetTweet.raw.retweeted_status.id_str,
                     include_my_retweet : 'true'
                 }).catch(error));
-
-            // 自分のツイートはそのまま削除
-            else if (this.record.data[tweetid].meta.isMine)
-                callback_mine(await this._tweet.destroy({ }, tweetid).catch(error));
-        }
-        // parentidがある時
-        else if (parentid) {
-            // リツイート元ツイートの場合はリツイートしたIDを確認
-            if (this.record.data[parentid].raw.quoted_status.retweeted
-                && !this.record.data[parentid].raw.quoted_status.retweeted_status)
+            else if (targetTweet.raw.retweeted
+                     && !targetTweet.raw.retweeted_status)
                 callback_show(await this._tweet.show({
-                    id : this.record.data[parentid].raw.quoted_status.id_str,
+                    id : targetId,
                     include_my_retweet : 'true'
                 }).catch(error));
-
             // 自分のツイートはそのまま削除
-            else if (this.record.data[parentid].quoted.meta.isMine)
-                callback_mine(await this._tweet.destroy({ }, tweetid).catch(error));
+            else
+                callback_mine(await this._tweet.destroy({ }, targetId))
+                .catch(error);
         }
-
-        else
-            return;
+        else {
+            // リツイート
+            if (targetTweet.raw.retweeted)
+                callback_show(await this._tweet.show({
+                    id : targetTweet.raw.retweeted_status
+                        ? targetTweet.raw.retweeted_status.id_str
+                        : targetId,
+                    include_my_retweet : 'true'
+                }).catch(error));
+        }
     }
-    async retweeters(tweetid, parentid) {
+    async retweeters(boxid) {
         const error = (result) => {
             this._reportError(result);
             return Promise.reject();
         };
 
-        const origid = (() => {
-            // 通常ツイート
-            if (!parentid) {
-                return !this.record.data[tweetid].raw.retweeted_status
-                    ? this.record.data[tweetid].raw.id_str
-                    : this.record.data[tweetid].raw.retweeted_status.id_str;
-            }
-            // 引用ツイート
-            else {
-                return !this.record.data[parentid].raw.retweeted_status
-                    ? this.record.data[parentid].raw.quoted_status.id_str
-                    : this.record.data[parentid].raw.retweeted_status.quoted_status.id_str;
-            }
-        })();
+        const idPath   = boxid.split('_'),
+              isQuote  = /_inline_/.test(boxid),
+              parentId = idPath[0];
 
-        const result = await this._tweet.retweeters({ id : origid, count : 100 }).catch(error);
+        const targetTweet = isQuote
+              ? this.record.data[parentId].quoted
+              : this.record.data[parentId],
+              targetId    = targetTweet.raw.retweeted_status
+              ? targetTweet.raw.retweeted_status.id_str
+              : targetTweet.raw.id_str;
+
+        const result = await this._tweet.retweeters({ id : targetId, count : 100 }).catch(error);
 
         // メタデータ更新
-        if (!parentid) {
-            this.record.data[tweetid].meta.retweeters = [];
-
-            for (let rt of (result.data)) {
-                this.record.data[tweetid].meta.retweeters.push({
-                    src   : rt.user.profile_image_url_https,
-                    title : '@' + rt.user.screen_name
-                });
-            }
-        }
-        else {
-            this.record.data[parentid].quoted.meta.retweeters = [];
-
-            for (let rt of (result.data)) {
-                this.record.data[parentid].quoted.meta.retweeters.push({
-                    src   : rt.user.profile_image_url_https,
-                    title : '@' + rt.user.screen_name
-                });
-            }
+        targetTweet.meta.retweeters = [];
+        for (let rt of (result.data)) {
+            targetTweet.meta.retweeters.push({
+                src   : rt.user.profile_image_url_https,
+                title : '@' + rt.user.screen_name
+            });
         }
 
         await TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.REPLACE_LOADED,
-            tweets   : [parentid || tweetid],
+            tweets   : [parentId],
             tl_type  : this._tl_type,
             columnid : this._columnid
         }, null, this._win_type);
     }
-
 
     /**
      * ツイート取得
@@ -1525,13 +1551,13 @@ class DmTimeline extends Timeline {
         await this.getOlder();
         return;
     }
-    async destroy(tweetid) {
+    async destroy(boxid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'destroy',
                 result   : 'failed',
-                id       : tweetid,
+                boxid    : boxid,
                 columnid : this._columnid,
                 message  : TwitSideModule.Message.transMessage(result)
             }, null, this._win_type);
@@ -1546,15 +1572,15 @@ class DmTimeline extends Timeline {
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'destroy',
                 result   : 'success',
-                id       : tweetid,
+                boxid    : boxid,
                 columnid : this._columnid
             }, null, this._win_type);
 
             // 削除
-            await this._removeTweets([tweetid]);
+            await this._removeTweets([boxid]);
         };
 
-        callback_mine(await this._tweet.destroyDm2({ id : tweetid }).catch(error));
+        callback_mine(await this._tweet.destroyDm2({ id : boxid }).catch(error));
     }
     async _sendQuery(optionsHash) {
         return await this._dm.getDm(optionsHash);
@@ -1864,13 +1890,13 @@ class ListTimeline extends Timeline {
         await this.getOlder();
         return;
     }
-    async destroy(tweetid) {
+    async destroy(boxid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'destroy',
                 result   : 'failed',
-                id       : tweetid,
+                boxid    : boxid,
                 columnid : this._columnid,
                 message  : TwitSideModule.Message.transMessage(result)
             }, null, this._win_type);
@@ -1885,14 +1911,14 @@ class ListTimeline extends Timeline {
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'destroyList',
                 result   : 'success',
-                id       : tweetid,
+                boxid    : boxid,
                 columnid : this._columnid
             }, null, this._win_type);
 
-            await this._removeTweets([tweetid]);
+            await this._removeTweets([boxid]);
         };
 
-        callback_list(await this._tweet.destroyList({ list_id : tweetid }).catch(error));
+        callback_list(await this._tweet.destroyList({ list_id : boxid }).catch(error));
     }
 
     /**
@@ -1920,7 +1946,7 @@ class ListTimeline extends Timeline {
             reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
             action   : 'createList',
             result   : 'success',
-            id       : result.data.id_str,
+            listid   : result.data.id_str,
             columnid : this._columnid
         }, null, this._win_type);
     }
@@ -1946,7 +1972,7 @@ class ListTimeline extends Timeline {
             reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
             action   : 'updateList',
             result   : 'success',
-            id       : result.data.id_str,
+            listid   : result.data.id_str,
             columnid : this._columnid
         }, null, this._win_type);
     }
@@ -1958,7 +1984,7 @@ class ListTimeline extends Timeline {
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'subscribeList',
                 result   : 'failed',
-                id       : listid,
+                listid   : listid,
                 columnid : this._columnid,
                 message  : TwitSideModule.Message.transMessage(result)
             }, null, this._win_type);
@@ -1973,7 +1999,7 @@ class ListTimeline extends Timeline {
             reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
             action   : 'subscribeList',
             result   : 'success',
-            id       : listid,
+            listid   : listid,
             columnid : this._columnid
         }, null, this._win_type);
     }
@@ -1984,7 +2010,7 @@ class ListTimeline extends Timeline {
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'unsubscribeList',
                 result   : 'failed',
-                id       : listid,
+                listid   : listid,
                 columnid : this._columnid,
                 message  : TwitSideModule.Message.transMessage(result)
             }, null, this._win_type);
@@ -1999,7 +2025,7 @@ class ListTimeline extends Timeline {
             reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
             action   : 'unsubscribeList',
             result   : 'success',
-            id       : listid,
+            listid   : listid,
             columnid : this._columnid
         }, null, this._win_type);
 
@@ -2274,13 +2300,13 @@ class FriendTimeline extends Timeline {
         await this.getOlder();
         return;
     }
-    async destroy(tweetid) {
+    async destroy(boxid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'destroy',
                 result   : 'failed',
-                id       : tweetid,
+                boxid    : boxid,
                 columnid : this._columnid,
                 message  : TwitSideModule.Message.transMessage(result)
             }, null, this._win_type);
@@ -2295,18 +2321,18 @@ class FriendTimeline extends Timeline {
                 reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
                 action   : 'destroyUser',
                 result   : 'success',
-                id       : tweetid,
+                boxid    : boxid,
                 columnid : this._columnid
             }, null, this._win_type);
 
-            await this._removeTweets([tweetid]);
+            await this._removeTweets([boxid]);
         };
 
         // ミュート一覧
         if (this._tl_type === TwitSideModule.TL_TYPE.TEMP_MUTE)
             callback_friend(await TwitSideModule.Friends.updateFriendship(
                 TwitSideModule.FRIEND_TYPE.MUTE,
-                tweetid,
+                boxid,
                 false,
                 this._tweet
             ).catch(error));
@@ -2315,7 +2341,7 @@ class FriendTimeline extends Timeline {
         if (this._tl_type === TwitSideModule.TL_TYPE.TEMP_BLOCK)
             callback_friend(await TwitSideModule.Friends.updateFriendship(
                 TwitSideModule.FRIEND_TYPE.BLOCK,
-                tweetid,
+                boxid,
                 false,
                 this._tweet
             ).catch(error));
@@ -2324,7 +2350,7 @@ class FriendTimeline extends Timeline {
         else if (this._tl_type === TwitSideModule.TL_TYPE.TEMP_NORETWEET)
             callback_friend(await TwitSideModule.Friends.updateFriendship(
                 TwitSideModule.FRIEND_TYPE.NORETWEET,
-                tweetid,
+                boxid,
                 false,
                 this._tweet
             ).catch(error));

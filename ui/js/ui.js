@@ -1831,7 +1831,8 @@ const showTweetRef = async (tweetBox, type, tweetinfo) => {
 
 // 公式リツイート
 const onClickRetweet = (tweetBox) => {
-    // ツイート情報
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
+
     if (TwitSideModule.config.getPref('confirm_retweet')
         && !confirm(browser.i18n.getMessage('confirmRetweet')))
         return;
@@ -1840,7 +1841,7 @@ const onClickRetweet = (tweetBox) => {
         getColumnIndexFromBox(tweetBox),
         'timeline',
         UI._win_type
-    ).retweet(tweetBox.dataset.tweetid, tweetBox.dataset.parentid);
+    ).retweet(boxid);
 };
 
 // [MAIN] コメントつきリツイート
@@ -2013,14 +2014,14 @@ const onClickReplyall = (tweetBox, tweetinfo, userid) => {
 
 // お気に入りへ追加
 const onClickFavorite = (tweetBox) => {
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
+
     // ツイート情報
-    const tweetid = tweetBox.dataset.origid,
-          state   = $(tweetBox).children('.tweetContent').attr('data-favorited') == 'true';
+    const state   = $(tweetBox).children('.tweetContent').attr('data-favorited') == 'true';
+
     if (state && TwitSideModule.config.getPref('confirm_favorite')
         && !confirm(browser.i18n.getMessage('confirmRemoveFavorite')))
         return;
-
-
     if (!state && TwitSideModule.config.getPref('confirm_favorite')
         && !confirm(browser.i18n.getMessage('confirmAddFavorite')))
         return;
@@ -2029,11 +2030,12 @@ const onClickFavorite = (tweetBox) => {
         getColumnIndexFromBox(tweetBox),
         'timeline',
         UI._win_type
-    ).favorite(tweetBox.dataset.tweetid, !state, tweetBox.dataset.parentid);
+    ).favorite(boxid, !state);
 };
 
 // 会話を表示
 const onClickShowreply = (tweetBox) => {
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
     const $replyBox = $(tweetBox).find('.replyTweetBox').last();
 
     // 既に読み込まれているときは何もしない
@@ -2046,7 +2048,7 @@ const onClickShowreply = (tweetBox) => {
         getColumnIndexFromBox(tweetBox),
         'timeline',
         UI._win_type
-    ).replies(tweetBox.id.replace(/^[a-zA-Z]{5}_/, '')); // columnidを除去
+    ).replies(boxid);
 
     $replyBox.attr('data-reply-open', 'true');
 };
@@ -2072,6 +2074,8 @@ const clearAllReplies = (button) => {
 
 // 削除
 const onClickDestroy = (tweetBox) => {
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
+
     const message = (() => {
         switch ($(tweetBox).closest('.column').attr('data-column-type')) {
         case 'directmessage':
@@ -2093,11 +2097,13 @@ const onClickDestroy = (tweetBox) => {
         getColumnIndexFromBox(tweetBox),
         'timeline',
         UI._win_type
-    ).destroy(tweetBox.dataset.tweetid, tweetBox.dataset.parentid);
+    ).destroy(boxid);
 };
 
 // ユーザ削除（ミュート、リツイート非表示）
 const onClickDestroyUser = (tweetBox) => {
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
+
     if (TwitSideModule.config.getPref('confirm_delete')
         && !confirm(browser.i18n.getMessage('confirmRemoveUser')))
         return;
@@ -2106,16 +2112,18 @@ const onClickDestroyUser = (tweetBox) => {
         getColumnIndexFromBox(tweetBox),
         'timeline',
         UI._win_type
-    ).destroy(tweetBox.dataset.tweetid);
+    ).destroy(boxid);
 };
 
 // リツイートしたユーザを表示
 const onClickShowretweetedusers = (tweetBox) => {
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
+
     TwitSideModule.ManageColumns.getTimelineInfo(
         getColumnIndexFromBox(tweetBox),
         'timeline',
         UI._win_type
-    ).retweeters(tweetBox.dataset.tweetid, tweetBox.dataset.parentid);
+    ).retweeters(boxid);
 };
 
 // リツイートしたユーザのプロフィールを表示
