@@ -34,7 +34,7 @@ class DM {
     resetDmCursor() {
         this._dm_cursor = null;
     }
-    // リストメンバー一覧
+    // DM一覧
     async getDm(optionsHash) {
         if (this._dm_cursor == '')
             return { status : null, data : [] };

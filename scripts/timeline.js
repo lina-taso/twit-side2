@@ -13,6 +13,7 @@ const networkWait        = 250,
       LIMIT_RETWEET_CNT  = 5,
       LIMIT_RETWEET_TERM = 60,
       ZERO_FILL          = '0000000000000000000000000',
+      NINE_FILL          = '9999999999999999999999999',
       ZERO_FILL_LEN      = 25;
 
 class Timeline {
@@ -1523,10 +1524,16 @@ class DmTimeline extends Timeline {
         }, null, this._win_type);
 
         // 読み込み
-        const result = await this._sendQuery(optionsHash);
+        let result = await this._sendQuery(optionsHash);
 
         // more確認
-        const more = result.more;
+        let more = result.more;
+
+        // DMの読み込み件数が0件の場合
+        while (result.data.length == 0 && more) {
+            result = await this._sendQuery(optionsHash);
+            more   = result.more;
+        }
 
         // 受信データを登録
         const tweets = await this._saveTweets(result.data, more);
@@ -1536,8 +1543,6 @@ class DmTimeline extends Timeline {
             tl_type  : this._tl_type,
             columnid : this._columnid
         }, null, this._win_type);
-
-        await this._removeTweets([moreid]);
 
         // 状態遷移
         this._state2 = TwitSideModule.TL_STATE.STOPPED;
@@ -1588,9 +1593,6 @@ class DmTimeline extends Timeline {
 
     // ツイートを保存して変更があったid一覧を返す
     async _saveTweets(data, more, notif) {
-        // 更新したツイートID
-        let lastidx = null,
-            i = 0;
         const tweets     = [],
               notified   = [];
 
@@ -1633,20 +1635,20 @@ class DmTimeline extends Timeline {
         // 更新データ（改めて新しいもの順）
         tweets.sort().reverse();
 
-        lastidx = this.record.ids.length+1;
-
         // 最終通知ID更新
         if (notified.length)
             await TwitSideModule.ManageColumns.setLastNotifyId(this._columnid, notified[0]);
 
+        const moreid = NINE_FILL + '_more';
+        await this._removeTweets([moreid]);
+
         // more格納
-        if (more && data.length) {
-            const moreid = data[data.length-1].id_str + '_more';
+        if (more) {
             this.record.data[moreid] = {
                 meta : { boxid : moreid },
                 raw  : { id_str : moreid }
             };
-            this.record.ids.splice(lastidx, 0, moreid);
+            this.record.ids.push(moreid);
             tweets.push(moreid);
         }
         return tweets;
