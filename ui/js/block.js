@@ -70,6 +70,11 @@ const commandExec = (btn) => {
 
     // identify from id
     switch (btn.id) {
+    case 'profileOwnImage':
+        return TwitSideModule.ManageWindows.openWindow('profile', {
+            userid  : UI.$tweetUserSelection.val(),
+            keyword : UI.$tweetUserSelection[0].selectedOptions[0].textContent,
+        }, fg.id);
 
 //    case '':
 //        break;
