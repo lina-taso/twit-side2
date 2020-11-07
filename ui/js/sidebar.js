@@ -770,7 +770,7 @@ const changeColumnSpy = () => {
 const hoverColumnTab = () => {
     if ($('.columnTab').hasClass('hover')) return;
     $('.columnTab').addClass('hover')
-        .on('transitionstart.hover', function() {
+        .eq(0).on('transitionstart.hover', function() {
             $(this)
                 .on('transitionend.hover', function() {
                     $(this).off('transitionend.hover transitioncancel.hover');
@@ -792,7 +792,7 @@ const hoverColumnTab = () => {
 const unhoverColumnTab = () => {
     if (!$('.columnTab').hasClass('hover')) return;
     $('.columnTab').removeClass('hover')
-        .on('transitionstart.unhover', function() {
+        .eq(0).on('transitionstart.unhover', function() {
             $(this)
                 .on('transitionend.unhover', function() {
                     $(this).off('transitionend.unhover transitioncancel.unhover');
