@@ -1,0 +1,6 @@
+@import 'theme-taupe.css';
+
+.tweetBox {
+    margin: 0.5rem;
+    border-width: 1px;
+}

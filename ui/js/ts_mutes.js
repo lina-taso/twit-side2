@@ -28,7 +28,7 @@ window.addEventListener('load', async () => {
     if (!TwitSideModule.ManageWindows.getOpenerId(SUFFIX)) browser.windows.remove(fg.id);
 
     localization();
-    buttonize(['.buttonItem'], commandExec);
+    buttonize(['.ts-btn'], commandExec);
     vivify();
 
     // UI初期化
@@ -41,10 +41,27 @@ window.addEventListener('load', async () => {
 
 // add other event listener
 const vivify = () => {
+    // 正規表現チェック
+    $('#muteKeyword')
+        .on('keyup paste drop blur', function() {
+            if ($('#muteKeywordRegexp').is(':checked'))
+                checkRegexp();
+            else
+                checkKeyword();
+        });
     // スクリーンネーム
     $('#muteScreenname')
-        .on('keyup focus', keyupScreenname)
-        .on('keydown', keypressScreenname);
+        .on('keyup', function(e) { suggestScreenname($('#muteScreenname'), $('#suggestContainer'), e); })
+        .on('keydown', keypressScreenname)
+        .on('paste drop blur', function() {
+            setTimeout(() => {
+                if ($('#suggestContainer').is(':focus')) return;
+                hideSuggest($('#suggestContainer'));
+                checkScreenname(this.value)
+                    .then(() => { $('#okButton').removeClass('disabled'); })
+                    .catch(() => { $('#okButton').addClass('disabled'); });
+            }, 100);
+        });
     $('#suggestContainer')
         .on('click', 'option', function() {
             suggestOnSelect(false, $('#muteScreenname'), $('#suggestContainer'));
@@ -61,71 +78,44 @@ const vivify = () => {
         .on('blur', function() {
             setTimeout(() => {
                 if ($('#muteScreenname').is(':focus')) return;
-                checkScreenname();
+                checkScreenname($('#muteScreenname').val())
+                    .then(() => { $('#okButton').removeClass('disabled'); })
+                    .catch(() => { $('#okButton').addClass('disabled'); });
             }, 100);
-        });
-
-    // 行アクティブ
-    $('#muteKeywordsBody, #muteUsersBody')
-        .on('click focus', '.muteListRow', function() {
-            $(this).attr('data-selected', 'true')
-                .siblings().attr('data-selected', '');
         });
     // 排他処理
-    $('input[type="radio"][name="muteType"]')
+    $('input[type="radio"][name="muteType"], #muteKeywordRegexp')
         .on('change', checkboxControl);
-    $('input[type="radio"][name="muteKeywordType"]')
-        .on('change', checkboxControl);
-    // スクリーンネームチェック
-    $('#muteScreenname')
-        .on('blur', function() {
-            setTimeout(() => {
-                if ($('#suggestContainer').is(':focus')) return;
-                checkScreenname();
-            }, 100);
+    // ミュート追加コンテナ
+    $('#addMuteContainer')
+        .on('shown.bs.modal', function() {
+            $('#muteTypeKeyword').focus();
         });
-    // 正規表現チェック
-    $('#muteKeyword')
-        .on('blur', function() {
-            if ($('#muteKeywordTypeRegexp').prop('checked'))
-                checkRegexp();
-            else
-                checkKeyword();
+    // フォーム送信しない
+    $('#addMuteForm')
+        .on('submit', function() {
+            onAcceptForAddMute();
+            return false;
         });
 };
 
 // event asignment
 const commandExec = (btn) => {
+    if (btn.classList.contains('disabled')) return false;
+
     // identify from id
     switch (btn.id) {
-    case 'muteKeywordsButton':
-        $('#mainContainer').attr('data-mutetype', 'Keywords');
-        break;
-    case 'muteUsersButton':
-        $('#mainContainer').attr('data-mutetype', 'Users');
-        break;
     case 'addButton':
-        onClickAddMute();
-        break;
-    case 'removeButton':
-        onClickRemoveMute();
-        break;
-    case 'closeButton':
-        window.close();
-        break;
-    case 'closeAddMuteC':
-    case 'cancelButton':
-        addMuteContainerToggle(false);
-        break;
-    case 'okButton':
-        onAcceptForAddMute();
-        break;
+        return onClickAddMute();
 //    case '':
 //        break;
     }
 
     // identify from class
     switch (true) {
+    case btn.classList.contains('removeButton'):
+        onClickRemoveMute(btn);
+        break;
 //    case btn.classList.contains(''):
 //        break;
     }
@@ -146,10 +136,6 @@ const showMutes = async (focus) => {
     $muteKeywordsList.empty();
     $muteUsersList.empty();
 
-    // フォーカスを外す
-    $muteKeywordsList.children().attr('data-selected', 'false');
-    $muteUsersList.children().attr('data-selected', 'false');
-
     const all_m_keywords = TwitSideModule.Mutes.muteKeywords;
     const all_m_users    = TwitSideModule.Mutes.muteUsers;
     const lookup         = [];
@@ -157,141 +143,136 @@ const showMutes = async (focus) => {
     // Users
     for (let idx in all_m_users) {
         const user      = all_m_users[idx],
-              $listItem = $('#templateContainer .muteListRow').clone().attr('data-userid', user.userid);
+              $listItem = $('#templateContainer > .muteListRow').clone().attr('data-userid', user.userid);
 
         // userid確認
         const userinfo = TwitSideModule.Friends.searchFriendFromId(user.userid);
         if (userinfo)
-            $('<td>').attr('title', '@' + userinfo.screen_name).appendTo($listItem);
-        else {
-            $('<td>').appendTo($listItem);
+            $listItem.children().eq(0).attr('title', '@' + userinfo.screen_name);
+        else
             lookup.push(user.userid);
-        }
 
-        if (user.until) {
-            $('<td>').attr('title', TwitSideModule.text.convertTimeStamp(
+        if (user.until)
+            $listItem.children().eq(1).attr('title', TwitSideModule.text.convertTimeStamp(
                 new Date(user.until * 1000),
                 TwitSideModule.config.getPref('time_locale'),
-                TwitSideModule.text.createTimeformat()
-            )).appendTo($listItem);
-        }
+                TwitSideModule.text.createTimeformat())
+            );
         else
-            $('<td>').attr('title', browser.i18n.getMessage('tsMutesInf')).appendTo($listItem);
+            $listItem.children().eq(1).attr('title', browser.i18n.getMessage('tsMutesInf'));
 
+        $listItem.children().eq(2).remove();
         $listItem.appendTo($muteUsersList);
     }
 
     // async userid lookup
-    if (lookup.length)
-        TwitSideModule.Friends.lookup(lookup, new Tweet(
+    if (lookup.length) {
+        const result = await TwitSideModule.Friends.lookup(lookup, new Tweet(
             TwitSideModule.ManageUsers.getUserInfo(TwitSideModule.ManageUsers.allUserid[0])
-        )).then(result => {
-            for (let user of result.data) {
-                TwitSideModule.Friends.updateLatestFriends(user);
-                $muteUsersList.children('[data-userid=' + user.id_str + ']').children('td:eq(0)')
-                    .attr('title', '@' + user.screen_name);
-            }
-        });
+        ));
+        for (let user of result.data) {
+            TwitSideModule.Friends.updateLatestFriends(user);
+            $muteUsersList.children('[data-userid=' + user.id_str + ']').children('td:eq(0)')
+                .attr('title', '@' + user.screen_name);
+        }
+    }
 
     // Keywords
     for (let idx in all_m_keywords) {
         const keyword   = all_m_keywords[idx],
               $listItem = $('#templateContainer .muteListRow').clone();
 
-        $('<td>').attr('title', keyword.data).appendTo($listItem);
-        $('<td>').attr('title', browser.i18n.getMessage('tsMutesType' + keyword.type)).appendTo($listItem);
+        $listItem.children().eq(0).attr('title', keyword.data);
+        $listItem.children().eq(1).attr('title', browser.i18n.getMessage('tsMutesType' + keyword.type));
 
         if (keyword.until) {
-            $('<td>').attr('title', TwitSideModule.text.convertTimeStamp(
+            $listItem.children().eq(2).attr('title', TwitSideModule.text.convertTimeStamp(
                 new Date(keyword.until * 1000),
                 TwitSideModule.config.getPref('time_locale'),
                 TwitSideModule.text.createTimeformat()
-            )).appendTo($listItem);
+            ));
         }
         else
-            $('<td>').attr('title', browser.i18n.getMessage('tsMutesInf')).appendTo($listItem);
+            $listItem.children().eq(2).attr('title', browser.i18n.getMessage('tsMutesInf'));
 
         $listItem.appendTo($muteKeywordsList);
     }
 };
 
-const addMuteContainerToggle = (open) => {
-    $('#addMuteContainer').attr('data-open', open);
-    if (open) $('#muteTypeKeyword').focus();
-};
-
 // ミュートの追加
 const onClickAddMute = async () => {
     resetAddMuteC();
-    addMuteContainerToggle(true);
+    $('#addMuteContainer').modal('show');
 };
 
 // ミュートの削除
-const onClickRemoveMute = async () => {
-    const type       = $('#mainContainer').attr('data-mutetype'),
+const onClickRemoveMute = async (btn) => {
+    const type       = $('.tab-pane.active.show')[0].id,
           $container = $('#mute' + type + 'Container');
 
-    const index = $container.find('.muteListRow[data-selected="true"]').index();
+    const index = $(btn).closest('tr').index();
     if (index < 0) return;
 
-    if (TwitSideModule.config.getPref('confirm_deletetsmute')
-        && !confirm(browser.i18n.getMessage('confirmDeleteTsMute')))
-        return;
+    UI.confirm(browser.i18n.getMessage('confirmDeleteTsMute'),
+               async () => {
+                   switch (type) {
+                   case 'Keywords':
+                       await TwitSideModule.Mutes.removeMuteKeyword(index);
+                       UI.showMessage(TwitSideModule.Message.transMessage('muteKeywordDeleted'));
+                       break;
+                   case 'Users':
+                       await TwitSideModule.Mutes.removeMuteUser(index);
+                       UI.showMessage(TwitSideModule.Message.transMessage('muteUserDeleted'));
+                       break;
+                   }
 
-    switch (type) {
-    case 'Keywords':
-        await TwitSideModule.Mutes.removeMuteKeyword(index);
-        break;
-    case 'Users':
-        await TwitSideModule.Mutes.removeMuteUser(index);
-        break;
-    }
-
-    showMutes();
+                   showMutes();
+               },
+               TwitSideModule.config.getPref('confirm_deletemute'));
 };
 
 // ミュート追加コンテナリセット
 const resetAddMuteC = () => {
-    // リセット
     $('#muteKeyword').val('');
-    $('#muteScreenname').val('');
+    $('#muteScreenname').val('')
+    checkScreenname('');
+    $('#okButton').addClass('disabled');
     $('#muteTypeKeyword').prop('checked', true);
-    $('#muteKeywordTypeText').prop('checked', true);
+    $('#muteKeywordRegexp').prop('checked', false);
+    $('#muteTerm').val('0');
 
-    $('#okButton').removeAttr('data-disabled');
     checkboxControl();
-    checkScreenname();
     checkRegexp();
 };
 
 // ボタンの排他処理
 const checkboxControl = () => {
+    // keyword
     if ($('[name=muteType]:checked').val() == 'Keyword') {
-        $('#muteKeywordTypeBox').css('display', '');
-        $('#muteScreennameBox').css('display', 'none');
-        $('#muteKeywordBox').css('display', '');
+        $('#muteKeywordTypeBox, #muteKeywordBox').removeClass('d-none');
+        $('#muteScreennameBox').addClass('d-none');
+        $('#muteKeyword').attr('required', '');
+        $('#muteScreenname').removeAttr('required');
 
-        if ($('[name=muteKeywordType]:checked').val() == 'Text')
-            $('#keywordCheck').css('display', 'none');
+        if ($('#muteKeywordRegexp').is(':checked'))
+            $('#keywordCheck').removeClass('d-none');
         else
-            $('#keywordCheck').css('display', '');
+            $('#keywordCheck').addClass('d-none');
     }
+    // screenname
     else {
-        $('#muteKeywordTypeBox').css('display', 'none');
-        $('#muteScreennameBox').css('display', '');
-        $('#muteKeywordBox').css('display', 'none');
+        $('#muteKeywordTypeBox, #muteKeywordBox').addClass('d-none');
+        $('#muteScreennameBox').removeClass('d-none');
+        $('#muteKeyword').removeAttr('required');
+        $('#muteScreenname').attr('required', '');
     }
-};
-
-const keyupScreenname = (e) => {
-    suggestScreenname($('#muteScreenname'), $('#suggestContainer'));
 };
 
 const keypressScreenname = (e) => {
     e = e.originalEvent;
+
     // サジェスト
-    if (e && !e.shiftKey && e.key == 'Tab'
-        || e && e.key == 'ArrowDown') {
+    if (e && !e.shiftKey && e.key == 'Tab' || e && e.key == 'ArrowDown') {
         if ($('#suggestContainer').is(':visible')) {
             setTimeout(() => {$('#suggestContainer').focus(); }, 0);
             return false;
@@ -300,46 +281,8 @@ const keypressScreenname = (e) => {
     return true;
 };
 
-const checkScreenname = async () => {
-    const $okButton = $('#okButton'),
-          $check    = $('#screennameCheck');
-
-    // 未入力
-    if (!$('#muteScreenname').val()) {
-        $check.attr('data-status', 'unchecked');
-        $okButton.attr('data-disabled', true);
-        return;
-    }
-    // 正規化スクリーンネーム
-    const screenname = (/^@?(\S+)\s*$/.exec($('#muteScreenname').val()))[0];
-
-    const result = TwitSideModule.Friends.searchFriendFromSn(screenname);
-    // 結果あり（latestfriends）
-    if (result) {
-        $check.attr('data-status', 'checkok');
-        $okButton.removeAttr('data-disabled');
-    }
-    else {
-        // 読み込み中
-        $check.attr('data-status', 'loading');
-        // lookup
-        const result_usershow = await (new Tweet(
-            TwitSideModule.ManageUsers.getUserInfo(TwitSideModule.ManageUsers.allUserid[0])
-        )).userShow({ screen_name : screenname })
-              .then((result) => {
-                  TwitSideModule.Friends.updateLatestFriends(result.data);
-                  $check.attr('data-status', 'checkok');
-                  $okButton.removeAttr('data-disabled');
-              })
-              .catch(() => {
-                  $check.attr('data-status', 'checkng');
-                  $okButton.attr('data-disabled', true);
-              });
-    }
-};
-
 const checkKeyword = () => {
-    $('#okButton').attr('data-disabled', !$('#muteKeyword').val());
+    $('#okButton').toggleClass('disabled', $('#muteKeyword').val() == '');
 };
 
 const checkRegexp = () => {
@@ -349,19 +292,19 @@ const checkRegexp = () => {
     // 未入力
     if (!$('#muteKeyword').val()) {
         $check.attr('data-status', 'unchecked');
-        $okButton.attr('data-disabled', true);
+        $okButton.addClass('disabled');
         return;
     }
 
     try {
         let re = new RegExp($('#muteKeyword').val());
         $check.attr('data-status', 'checkok');
-        $okButton.removeAttr('data-disabled');
+        $okButton.removeClass('disabled');
     }
     catch (e) {
         // regular expression error
         $check.attr('data-status', 'checkng');
-        $okButton.attr('data-disabled', 'true');
+        $okButton.addClass('disabled');
     }
 };
 
@@ -370,18 +313,19 @@ const checkRegexp = () => {
  * Mute operation
  */
 const onAcceptForAddMute = async () => {
-    const type        = $('[name=muteType]:checked').val(),
-          keywordType = $('[name=muteKeywordType]:checked').val(),
-          term        = parseInt($('[name=muteTermOption]:selected').val());
+    const term = parseInt($('#muteTerm').val());
 
-    if (type == 'Keyword') {
+    switch ($('[name=muteType]:checked').val()) {
+    case 'Keyword':
+        const regexp = $('#muteKeywordRegexp').is(':checked');
         await TwitSideModule.Mutes.addMuteKeyword(
-            keywordType,
+            regexp,
             $('#muteKeyword').val(),
             term == 0 ? null : TwitSideModule.text.getUnixTime() + term
         );
-    }
-    else if (type == 'User') {
+        UI.showMessage(TwitSideModule.Message.transMessage('muteKeywordAdded'));
+        break;
+    case 'User':
         // 正規化スクリーンネーム
         const screenname = (/^@?(\S+)\s*$/.exec($('#muteScreenname').val()))[0];
         const result = TwitSideModule.Friends.searchFriendFromSn(screenname);
@@ -390,9 +334,10 @@ const onAcceptForAddMute = async () => {
             result.id_str,
             term == 0 ? null : TwitSideModule.text.getUnixTime() + term
         );
+        UI.showMessage(TwitSideModule.Message.transMessage('muteUserAdded'));
+        break;
     }
 
     showMutes();
-    addMuteContainerToggle(false);
-    resetAddMuteC();
+    $('#addMuteContainer').modal('hide');
 };

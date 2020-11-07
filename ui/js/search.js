@@ -28,10 +28,7 @@ window.addEventListener('load', async () => {
     if (!TwitSideModule.ManageWindows.getOpenerId(SUFFIX)) browser.windows.remove(fg.id);
 
     localization();
-    buttonize(['.countboxButton', '.buttonItem',
-               '.tweetRetweeterImage', '.tweetMoreBox',
-               '.clearRepliesBox', '.tweetMenuButton'],
-              commandExec);
+    buttonize(['.ts-btn, .tweetRetweeterImage'], commandExec);
     vivify();
 
     // UI初期化
@@ -67,17 +64,20 @@ const vivify = () => {
     // タイムライン
     $('#templateContainer .timelineBox')
         .on('scroll', function() {
-            // 影
-            $(this).siblings('.columnShadowBox')
-                .height(this.scrollTop < 10 ? this.scrollTop : 10);
-
-            // オートページャ
-            if (this.scrollHeight - this.clientHeight - 200 < this.scrollTop
-                && TwitSideModule.config.getPref('autopager')) {
-                loadMore(this.lastChild);
+            // 最上部
+            if (this.scrollTop == 0) {
+                if (this.parentNode.dataset.top == 'false')
+                    this.parentNode.dataset.top = true;
+            }
+            else {
+                if (this.parentNode.dataset.top == 'true')
+                    this.parentNode.dataset.top = false;
+                // オートページャ
+                if (this.scrollHeight - this.clientHeight - 200 < this.scrollTop
+                    && TwitSideModule.config.getPref('autopager'))
+                    loadMore(this.lastChild);
             }
         });
-
     // 自動更新
     $('#autoreload')
         .on('change', function() {
@@ -97,12 +97,13 @@ const vivify = () => {
 
 // event asignment
 const commandExec = (btn) => {
+    if (btn.classList.contains('disabled')) return false;
+
     // identify from id
     switch (btn.id) {
 
     case 'search':
-        searchTweets();
-        break;
+        return searchTweets();
 
 //    case '':
 //        break;
@@ -111,36 +112,28 @@ const commandExec = (btn) => {
     // identify from class
     switch (true) {
 
-    case btn.classList.contains('clearRepliesBox'): // column
-        clearAllReplies(btn);
-        break;
-
+    case btn.classList.contains('clearAllRepliesButton'): // column
+        return clearAllReplies(btn);
     case btn.classList.contains('toTopButton'): // columnMenuBox
-        timelineMove('top');
-        break;
+        btn.blur();
+        return timelineMove('top');
     case btn.classList.contains('toBottomButton'):
-        timelineMove('bottom');
-        break;
-    case btn.classList.contains('updateButton'):
-        loadNewer(getColumnIndexFromBox(btn));
-        break;
+        btn.blur();
+        return timelineMove('bottom');
+    case btn.classList.contains('columnUpdateButton'):
+        btn.blur();
+        return loadNewer(getColumnIndexFromBox(btn));
     case btn.classList.contains('addColumnButton'):
-        onClickAddSearch2Column();
-        break;
+        return onClickAddSearch2Column();
+
     case btn.classList.contains('tweetMoreBox'): // tweetBox
-        loadMore(btn);
-        break;
-    case btn.classList.contains('clearReplyButton'):
-        clearReplies(btn);
-        break;
+        return loadMore(btn);
+    case btn.classList.contains('clearReplies'):
+        return clearReplies(btn);
     case btn.classList.contains('tweetRetweeterImage'):
-        onClickRetweeterImage(btn);
-        break;
+        return onClickRetweeterImage(btn);
     case btn.classList.contains('tweetMenuButton'):
-        UI.getTweetMenuFunc(
-            UI.getActiveColumn().attr('data-column-type'),
-            $(btn).index())(btn);
-        break;
+        return UI.tweetMenuFuncList[btn.dataset.func](btn);
 
 //    case btn.classList.contains(''):
 //        break;
@@ -179,10 +172,12 @@ const searchTweets = async () => {
     }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
 };
 
+// 結果表示
 const showTweets = async () => {
     const keyword    = searchParams.keyword,
           autoreload = searchParams.autoreload;
 
+    // 検索ボックス
     $('#keyword').val(keyword);
     $('#autoreload').prop('checked', autoreload == 'true');
 
@@ -204,7 +199,7 @@ const showTweets = async () => {
     );
 
     // 準備完了
-    $('#grayout').toggleClass('hidden', true);
+    $('#grayout').addClass('d-none');
 
     loadNewer(0);
 };

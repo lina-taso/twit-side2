@@ -58,9 +58,13 @@ TwitSideModule.Message = {
             if (error.result.code
                 && this.getErrorMessage('code'+error.result.code) != 'code'+error.result.code) {
                 content = this.getErrorMessage('code'+error.result.code);
+            }
+            // TwitterのMessageを採用出来るとき
+            else if (error.result.message) {
+                content = error.result.message;
 
-                if (error.result.message)
-                    content += ' ('+error.result.message+')';
+                if (error.status)
+                    content += ' (HTTP'+error.status+')';
             }
             // メッセージが文字列でそのまま利用できるとき
             else if (typeof(error.result) == 'string'

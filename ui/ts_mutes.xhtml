@@ -1,148 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" style="font-size: 12px;">
   <head>
-    <title />
+    <title data-string="windowTsMutesTitle" />
     <meta charset="utf-8" />
     <link href="style/common.css" rel="stylesheet" type="text/css" />
     <link href="style/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="style/theme-light.css" rel="stylesheet" type="text/css" />
+    <link id="theme" href="" rel="stylesheet" type="text/css" />
 
-    <script src="l10n/l10n-definition-ts_mutes.js"></script>
     <script src="/scripts/tweet.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
   </head>
 
-  <body
-    data-window-type="ts_mutes"
-    data-theme="default"
-    data-icon-size="large"
-    data-button-size="medium"
-    data-circle-icon="true"
-    data-animation="true"
-    style="font-size: 12px;">
+  <body data-window-type="ts_mutes">
 
-    <div id="mainContainer"
-         data-mutetype="Keywords">
+    <p class="lead m-1" data-string="tsMutesDescription" />
 
-      <div id="mutesDescription" />
-
-      <div class="textButtonList">
-        <div id="muteKeywordsButton" class="buttonItem textButtonItem" tabindex="1" />
-        <div id="muteUsersButton" class="buttonItem textButtonItem" tabindex="1" />
+    <nav>
+      <div class="nav nav-tabs mb-3" id="">
+        <button class="nav-item nav-link active" tabindex="1" data-string="tsMutesTabKeywords"
+                data-toggle="tab" href="#Keywords" />
+        <button class="nav-item nav-link" tabindex="1" data-string="tsMutesTabUsers"
+                data-toggle="tab" href="#Users" />
       </div>
+    </nav>
 
-      <table id="muteKeywordsContainer">
-        <thead>
-          <tr id="muteKeywordsHead">
-            <th />
-            <th />
-            <th />
-          </tr>
-        </thead>
-        <tbody id="muteKeywordsBody">
-        </tbody>
-      </table>
-      <table id="muteUsersContainer">
-        <thead>
-          <tr id="muteUsersHead">
-            <th />
-            <th />
-          </tr>
-        </thead>
-        <tbody id="muteUsersBody">
-        </tbody>
-      </table>
+    <div class="tab-content" id="">
+      <div class="tab-pane fade show active" id="Keywords">
+        <table id="muteKeywordsContainer" class="table">
+          <thead class="thead-light sticky-top">
+            <tr id="muteKeywordsHead">
+              <th data-string="tsMutesKeyword" />
+              <th data-string="tsMutesType" />
+              <th data-string="tsMutesUntil" />
+              <th />
+            </tr>
+          </thead>
+          <tbody id="muteKeywordsBody" />
+        </table>
+      </div>
+      <div class="tab-pane fade" id="Users">
+        <table id="muteUsersContainer" class="table">
+          <thead class="thead-light sticky-top">
+            <tr id="muteUsersHead">
+              <th data-string="tsMutesScreenname" />
+              <th data-string="tsMutesUntil" />
+              <th />
+            </tr>
+          </thead>
+          <tbody id="muteUsersBody" />
+        </table>
+      </div>
     </div>
 
-    <div class="textButtonList">
-      <div id="addButton" class="buttonItem textButtonItem" tabindex="1" />
-      <div id="removeButton" class="buttonItem textButtonItem" tabindex="1" />
-      <div class="spacer" />
-      <div id="closeButton" class="buttonItem textButtonItem" tabindex="1" />
+    <button id="addButton" class="btn ts-btn circle-button btn-secondary" tabindex="1" data-string-title="tsMutesAdd">
+      <i class="columnMenu fas fa-plus fa-fw" />
+    </button>
+
+    <!-- #addMuteContainer -->
+    <div id="addMuteContainer" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="addMuteForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addMuteTitle" data-string="tsMutesAdd" />
+              <button class="close" data-dismiss="modal" type="button">
+                <i class="fas fa-times fa-sm" />
+              </button>
+            </div>
+            <div class="modal-body">
+              <!-- muteType -->
+              <div class="row mb-3" id="muteTypeBox">
+                <label class="col-3" data-string="tsMutesType" />
+                <div class="col-2 custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" name="muteType" tabindex="1"
+                         value="Keyword" id="muteTypeKeyword" />
+                  <label class="custom-control-label" for="muteTypeKeyword" data-string="tsMutesKeyword" />
+                </div>
+                <div class="col-2 custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" name="muteType" tabindex="1"
+                         value="User" id="muteTypeUser" />
+                  <label class="custom-control-label" for="muteTypeUser" data-string="tsMutesUser" />
+                </div>
+              </div>
+              <!-- muteKeywordType -->
+              <div class="row mb-3" id="muteKeywordTypeBox">
+                <label class="col-3" data-string="tsMutesKeywordType" />
+                <div class="col-9 custom-control custom-switch">
+                  <input class="custom-control-input" type="checkbox" tabindex="1" id="muteKeywordRegexp" />
+                  <label class="custom-control-label" for="muteKeywordRegexp" data-string="tsMutesTypeRegexp" />
+                </div>
+              </div>
+              <!-- muteKeyword -->
+              <div class="form-group row mb-3" id="muteKeywordBox">
+                <label class="col-3 col-form-label" for="muteKeyword" data-string="tsMutesKeyword" />
+                <div class="col-6">
+                  <input class="form-control" type="text" id="muteKeyword" tabindex="1" autocomplete="off" />
+                </div>
+                <label class="" id="keywordCheck" data-status="unchecked" />
+              </div>
+              <!-- muteScreenname -->
+              <div class="form-group row mb-3" id="muteScreennameBox">
+                <label class="col-3 col-form-label" for="muteScreenname" data-string="tsMutesScreenname" />
+                <div class="col-6">
+                  <input class="form-control" type="text" id="muteScreenname" tabindex="1" autocomplete="off" />
+                  <select id="suggestContainer" class="form-control custom-select" size="3" tabindex="1" style="display: none;" />
+                </div>
+                <label class="" id="screennameCheck" data-status="unchecked" />
+              </div>
+              <!-- term -->
+              <div class="form-group row">
+                <label class="col-3 col-form-label" for="muteTerm" data-string="tsMutesTerm" />
+                <div class="col-6">
+                  <select class="custom-select" id="muteTerm" tabindex="1">
+                    <option class="muteTermOption" value="0" data-string="tsMutesInf" />
+                    <option class="muteTermOption" value="300" data-string="tsMutesTerm300" />
+                    <option class="muteTermOption" value="600" data-string="tsMutesTerm600" />
+                    <option class="muteTermOption" value="900" data-string="tsMutesTerm900" />
+                    <option class="muteTermOption" value="1800" data-string="tsMutesTerm1800" />
+                    <option class="muteTermOption" value="3600" data-string="tsMutesTerm3600" />
+                    <option class="muteTermOption" value="10800" data-string="tsMutesTerm10800" />
+                    <option class="muteTermOption" value="21600" data-string="tsMutesTerm21600" />
+                    <option class="muteTermOption" value="43200" data-string="tsMutesTerm43200" />
+                    <option class="muteTermOption" value="86400" data-string="tsMutesTerm86400" />
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button id="okButton" class="btn btn-primary" type="submit" tabindex="1">OK</button>
+              <button class="btn btn-seconday" data-dismiss="modal" type="button" tabindex="1">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- /#addMuteContainer -->
+
+    <div id="messageContainer" class="mb-5">
+      <div id="messageToast" class="toast hide" data-autohide="true" data-delay="3000">
+        <div class="toast-body">Toast</div>
+      </div>
     </div>
 
-    <div id="addMuteContainer" class="dialog"
-         data-open="false">
-      <ul class="buttonList smallButtonList">
-        <li id="closeAddMuteC" class="buttonItem" tabindex="1">
-          <i class="buttonImage fa fa-times fa-fw" />
-        </li>
-      </ul>
+    <!-- #templateContainer -->
+    <div id="templateContainer" class="d-none">
 
-      <div id="addMuteTitle" />
+      <!-- .muteListRow -->
+      <tr class="muteListRow">
+        <td title="" />
+        <td title="" />
+        <td title="" />
+        <td>
+          <button class="btn ts-btn btn-sm btn-outline-primary removeButton" title="" data-string-title="tsMutesRemove" tabindex="1">
+            <i class="fas fa-minus" />
+          </button>
+        </td>
+      </tr>
+      <!-- /.muteListRow -->
 
-      <div id="muteTypeBox" class="muteinfoBox">
-        <label id="muteTypeLabel">Mute type</label>
-        <div class="muteinfoInlineBox">
-          <input  id="muteTypeKeyword" type="radio" name="muteType" value="Keyword" tabindex="10" />
-          <label for="muteTypeKeyword" />
-          <input  id="muteTypeUser" type="radio" name="muteType" value="User" tabindex="10" />
-          <label for="muteTypeUser" />
+      <!-- .alertModal -->
+      <div class="modal fade alertModal">
+        <div class="modal-dialog modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirm</h5>
+              <button class="close" data-dismiss="modal">
+                <span><i class="fas fa-times fa-sm" /></span>
+              </button>
+            </div>
+            <div class="modal-body" />
+            <div class="modal-footer">
+              <button class="btn btn-primary" data-dismiss="modal" tabindex="1">OK</button>
+              <button class="btn btn-secondary" data-dismiss="modal" tabindex="1">Cancel</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="muteKeywordTypeBox" class="muteinfoBox">
-        <label id="muteKeywordTypeLabel">Mute Keyword type</label>
-        <div class="muteinfoInlineBox">
-          <input  id="muteKeywordTypeText" type="radio" name="muteKeywordType" value="Text" tabindex="10" />
-          <label for="muteKeywordTypeText" />
-          <input  id="muteKeywordTypeRegexp" type="radio" name="muteKeywordType" value="Regexp" tabindex="10" />
-          <label for="muteKeywordTypeRegexp" />
-        </div>
-      </div>
-      <div id="muteKeywordBox" class="muteinfoBox">
-        <label for="muteKeyword" />
-        <div class="muteinfoInlineBox" style="flex-direction:column;">
-          <input type="text" id="muteKeyword" tabindex="10" data-value="" />
-        </div>
-        <label id="keywordCheck"
-               data-status="unchecked" />
-      </div>
-      <div id="muteScreennameBox" class="muteinfoBox">
-        <label for="muteScreenname" />
-        <div class="muteinfoInlineBox" style="flex-direction:column;">
-          <input type="text" id="muteScreenname" tabindex="10" data-value="" />
-          <select id="suggestContainer"
-                  size="3"
-                  style="display: none;" />
-        </div>
-        <label id="screennameCheck"
-               data-status="unchecked" />
-      </div>
-      <div id="muteUntilBox" class="muteinfoBox">
-        <label for="muteTerm" />
-        <select id="muteTerm" tabindex="10">
-          <option name="muteTermOption" value="0" />
-          <option name="muteTermOption" value="300" />
-          <option name="muteTermOption" value="600" />
-          <option name="muteTermOption" value="900" />
-          <option name="muteTermOption" value="1800" />
-          <option name="muteTermOption" value="3600" />
-          <option name="muteTermOption" value="10800" />
-          <option name="muteTermOption" value="21600" />
-          <option name="muteTermOption" value="43200" />
-          <option name="muteTermOption" value="86400" />
-        </select>
-      </div>
-
-      <div class="textButtonList">
-        <div class="spacer" />
-        <div id="okButton" class="buttonItem textButtonItem" tabindex="10">OK</div>
-        <div id="cancelButton" class="buttonItem textButtonItem" tabindex="10">Cancel</div>
-      </div>
+      <!-- Modal -->
 
     </div>
-
-    <!-- hidden -->
-    <div id="templateContainer">
-      <table>
-        <tr class="muteListRow" tabindex="1"
-            data-selected=""
-            data-tltype="">
-        </tr>
-      </table>
-    </div>
+    <!-- /#templateContainer -->
 
     <!-- at last -->
     <script src="js/ts_mutes.js"></script>

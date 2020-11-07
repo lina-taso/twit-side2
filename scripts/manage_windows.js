@@ -21,7 +21,7 @@ TwitSideModule.ManageWindows = {
         },
         columns : {
             url   : '/ui/columns.xhtml',
-            width : 800, height : 600,
+            width : 900, height : 600,
         },
         ts_mutes : {
             url   : '/ui/ts_mutes.xhtml',

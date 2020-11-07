@@ -26,7 +26,7 @@ window.addEventListener('load', async () => {
     if (!TwitSideModule.ManageWindows.getOpenerId(SUFFIX)) browser.windows.remove(fg.id);
 
     localization();
-    buttonize(['.buttonItem'], commandExec);
+    buttonize(['.ts-btn'], commandExec);
     vivify();
 
     // UI初期化
@@ -43,13 +43,13 @@ function vivify()
 }
 
 // event asignment
-function commandExec(btn)
-{
+const commandExec = (btn) => {
+    if (btn.classList.contains('disabled')) return false;
+
     // identify from id
     switch (btn.id) {
     case 'closeButton':
-        window.close();
-        break;
+        return window.close();
 //    case '':
 //        break;
     }
@@ -59,7 +59,7 @@ function commandExec(btn)
 //    case btn.classList.contains(''):
 //        break;
     }
-}
+};
 
 
 /**

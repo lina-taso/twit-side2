@@ -28,7 +28,7 @@ window.addEventListener('load', async () => {
     if (!TwitSideModule.ManageWindows.getOpenerId(SUFFIX)) browser.windows.remove(fg.id);
 
     localization();
-    buttonize(['.buttonItem', '#prevPhoto', '#nextPhoto'], commandExec);
+    buttonize(['.ts-btn'], commandExec);
     vivify();
 
     // UI初期化
@@ -43,10 +43,18 @@ window.addEventListener('beforeunload', () => {
 
 // add other event listener
 const vivify = () => {
+    $('body')
+        .on('keydown', function(e) {
+            e = e.originalEvent;
+            if (e && e.key == 'ArrowRight')     $('#nextPhoto').click();
+            else if (e && e.key == 'ArrowLeft') $('#prevPhoto').click();
+        });
 };
 
 // event asignment
 const commandExec = (btn) => {
+    if (btn.classList.contains('disabled')) return false;
+
     // identify from id
     switch (btn.id) {
     case 'openDirectUrl':
@@ -145,8 +153,8 @@ const changePhoto = (index) => {
         });
 
     // 矢印表示切り替え
-    $('#prevPhoto').attr('data-disabled', index == 0 ? 'true' : 'false');
-    $('#nextPhoto').attr('data-disabled', index+1 == len ? 'true' : 'false');
+    $('#prevPhoto').toggleClass('disabled', index == 0);
+    $('#nextPhoto').toggleClass('disabled', index+1 == len);
 
     // URL
     $('#directUrl').val(photos[index].rawurl);

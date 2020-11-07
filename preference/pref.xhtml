@@ -1,385 +1,569 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" style="font-size: 12px;">
   <head>
     <meta charset="utf-8" />
     <link href="style/pref.css" rel="stylesheet" type="text/css" />
     <link href="/ui/style/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="/ui/style/theme-light.css" rel="stylesheet" type="text/css" />
 
-    <script src="l10n/l10n-definition-pref.js"></script>
     <script src="/ui/js/jquery.min.js"></script>
-    <script src="/ui/js/jquery.ui.sortable.min.js"></script>
+    <script src="/ui/js/jquery-ui.min.js"></script>
+    <script src="/ui/js/bootstrap.bundle.min.js"></script>
+
+    <style id="tweetMenuOrder"></style>
+
   </head>
 
   <body>
-    <section>
-      <label>Version.</label>
-      <input id="ts-version" readonly="readonly" />
-    </section>
+    <div class="card bg-light m-3">
+      <div class="card-body">
+        <label>Version.</label>
+        <input id="ts-version" readonly="" />
+      </div>
+    </div>
 
-    <section>
-      <h2 id="label.update" />
-      <h3 id="label.update.parameters" />
-      <form>
-        <label for="timeout" />
-        <input  id="timeout" type="number" min="1" max="60" />
-        <br />
-        <label for="timeout_upload" />
-        <input  id="timeout_upload" type="number" min="1" max="3600" />
-        <br />
-        <label for="timeline_count" />
-        <input  id="timeline_count" type="number" min="10" max="200" />
-        <br />
-        <label for="connect_count" />
-        <input  id="connect_count" type="number" min="10" max="200" />
-        <br />
-        <label for="retweeted_count" />
-        <input  id="retweeted_count" type="number" min="10" max="200" />
-        <br />
-        <label for="favorite_count" />
-        <input  id="favorite_count" type="number" min="10" max="200" />
-        <br />
-        <label for="search_count" />
-        <input  id="search_count" type="number" min="10" max="100" />
-        <br />
-        <label for="profile_count" />
-        <input  id="profile_count" type="number" min="10" max="200" />
-        <br />
-        <button class="save_button save_button1" type="button"></button>
-      </form>
+    <div class="card bg-light m-3">
+      <div class="card-header">
+        <div class="nav nav-tabs card-header-tabs">
+          <button class="nav-item nav-link active" tabindex="1" data-string="prefLabelUpdate"
+                  data-toggle="tab" href="#update" />
+          <button class="nav-item nav-link" tabindex="1" data-string="prefLabelExtra"
+                  data-toggle="tab" href="#extra" />
+          <button class="nav-item nav-link" tabindex="1" data-string="prefLabelStyle"
+                  data-toggle="tab" href="#style" />
+          <button class="nav-item nav-link" tabindex="1" data-string="prefLabelScale"
+                  data-toggle="tab" href="#scale" />
+          <button class="nav-item nav-link" tabindex="1" data-string="prefLabelNotification"
+                  data-toggle="tab" href="#notification" />
+          <button class="nav-item nav-link" tabindex="1" data-string="prefLabelTweetmenu"
+                  data-toggle="tab" href="#tweetmenu" />
+          <button class="nav-item nav-link" tabindex="1" data-string="prefLabelConfirm"
+                  data-toggle="tab" href="#confirm" />
+        </div>
+      </div>
 
-      <h3 id="label.update.autopager" />
-      <form>
-        <input  id="autopager" type="checkbox" />
-        <label for="autopager" />
-        <br />
-        <label for="autopager_count" />
-        <input  id="autopager_count" type="number" min="10" max="200" />
-        <br />
+      <div class="tab-content">
+        <div id="update" class="card-body tab-pane fade show active">
+          <h2 class="mt-2 mb-4" data-string="prefLabelUpdate" />
+          <h3 data-string="prefLabelUpdateParameters" />
+          <form class="mb-3">
+            <div class="form-group row">
+              <label for="timeout" class="col-8 col-form-label" data-string="prefTimeout" />
+              <div class="col-4">
+                <input id="timeout" class="form-control" type="number" min="1" max="60" tabindex="1" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="timeout_upload" class="col-8 col-form-label" data-string="prefTimeout_upload" />
+              <div class="col-4">
+                <input id="timeout_upload" class="form-control" type="number" min="1" max="3600" tabindex="1" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="timeline_count" class="col-8 col-form-label" data-string="prefTimeline_count" />
+              <div class="col-4">
+                <input id="timeline_count" class="form-control" type="number" min="10" max="200" tabindex="1" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="connect_count" class="col-8 col-form-label" data-string="prefConnect_count" />
+              <div class="col-4">
+                <input id="connect_count" class="form-control" type="number" min="10" max="200" tabindex="1" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="retweeted_count" class="col-8 col-form-label" data-string="prefRetweeted_count" />
+              <div class="col-4">
+                <input id="retweeted_count" class="form-control" type="number" min="10" max="200" tabindex="1" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="favorite_count" class="col-8 col-form-label" data-string="prefFavorite_count" />
+              <div class="col-4">
+                <input id="favorite_count" class="form-control" type="number" min="10" max="200" tabindex="1" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="search_count" class="col-8 col-form-label" data-string="prefSearch_count" />
+              <div class="col-4">
+                <input id="search_count" class="form-control" type="number" min="10" max="100" tabindex="1" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="profile_count" class="col-8 col-form-label" data-string="prefProfile_count" />
+              <div class="col-4">
+                <input id="profile_count" class="form-control" type="number" min="10" max="200" tabindex="1" />
+              </div>
+            </div>
 
-        <button class="save_button save_button1" type="button"></button>
-      </form>
+            <button class="btn ts-btn btn-outline-primary save_button save_button1" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
 
-      <h3 id="label.update.autoreload" />
-      <form>
-        <label for="autoreload_time" />
-        <input  id="autoreload_time" type="number" min="60" />
-        <br />
-        <label for="autosearch_time" />
-        <input  id="autosearch_time" type="number" min="60" />
-        <br />
-        <input  id="autoreload_aftertweet" type="checkbox" />
-        <label for="autoreload_aftertweet" />
-        <br />
-        <input  id="autoreload_totop" type="checkbox" />
-        <label for="autoreload_totop" />
-        <br />
+          <h3 data-string="prefLabelUpdateAutopager" />
+          <form class="mb-3">
+            <div class="custom-control custom-switch my-4">
+              <input id="autopager" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="autopager" class="custom-control-label" data-string="prefAutopager" />
+            </div>
+            <div class="form-group row">
+              <label for="autopager_count" class="col-8 col-form-label" data-string="prefAutopager_count" />
+              <div class="col-4">
+                <input id="autopager_count" class="form-control" type="number" min="10" max="200" tabindex="1" />
+              </div>
+            </div>
 
-        <button class="save_button save_button1" type="button"></button>
-      </form>
-    </section>
+            <button class="btn ts-btn btn-outline-primary save_button save_button1" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
 
-    <section>
-      <h2 id="label.extra" />
-      <h3 id="label.extra.mute" />
-      <form>
-        <input  id="mute_onsearch" type="checkbox" />
-        <label for="mute_onsearch" />
-        <br />
-        <input  id="mute_ts" type="checkbox" />
-        <label for="mute_ts" />
-        <br />
+          <h3 data-string="prefLabelUpdateAutoreload" />
+          <form class="mb-3">
+            <div class="form-group row">
+            <label for="autoreload_time" class="col-8 col-form-label" data-string="prefAutoreload_time" />
+              <div class="col-4">
+                <input  id="autoreload_time" class="form-control" type="number" min="60" tabindex="1" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="autosearch_time" class="col-8 col-form-label" data-string="prefAutosearch_time" />
+              <div class="col-4">
+                <input  id="autosearch_time" class="form-control" type="number" min="60" tabindex="1" />
+              </div>
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="autoreload_aftertweet" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="autoreload_aftertweet" class="custom-control-label" data-string="prefAutoreload_aftertweet" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="autoreload_totop" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="autoreload_totop" class="custom-control-label" data-string="prefAutoreload_totop" />
+            </div>
 
-        <button class="save_button save_button3" type="button"></button>
-      </form>
+            <button class="btn ts-btn btn-outline-primary save_button save_button1" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
+        </div>
 
-      <h3 id="label.extra.multiuser" />
-      <form>
-        <input  id="auto_user_selection" type="checkbox" />
-        <label for="auto_user_selection" />
-        <br />
+        <div id="extra" class="card-body tab-pane fade">
+          <h2 class="mt-2 mb-4" data-string="prefLabelExtra" />
+          <h3 data-string="prefLabelExtraMute" />
+          <form class="mb-3">
+            <div class="custom-control custom-switch my-4">
+              <input id="mute_onsearch" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="mute_onsearch" class="custom-control-label" data-string="prefMute_onsearch" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="mute_ts" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="mute_ts" class="custom-control-label" data-string="prefMute_ts" />
+            </div>
 
-        <button class="save_button save_button1" type="button"></button>
-      </form>
-    </section>
+            <button class="btn ts-btn btn-outline-primary save_button save_button1" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
 
-    <section>
-      <h2 id="label.style" />
-      <p id="label.style.restart_required" class="warn" />
-      <h3 id="label.style.design" />
-      <form>
-        <label for="theme" />
-        <select id="theme">
-          <option value="default">default</option>
-          <option value="classic_black">classic_black</option>
-          <option value="default2">default [loose]</option>
-          <option value="classic_black2">classic_black [loose]</option>
-          <option value="balloon_white">balloon_white</option>
-          <option value="balloon_black">balloon_black</option>
-          <option value="card_white">card_white</option>
-          <option value="card_black">card_black</option>
-          <option value="underground_orange">underground_orange</option>
-          <option value="shachiku">社畜（shachiku）</option>
-          <option value="shachiku2">社畜（shachiku）/w icon</option>
-          <option value="shachiku3">社畜（shachiku）[loose]</option>
-          <option value="shachiku4">社畜（shachiku）[loose] /w icon</option>
-        </select>
-        <br />
+          <h3 data-string="prefLabelExtraMultiuser" />
+          <form class="mb-3">
+            <div class="custom-control custom-switch my-4">
+              <input id="auto_user_selection" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="auto_user_selection" class="custom-control-label" data-string="prefAutoUserSelection" />
+            </div>
 
-        <input  id="color_retweets" type="checkbox" />
-        <label for="color_retweets" />
-        <br />
-        <input  id="screenname_first" type="checkbox" />
-        <label for="screenname_first" />
-        <br />
-        <input  id="circle_icon" type="checkbox" />
-        <label for="circle_icon" />
-        <br />
+            <button class="btn ts-btn btn-outline-primary save_button save_button1" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
+        </div>
 
-        <button class="save_button save_button2" type="button"></button>
-      </form>
+        <div id="style" class="card-body tab-pane fade">
+          <h2 class="mt-2 mb-4" data-string="prefLabelStyle" />
+          <div class="alert alert-warning" data-string="prefLabelStyleRestart_required" />
+          <h3 data-string="prefLabelStyleAppearance" />
+          <form class="mb-3">
+            <div class="form-group row">
+              <label for="theme" class="col-4 col-form-label" data-string="prefTheme" />
+              <div class="col-8">
+                <select id="theme" class="custom-select" tabindex="1">
+                  <option value="default">auto (OS theme)</option>
+                  <option value="light">light</option>
+                  <option value="light-card">light card</option>
+                  <option value="dark">dark</option>
+                  <option value="dark-card">dark card</option>
+                  <option value="taupe">taupe</option>
+                  <option value="taupe-card">taupe card</option>
+                  <option value="orange">underground orange</option>
+                  <option value="orange-card">underground orange card</option>
+                </select>
+              </div>
+            </div>
 
-      <h3 id="label.style.timestamp" />
-      <form id="timeformatContainer">
-        <label for="time_sample" />
-        <input  id="time_sample" disabled="disabled" size="50" />
-        <br />
-        <label for="time_locale" />
-        <select id="time_locale">
-          <option value="locale"></option>
-          <option value="ja-JP"></option>
-          <option value="ja-JP-u-ca-japanese"></option>
-          <option value="en-US"></option>
-          <option value="en-GB"></option>
-          <!-- <option value="diff">差分（20分前）</option> -->
-        </select>
-        <br />
-        <label for="time_date" />
-        <select id="time_date">
-          <option value="year"></option>
-          <option value="month"></option>
-          <option value="day"></option>
-        </select>
-        <br />
-        <input  id="time_weekday" type="checkbox" />
-        <label for="time_weekday" />
-        <br />
-        <input  id="time_hour12" type="checkbox" />
-        <label for="time_hour12" />
-        <br />
-        <input  id="time_sec" type="checkbox" />
-        <label for="time_sec" />
-        <br />
+            <div class="form-group row">
+              <label class="col-4 col-form-label" data-string="prefShachiku" />
+              <div class="col-8">
+                <button id="shachiku" class="btn ts-btn btn-outline-secondary shachiku_button" type="button" tabindex="1" data-string="prefShachiku_button" />
+              </div>
+            </div>
 
-        <button class="save_button save_button2" type="button"></button>
-      </form>
 
-      <h3 id="label.style.url" />
-      <form>
-        <input  id="exURL" type="checkbox" />
-        <label for="exURL" />
-        <br />
-        <input  id="exURL_cut" type="checkbox" />
-        <label for="exURL_cut" />
-        <br />
-        <input  id="URL_tabactive" type="checkbox" />
-        <label for="URL_tabactive" />
-        <br />
+            <div class="custom-control custom-switch my-4">
+              <input id="color_retweets" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="color_retweets" class="custom-control-label" data-string="prefColor_retweets" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="screenname_first" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="screenname_first" class="custom-control-label" data-string="prefScreenname_first" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="circle_icon" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="circle_icon" class="custom-control-label" data-string="prefCircle_icon" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="show_icon" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="show_icon" class="custom-control-label" data-string="prefShow_icon" />
+            </div>
 
-        <button class="save_button save_button2" type="button"></button>
-      </form>
+            <button class="btn ts-btn btn-outline-primary save_button save_button2" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
 
-      <h3 id="label.style.photo" />
-      <form>
-        <input  id="viewthumbnail" type="checkbox" />
-        <label for="viewthumbnail" />
-        <br />
-        <input  id="popup_photo" type="checkbox" />
-        <label for="popup_photo" />
-        <br />
+          <h3 data-string="prefLabelStyleTimestamp" />
+          <form class="mb-3" id="timeformatContainer">
+            <div class="form-group row">
+              <label for="time_sample" class="col-4 col-form-label" data-string="prefTimeSample" />
+              <div class="col-8 ml-auto">
+                <input id="time_sample" class="form-control" disabled="" size="50" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="time_locale" class="col-4 col-form-label" data-string="prefTimeLocale" />
+              <div class="col-8">
+                <select id="time_locale" class="custom-select" tabindex="1">
+                  <option value="locale" data-string="prefTimeLocaleDefault" />
+                  <option value="ja-JP" />
+                  <option value="ja-JP-u-ca-japanese" />
+                  <option value="en-US" />
+                  <option value="en-GB" />
+                  <!-- <option value="diff">差分（20分前）</option> -->
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="time_date" class="col-4 col-form-label" data-string="prefTimeDate" />
+              <div class="col-8">
+                <select id="time_date" class="custom-select" tabindex="1">
+                  <option value="year" data-string="prefTimeDateYear" />
+                  <option value="month" data-string="prefTimeDateMonth" />
+                  <option value="day" data-string="prefTimeDateDay" />
+                </select>
+              </div>
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="time_weekday" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="time_weekday" class="custom-control-label" data-string="prefTimeWeekday" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="time_hour12" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="time_hour12" class="custom-control-label" data-string="prefTimeHour12" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="time_sec" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="time_sec" class="custom-control-label" data-string="prefTimeSec" />
+            </div>
 
-        <button class="save_button save_button2" type="button"></button>
-      </form>
+            <button class="btn ts-btn btn-outline-primary save_button save_button2" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
 
-      <h3 id="label.style.misc" />
-      <form>
-        <input  id="viewsource" type="checkbox" />
-        <label for="viewsource" />
-        <br />
-        <input  id="linefeed" type="checkbox" />
-        <label for="linefeed" />
-        <br />
-        <input  id="animation" type="checkbox" />
-        <label for="animation" />
-        <br />
+          <h3 data-string="prefLabelStyleUrl" />
+          <form class="mb-3">
+            <div class="custom-control custom-switch my-4">
+              <input id="exURL" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="exURL" class="custom-control-label" data-string="prefExURL"/>
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="exURL_cut" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="exURL_cut" class="custom-control-label" data-string="prefExURL_cut" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="URL_tabactive" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="URL_tabactive" class="custom-control-label" data-string="prefURL_tabactive" />
+            </div>
 
-        <button class="save_button save_button2" type="button"></button>
-      </form>
-    </section>
+            <button class="btn ts-btn btn-outline-primary save_button save_button2" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
 
-    <section>
-      <h2 id="label.scale" />
-      <h3 id="label.scale.minwidth" />
-      <form>
-        <p id="label.scale.minwidth_notice" class="info" />
-        <label for="column_minwidth" />
-        <input  id="column_minwidth" type="number" min="200" step="10" />
-        <br />
+          <h3 data-string="prefLabelStylePhoto" />
+          <form class="mb-3">
+            <div class="custom-control custom-switch my-4">
+              <input id="viewthumbnail" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="viewthumbnail" class="custom-control-label" data-string="prefViewthumbnail" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="movethumbnail" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="movethumbnail" class="custom-control-label" data-string="prefMovethumbnail" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="popup_photo" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="popup_photo" class="custom-control-label" data-string="prefPopup_photo" />
+            </div>
 
-        <button class="save_button save_button2" type="button"></button>
-      </form>
+            <button class="btn ts-btn btn-outline-primary save_button save_button2" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
 
-      <h3 id="label.scale.size" />
-      <form>
-        <p id="label.scale.fontsize_notice" class="info" />
-        <label for="font_size" />
-        <input  id="font_size" type="number" min="6" max="20" />
-        <br />
-        <label for="icon_size" />
-        <select id="icon_size">
-          <option value="xsmall">xsmall (24px)</option>
-          <option value="small">small (32px)</option>
-          <option value="medium">medium (40px)</option>
-          <option value="large">large (48px default)</option>
-          <option value="xlarge">xlarge (52px)</option>
-        </select>
-        <br />
-        <label for="button_size" />
-        <select id="button_size">
-          <option value="xsmall">xsmall (16px)</option>
-          <option value="small">small (20px)</option>
-          <option value="medium">medium (24px default)</option>
-          <option value="large">large (28px)</option>
-        </select>
-        <br />
+          <h3 data-string="prefLabelStyleMisc" />
+          <form class="mb-3">
+            <div class="custom-control custom-switch my-4">
+              <input  id="viewsource" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="viewsource" class="custom-control-label" data-string="prefViewsource" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input  id="linefeed" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="linefeed" class="custom-control-label" data-string="prefLinefeed" />
+            </div>
 
-        <button class="save_button save_button2" type="button"></button>
-      </form>
-    </section>
+            <button class="btn ts-btn btn-outline-primary save_button save_button2" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
+        </div>
 
-    <section>
-      <h2 id="label.notification" />
-      <form>
-        <p id="label.notification.turnonnotif" class="warn" />
-        <input  id="notif_all" type="checkbox" />
-        <label for="notif_all" />
-        <br />
-        <input  id="notif_forme" type="checkbox" />
-        <label for="notif_forme" />
-        <br />
-        <input  id="notif_directmessage" type="checkbox" />
-        <label for="notif_directmessage" />
-        <br />
-        <label for="notif_count" />
-        <input  id="notif_count" type="number" min="5" max="50" />
-        <br />
+        <div id="scale" class="card-body tab-pane fade">
+          <h2 class="mt-2 mb-4" data-string="prefLabelScale" />
+          <h3 data-string="prefLabelScaleMinwidth" />
+          <div class="alert alert-info" data-string="prefLabelScaleMinwidth_notice" />
+          <form class="mb-3">
+            <div class="form-group row">
+              <label for="column_minwidth" class="col-4 col-form-label" data-string="prefColumn_minwidth" />
+              <div class="col-8">
+                <input id="column_minwidth" class="form-control" type="number" min="200" step="10" tabindex="1" />
+              </div>
+            </div>
 
-        <button class="save_button save_button1" type="button"></button>
-      </form>
-    </section>
+            <button class="btn ts-btn btn-outline-primary save_button save_button2" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
 
-    <section>
-      <h2 id="label.tweetmenu" />
-      <h3 id="label.tweetmenu.contextmenu" />
-      <form>
-        <p id="label.tweetmenu.fortypist" class="info" />
-        <input  id="menu_reply" type="checkbox" />
-        <label for="menu_reply" />
-        <br />
-        <input  id="menu_favorite" type="checkbox" />
-        <label for="menu_favorite" />
-        <br />
-        <input  id="menu_conversation" type="checkbox" />
-        <label for="menu_conversation" />
-        <br />
-        <input  id="menu_url" type="checkbox" />
-        <label for="menu_url" />
-        <br />
+          <h3 data-string="prefLabelScaleSize" />
+          <div class="alert alert-info" data-string="prefLabelScaleFontsize_notice" />
+          <form class="mb-3">
+            <div class="form-group row">
+              <label for="font_size" class="col-4 col-form-label" data-string="prefFont_size" />
+              <div class="col-8">
+                <input  id="font_size" class="form-control" type="number" min="6" max="20" tabindex="1" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="icon_size" class="col-4 col-form-label" data-string="prefIcon_size" />
+              <div class="col-8">
+                <select id="icon_size" class="custom-select" tabindex="1">
+                  <option value="xsmall">xsmall (24px)</option>
+                  <option value="small">small (32px)</option>
+                  <option value="medium">medium (40px)</option>
+                  <option value="large">large (48px default)</option>
+                  <option value="xlarge">xlarge (52px)</option>
+                </select>
+              </div>
+            </div>
 
-        <button class="save_button save_button1" type="button"></button>
-      </form>
+            <button class="btn ts-btn btn-outline-primary save_button save_button2" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
+        </div>
 
-      <h3 id="label.tweetmenu.hovermenu" />
-      <form>
-        <img src="/images/hovermenu.png" width="377" />
-        <p id="label.tweetmenu.upto2menu" class="info" />
-        <p id="label.tweetmenu.draggable" />
-        <table id="hovermenuContainer">
-          <tr>
-            <td><input  id="hover_retweet" value="retweet" type="checkbox" /></td>
-            <td><label for="hover_retweet" /></td>
-          </tr>
-          <tr>
-            <td><input  id="hover_quote" value="quote" type="checkbox" /></td>
-            <td><label for="hover_quote" /></td>
-          </tr>
-          <tr>
-            <td><input  id="hover_rt" value="rt" type="checkbox" /></td>
-            <td><label for="hover_rt" /></td>
-          </tr>
-          <tr>
-            <td><input  id="hover_showtext" value="showtext" type="checkbox" /></td>
-            <td><label for="hover_showtext" /></td>
-          </tr>
-          <tr>
-            <td><input  id="hover_opentweeturl" value="opentweeturl" type="checkbox" /></td>
-            <td><label for="hover_opentweeturl" /></td>
-          </tr>
-          <tr>
-            <td><input  id="hover_replyall" value="replyall" type="checkbox" /></td>
-            <td><label for="hover_replyall" /></td>
-          </tr>
-          <tr>
-            <td><input  id="hover_favorite" value="favorite" type="checkbox"
-                        checked="checked" disabled="disabled"/></td>
-            <td><label for="hover_favorite" /></td>
-          </tr>
-          <tr>
-            <td><input  id="hover_showreply" value="showreply" type="checkbox"
-                        checked="checked" disabled="disabled" /></td>
-            <td><label for="hover_showreply" /></td>
-          </tr>
-        </table>
+        <div id="notification" class="card-body tab-pane fade">
+          <h2 class="mt-2 mb-4" data-string="prefLabelNotification" />
+          <div class="alert alert-warning" data-string="prefLabelNotificationTurnonnotif" />
+          <form class="mb-3">
+            <div class="custom-control custom-switch my-4">
+              <input id="notif_all" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="notif_all" class="custom-control-label" data-string="prefNotif_all" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="notif_forme" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="notif_forme" class="custom-control-label" data-string="prefNotif_forme" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="notif_directmessage" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="notif_directmessage" class="custom-control-label" data-string="prefNotif_directmessage" />
+            </div>
+            <div class="form-group row">
+              <label for="notif_count" class="col-8 col-form-label" data-string="prefNotif_count" />
+              <div class="col-4">
+                <input id="notif_count" class="form-control" type="number" min="5" max="50" tabindex="1" />
+              </div>
+            </div>
 
-        <button class="save_button save_button_hover" type="button"></button>
-      </form>
-    </section>
+            <button class="btn ts-btn btn-outline-primary save_button save_button1" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
+        </div>
 
-    <section>
-      <h2 id="label.confirm" />
-      <form>
-        <input  id="confirm_tweet" type="checkbox" />
-        <label for="confirm_tweet" />
-        <br />
-        <input  id="confirm_retweet" type="checkbox" />
-        <label for="confirm_retweet" />
-        <br />
-        <input  id="confirm_favorite" type="checkbox" />
-        <label for="confirm_favorite" />
-        <br />
-        <input  id="confirm_delete" type="checkbox" />
-        <label for="confirm_delete" />
-        <br />
-        <input  id="confirm_follow" type="checkbox" />
-        <label for="confirm_follow" />
-        <br />
-        <input  id="confirm_mute" type="checkbox" />
-        <label for="confirm_mute" />
-        <br />
-        <input  id="confirm_block" type="checkbox" />
-        <label for="confirm_block" />
-        <br />
-        <input  id="confirm_noretweet" type="checkbox" />
-        <label for="confirm_noretweet" />
-        <br />
-        <input  id="confirm_deletecolumn" type="checkbox" />
-        <label for="confirm_deletecolumn" />
-        <br />
+        <div id="tweetmenu" class="card-body tab-pane fade">
+          <h2 class="mt-2 mb-4" data-string="prefLabelTweetmenu" />
+          <h3 data-string="prefLabelTweetmenuContextmenu" />
+          <div class="alert alert-info" data-string="prefLabelTweetmenuFortypist" />
+          <form class="mb-3">
+            <div class="custom-control custom-switch my-4">
+              <input id="menu_reply" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="menu_reply" class="custom-control-label" data-string="prefMenu_reply" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="menu_favorite" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="menu_favorite" class="custom-control-label" data-string="prefMenu_favorite" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="menu_conversation" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="menu_conversation" class="custom-control-label" data-string="prefMenu_conversation" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="menu_url" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="menu_url" class="custom-control-label" data-string="prefMenu_url" />
+            </div>
+            <button class="btn ts-btn btn-outline-primary save_button save_button1" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
 
-        <button class="save_button save_button1" type="button"></button>
-      </form>
-    </section>
+          <h3 data-string="prefLabelTweetmenuHovermenu" />
+          <form class="mb-3">
+            <div class="alert alert-info" data-string="prefLabelTweetmenuUpto2menu" />
+
+            <!-- .tweetBox -->
+            <div id="" class="card tweetBox w-50 m-2 border border-secondary">
+              <!-- .tweetContent -->
+              <div class="card-body tweetContent">
+                <!-- .row -->
+                <div class="row tweetMainContent">
+                  <div class="col-auto tweetContentLeft">
+                    <img class="tweetUserImage" src="/images/logo-32.png" />
+                  </div>
+                  <div class="col tweetContentRight">
+                    <div class="tweetUserName" data-screenname="@twit_side" data-username="Twit Side" />
+                    <div class="tweetText my-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</div>
+                    <div class="tweetSource small text-muted">from Twit Side</div>
+                    <div class="tweetTime small text-muted">2112/9/3 12:00:00</div>
+                  </div>
+                </div>
+                <!-- /.row -->
+
+                <!-- .tweetMenuButtonBox -->
+                <div class="row mt-1 mb-n1 border border-danger tweetMenuButtonBox">
+                  <button class="btn ts-btn btn-outline-secondary border-0 px-0 tweetMenuButton" data-func="retweet"><i class="fas fa-retweet fa-fw" /></button>
+                  <button class="btn ts-btn btn-outline-secondary border-0 px-0 tweetMenuButton" data-func="quote"><i class="fas fa-quote-right fa-fw" /></button>
+                  <button class="btn ts-btn btn-outline-secondary border-0 px-0 tweetMenuButton" data-func="rt"><i class="fas fa-angle-double-right fa-fw" /></button>
+                  <button class="btn ts-btn btn-outline-secondary border-0 px-0 tweetMenuButton" data-func="showtext"><i class="fas fa-clipboard fa-fw" /></button>
+                  <button class="btn ts-btn btn-outline-secondary border-0 px-0 tweetMenuButton" data-func="opentweeturl"><i class="fas fa-external-link-alt fa-fw" /></button>
+                  <button class="btn ts-btn btn-outline-secondary border-0 px-0 tweetMenuButton" data-func="replyall"><i class="fas fa-reply-all fa-fw" /></button>
+                  <button class="btn ts-btn btn-outline-secondary border-0 px-0 tweetMenuButton" data-func="favorite"><i class="far fa-heart fa-fw" /><i class="fas fa-heart fa-fw" /></button>
+                  <button class="btn ts-btn btn-outline-secondary border-0 px-0 tweetMenuButton" data-func="showreply"><i class="fas fa-comments fa-fw" /></button>
+                  <button class="btn ts-btn btn-outline-secondary border-0 px-0 tweetMenuButton" data-func="replydm"><i class="fas fa-reply fa-fw" /></button>
+                </div>
+              </div>
+              <!-- /.tweetContent -->
+            </div>
+            <!-- /.tweetBox -->
+
+            <p class="lead" data-string="prefLabelTweetmenuDraggable" />
+            <div id="hovermenuContainerWrapper">
+              <table id="hovermenuContainer" class="table">
+                <tbody id="hovermenuBody">
+                  <tr class="hovermenuRow">
+                    <td><div class="custom-control custom-switch">
+                        <input id="hover_retweet" class="custom-control-input" value="retweet" type="checkbox" tabindex="1" />
+                        <label for="hover_retweet" class="custom-control-label" />
+                    </div></td>
+                    <td><label for="hover_retweet" data-string="prefHover_retweet" /></td>
+                  </tr>
+                  <tr class="hovermenuRow">
+                    <td><div class="custom-control custom-switch">
+                        <input id="hover_quote" class="custom-control-input" value="quote" type="checkbox" tabindex="1" />
+                        <label for="hover_quote" class="custom-control-label" />
+                    </div></td>
+                    <td><label for="hover_quote" data-string="prefHover_quote" /></td>
+                  </tr>
+                  <tr class="hovermenuRow">
+                    <td><div class="custom-control custom-switch">
+                        <input id="hover_rt" class="custom-control-input" value="rt" type="checkbox" tabindex="1" />
+                        <label for="hover_rt" class="custom-control-label" />
+                    </div></td>
+                    <td><label for="hover_rt" data-string="prefHover_rt" /></td>
+                  </tr>
+                  <tr class="hovermenuRow">
+                    <td><div class="custom-control custom-switch">
+                        <input id="hover_showtext" class="custom-control-input" value="showtext" type="checkbox" tabindex="1" />
+                        <label for="hover_showtext" class="custom-control-label" />
+                    </div></td>
+                    <td><label for="hover_showtext" data-string="prefHover_showtext" /></td>
+                  </tr>
+                  <tr class="hovermenuRow">
+                    <td><div class="custom-control custom-switch">
+                        <input id="hover_opentweeturl" class="custom-control-input" value="opentweeturl" type="checkbox" tabindex="1" />
+                        <label for="hover_opentweeturl" class="custom-control-label" />
+                    </div></td>
+                    <td><label for="hover_opentweeturl" data-string="prefHover_opentweeturl" /></td>
+                  </tr>
+                  <tr class="hovermenuRow">
+                    <td><div class="custom-control custom-switch">
+                        <input id="hover_replyall" class="custom-control-input" value="replyall" type="checkbox" tabindex="1" />
+                        <label for="hover_replyall" class="custom-control-label" />
+                    </div></td>
+                    <td><label for="hover_replyall" data-string="prefHover_replyall" /></td>
+                  </tr>
+                  <tr class="hovermenuRow">
+                    <td><div class="custom-control custom-switch">
+                        <input id="hover_favorite" class="custom-control-input disabled" value="favorite" type="checkbox"
+                               checked="checked" disabled="" />
+                        <label for="hover_favorite" class="custom-control-label" />
+                    </div></td>
+                    <td><label for="hover_favorite" data-string="prefHover_favorite" /></td>
+                  </tr>
+                  <tr class="hovermenuRow">
+                    <td><div class="custom-control custom-switch">
+                        <input id="hover_showreply" class="custom-control-input" value="showreply" type="checkbox"
+                               checked="checked" disabled="" />
+                        <label for="hover_showreply" class="custom-control-label" />
+                    </div></td>
+                    <td><label for="hover_showreply" data-string="prefHover_showreply" /></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <button class="btn ts-btn btn-outline-primary save_button save_button_hover" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
+        </div>
+
+        <div id="confirm" class="card-body tab-pane fade">
+          <h2 class="mt-2 mb-4" data-string="prefLabelConfirm" />
+          <form>
+            <div class="custom-control custom-switch my-4">
+              <input id="confirm_tweet" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="confirm_tweet" class="custom-control-label" data-string="prefConfirm_tweet" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="confirm_retweet" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="confirm_retweet" class="custom-control-label" data-string="prefConfirm_retweet" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="confirm_favorite" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="confirm_favorite" class="custom-control-label" data-string="prefConfirm_favorite" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="confirm_delete" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="confirm_delete" class="custom-control-label" data-string="prefConfirm_delete" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="confirm_follow" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="confirm_follow" class="custom-control-label" data-string="prefConfirm_follow" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="confirm_mute" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="confirm_mute" class="custom-control-label" data-string="prefConfirm_mute" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="confirm_block" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="confirm_block" class="custom-control-label" data-string="prefConfirm_block" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="confirm_noretweet" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="confirm_noretweet" class="custom-control-label" data-string="prefConfirm_noretweet" />
+            </div>
+            <div class="custom-control custom-switch my-4">
+              <input id="confirm_deletecolumn" class="custom-control-input" type="checkbox" tabindex="1" />
+              <label for="confirm_deletecolumn" class="custom-control-label" data-string="prefConfirm_deletecolumn" />
+            </div>
+
+            <button class="btn ts-btn btn-outline-primary save_button save_button1" type="button" tabindex="1" data-string="prefLabelSave_button" />
+          </form>
+        </div>
+      </div>
+    </div>
 
     <!-- at last -->
     <script src="js/pref.js"></script>

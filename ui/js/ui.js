@@ -11,7 +11,7 @@
 const UI = {
     _initialized  : false,
     _win_type     : null,
-    $activecolumn : null,
+    $activeColumn : null,
 
     tweetMenuFuncList : {
         retweet             : (obj) => { onClickRetweet($(obj).closest('.tweetBox')[0]); },
@@ -27,6 +27,11 @@ const UI = {
         showretweetedusers  : (obj) => { onClickShowretweetedusers($(obj).closest('.tweetBox')[0]); },
         replydm             : (obj) => { onClickReplydm($(obj).closest('.tweetBox')[0]); },
         destroyuser         : (obj) => { onClickDestroyUser($(obj).closest('.tweetBox')[0]); },
+        follow              : (obj) => { onClickFollowUser($(obj).closest('.tweetBox')[0]); },
+        unmute              : (obj) => { onClickDestroyMuteUser($(obj).closest('.tweetBox')[0]); },
+        block               : (obj) => { onClickBlockUser($(obj).closest('.tweetBox')[0]); },
+        unblock             : (obj) => { onClickDestroyBlockUser($(obj).closest('.tweetBox')[0]); },
+        wantretweet         : (obj) => { onClickDestroyNoretweetUser($(obj).closest('.tweetBox')[0]); },
         updatelist          : (obj) => { onClickEditList($(obj).closest('.tweetBox')[0]); },
         showmembers         : (obj) => { onClickShowMembers($(obj).closest('.tweetBox')[0]); },
         showsubscribers     : (obj) => { onClickShowSubscribers($(obj).closest('.tweetBox')[0]); },
@@ -47,24 +52,21 @@ const UI = {
         switch (win_type) {
         case TwitSideModule.WINDOW_TYPE.MAIN:
             // テンプレート
-            this.$tweetUserTemplate  = $('#templateContainer .tweetUserOption');
-            this.$menuItemTemplate   = $('#templateContainer .menuProfileItem');
+            this.$tweetUserTemplate  = $('#templateContainer > .tweetUserOption');
+            this.$menuItemTemplate   = $('#templateContainer > .menuProfileItem');
+            this.$columnSpyTemplate  = $('#templateContainer > .columnSpy');
             // コンテナ
             this.$tweetUserSelection = $('#tweetUserSelection');
-            this.$leftC              = $('#leftContainer');
-            this.$leftCmenuList      = $('#leftContainer .menuList');
+            this.$columnSpyC         = $('#columnSpyContainer');
             break;
         case TwitSideModule.WINDOW_TYPE.PROFILE:
-            // テンプレート
-            this.$friendTemplate     = $('#templateFriendBox');
-            break;
         case TwitSideModule.WINDOW_TYPE.SEARCH:
             break;
         case TwitSideModule.WINDOW_TYPE.MUTE:
         case TwitSideModule.WINDOW_TYPE.BLOCK:
         case TwitSideModule.WINDOW_TYPE.NORETWEET:
             // テンプレート
-            this.$tweetUserTemplate  = $('#templateContainer .tweetUserOption');
+            this.$tweetUserTemplate  = $('#templateContainer > .tweetUserOption');
             // コンテナ
             this.$tweetUserSelection = $('#tweetUserSelection');
             break;
@@ -73,14 +75,11 @@ const UI = {
         }
 
         // 共通テンプレート
-        this.$tweetBoxTemplate       = $('#templateContainer .tweetBox');
-        this.$tweetMoreBoxTemplate   = $('#templateContainer .tweetMoreBox');
-        this.$columnTabTemplate      = $('#templateContainer .columnTab');
-        this.$columnTemplate         = $('#templateContainer .column');
+        this.$tweetBoxTemplate       = $('#templateContainer > .tweetBox');
+        this.$tweetMoreBoxTemplate   = $('#templateContainer > .tweetMoreBox');
+        this.$columnTemplate         = $('#templateContainer > .column');
         // 共通コンテナ
-        this.$mainC                  = $('#mainContainer'); // 横スクロール
         this.$columnC                = $('#columnContainer');
-        this.$columnTabC             = $('#columnTabContainer');
 
         // 右クリックメニュー
         $.contextMenu({
@@ -104,22 +103,15 @@ const UI = {
         case TwitSideModule.WINDOW_TYPE.MAIN:
             {
                 // カラムを左端へ初期化
-                this.$mainC.scrollLeft(0);
+                this.$columnC.scrollLeft(0);
                 // ドロップダウンメニュー
-                this.$tweetUserSelection.select2({
-                    minimumResultsForSearch : Infinity,
-                    width                   : 'off',
-                    templateSelection       : (state) => {
-                        const $i = $('<img class="tweetUserItemImage" />')
-                              .attr('src', state.element.dataset.image),
-                              $l = $('<span />').text(state.text);
-                        return $('<span class="tweetUserItemBox" />').append($i, $l);
-                    }
-                });
+                this.$tweetUserSelection
+                    .on('input', function() {
+                        $('#profileOwnImage').css('background-image', 'url(' + this.selectedOptions[0].dataset.image + ')');
+                    });
 
                 const all_tlinfo   = TwitSideModule.ManageColumns.getTimelineInfo(),
                       all_colinfo  = TwitSideModule.ManageColumns.getColumnInfo();
-
                 // ユーザ
                 UI.updateTweetUsers();
                 // カラム
@@ -132,6 +124,8 @@ const UI = {
                     // タイムラインの状態からボタンとプログレスバー
                     TwitSideModule.ManageColumns.getTimelineInfo(columnidx, 'timeline').renotifyStatus(fg.id);
                 }
+                // カラムスパイ
+                changeColumnSpy();
                 // 通知取得
                 updateNotifications();
             }
@@ -142,20 +136,13 @@ const UI = {
         case TwitSideModule.WINDOW_TYPE.NORETWEET:
             {
                 // ドロップダウンメニュー
-                this.$tweetUserSelection.select2({
-                    minimumResultsForSearch : Infinity,
-                    width                   : 'off',
-                    templateSelection       : (state) => {
-                        const $i = $('<img class="tweetUserItemImage" />')
-                              .attr('src', state.element.dataset.image),
-                              $l = $('<span />').text(state.text);
-                        return $('<span class="tweetUserItemBox" />').append($i, $l);
-                    }
-                });
+                this.$tweetUserSelection
+                    .on('input', function() {
+                        $('#profileOwnImage').css('background-image', 'url(' + this.selectedOptions[0].dataset.image + ')');
+                    });
 
                 // ツイートユーザ
                 const all_userinfo = TwitSideModule.ManageUsers.getUserInfo();
-
                 UI.updateTweetUserSelection(this.$tweetUserSelection, this.$tweetUserTemplate, all_userinfo);
             }
             break;
@@ -163,10 +150,6 @@ const UI = {
         default:
             return Promise.resolve();
         }
-    },
-
-    finish : function() {
-        TwitSideModule.windows.removeReceiver(fg.id);
     },
 
     receiver : function(data) {
@@ -224,7 +207,7 @@ const UI = {
          */
         const voteRequired = () => {
             const $column  = $('#'+data.columnid),
-                  timeline = $column.find('.timelineBox')[0];
+                  timeline = $column.children('.timelineBox')[0];
 
             // 最上部
             if (timeline.scrollTop == 0) return true;
@@ -263,7 +246,9 @@ const UI = {
                 break;
             case TwitSideModule.ACTION.DELETE_ALL:
                 UI.$columnC.empty();
-                UI.$columnTabC.empty();
+                // メインウィンドウのみ
+                if (UI._win_type === TwitSideModule.WINDOW_TYPE.MAIN)
+                    UI.$columnSpyC.empty();
                 break;
             }
         };
@@ -367,7 +352,7 @@ const UI = {
      * ツイート操作
      */
     // ツイートを表示
-    _showTweets : function(type, columnid, tweets, keep) {
+    _showTweets : async function(type, columnid, tweets, keep) {
         if (!tweets.length) return;
         let offsetBottom, keepTop;
         const timelineBox = $('#'+columnid).children('.timelineBox')[0],
@@ -410,12 +395,6 @@ const UI = {
                 break;
             case TwitSideModule.TL_TYPE.TEMP_FOLLOW:
             case TwitSideModule.TL_TYPE.TEMP_FOLLOWER:
-                timelineBox.insertBefore(
-                    this._createFriendTweetBox(
-                        type, datum.tweetinfo, columnid
-                    ), nextbox
-                );
-                break;
             case TwitSideModule.TL_TYPE.TEMP_MUTE:
             case TwitSideModule.TL_TYPE.TEMP_BLOCK:
             case TwitSideModule.TL_TYPE.TEMP_NORETWEET:
@@ -467,13 +446,13 @@ const UI = {
               datum      = tl.tweetInfo(boxid);
 
         // 閉じられているときは表示しない
-        if ($replyBox.attr('data-reply-open') != 'true') return;
+        if ($replyBox.attr('data-open') != 'true') return;
 
         // リプライは機能制限
         const $reply = $(this._createTweetBox(
             type, datum.tweetinfo, columnid, null
         ));
-        $reply.children('.tweetContent').children().remove(':not(.tweetMainContent)');
+        $reply.appendTo('<li class="list-group-item" />').children('.tweetContent').children().remove(':not(.tweetMainContent)');
         $replyBox.find('> .replies').append($reply);
     },
 
@@ -515,7 +494,7 @@ const UI = {
     _deleteAllTweet : function(columnid) {
         const $column = $('#'+columnid);
         $column.children('.timelineBox').empty();
-        $column[0].$activeBox = null;
+        $column[0].$activeBox = undefined;
     },
 
     // ツイート用
@@ -566,7 +545,7 @@ const UI = {
             });
             // ユーザ情報
             $tweetContent.find('.tweetUserImage')
-                .attr('src', recordStatus.user.profile_image_url_https);
+                .attr('src', recordStatus.user.profile_image_url_https.replace('_normal.', '_bigger.'));
             $tweetContent.find('.tweetUserName').attr({
                 'data-screenname' : '@' + recordStatus.user.screen_name,
                 'data-username'   : recordStatus.user.name
@@ -585,14 +564,23 @@ const UI = {
                 $place.attr({
                     'title'       : recordStatus.place.full_name,
                     'data-mapurl' : 'http://maps.google.com/?q=' + recordStatus.place.full_name
-                });
+                }).on('click', () => { openURL('http://maps.google.com/?q=' + recordStatus.place.full_name); });
             }
             // verified
             if (recordStatus.user.verified)
                 $tweetContent.attr('data-verified', 'true');
-            // 本文
-            $tweetContent.find('.tweetText')
-                .text(TwitSideModule.text.unescapeHTML(record.meta.text));
+            // replyto, 本文
+            if (record.meta.display_text_range[0]) {
+                $tweetContent.find('.tweetUserReplyto')
+                    .text(record.meta.text.slice(0, record.meta.display_text_range[0]));
+                $tweetContent.find('.tweetText')
+                    .text(TwitSideModule.text.unescapeHTML(
+                        record.meta.text.slice(record.meta.display_text_range[0])));
+            }
+            else {
+                $tweetContent.find('.tweetText')
+                    .text(TwitSideModule.text.unescapeHTML(record.meta.text));
+            }
             // 投稿ソース
             $tweetContent.find('.tweetSource')
                 .text('from ' + analyzeSource(recordStatus.source));
@@ -611,9 +599,9 @@ const UI = {
         if (record.raw.retweeted_status) {
             $tweetContent.attr('data-retweet', 'true');
 
-            $tweetContent.find('.tweetRetweeter');
+            $tweetContent.find('.tweetRetweeter').removeClass('d-none');
             $tweetContent.find('.tweetRetweeterImage')
-                .attr({ src   : record.raw.user.profile_image_url,
+                .attr({ src   : record.raw.user.profile_image_url_https,
                         title : '@' + record.raw.user.screen_name });
             $tweetContent.find('.tweetRetweeterName')
                 .attr({
@@ -630,7 +618,6 @@ const UI = {
             // リツイートされた自分のツイート
             if (type == TwitSideModule.TL_TYPE.RETWEETED
                 || record.raw.retweet_count) {
-                $tweetContent.find('.tweetRetweeter');
                 $tweetContent.find('.tweetRetweeterCount')
                     .attr('data-count', record.raw.retweet_count);
             }
@@ -648,7 +635,7 @@ const UI = {
         // 返信
         contextMenu.reply = {
             name    : browser.i18n.getMessage('tweetReply'),
-            icon    : 'fa-reply',
+            icon    : 'fas fa-reply fa-fw',
             visible : function() { return document.body.dataset.menuReply == 'true'; }
         };
         // 全員に返信
@@ -656,14 +643,14 @@ const UI = {
         if (record.meta.screennames.length > 1)
             contextMenu.replyall = {
                 name    : browser.i18n.getMessage('tweetReplyall'),
-                icon    : 'fa-reply-all',
+                icon    : 'fas fa-reply-all fa-fw',
                 visible : function() { return document.body.dataset.menuReply == 'true'; }
             };
         // 公式RT
         {
             contextMenu.retweet = {
                 name : browser.i18n.getMessage('tweetRetweet'),
-                icon : 'fa-retweet'
+                icon : 'fas fa-retweet fa-fw'
             };
             if ( record.raw.retweeted
                  || (record.raw.retweeted_status && record.meta.isMine)
@@ -673,12 +660,12 @@ const UI = {
         // 引用リツイート
         contextMenu.quote = {
             name : browser.i18n.getMessage('tweetQuote'),
-            icon : 'fa-retweet'
+            icon : 'fas fa-quote-right fa-fw'
         };
         // 引用してRT
         contextMenu.rt = {
             name : browser.i18n.getMessage('tweetRt'),
-            icon : 'fa-quote-left'
+            icon : 'fas fa-angle-double-right fa-fw'
         };
         // お気に入り
         if (record.raw.favorited) {
@@ -686,7 +673,7 @@ const UI = {
             // お気に入り解除
             contextMenu.favorite = {
                 name    : browser.i18n.getMessage('tweetUnfavorite'),
-                icon    : 'fa-star',
+                icon    : 'far fa-heart fa-fw',
                 visible : function() { return document.body.dataset.menuFavorite == 'true'; }
             };
         }
@@ -694,19 +681,19 @@ const UI = {
             // お気に入り追加
             contextMenu.favorite = {
                 name    : browser.i18n.getMessage('tweetFavorite'),
-                icon    : 'fa-star',
+                icon    : 'fas fa-heart fa-fw',
                 visible : function() { return document.body.dataset.menuFavorite == 'true'; }
             };
         }
         // ツイートテキスト
         contextMenu.showtext = {
             name : browser.i18n.getMessage('tweetShowtext'),
-            icon : 'fa-clipboard'
+            icon : 'fas fa-clipboard fa-fw'
         };
         // ツイートを開く
         contextMenu.opentweeturl = {
             name : browser.i18n.getMessage('tweetOpentweeturl'),
-            icon : 'fa-external-link'
+            icon : 'fas fa-external-link-alt fa-fw'
         };
         // 会話
         if (!/_reply_/.test(fullboxid) && record.raw.retweeted_status
@@ -716,7 +703,7 @@ const UI = {
             $tweetContent.attr('data-inreply', 'true');
             contextMenu.showreply = {
                 name    : browser.i18n.getMessage('tweetShowreply'),
-                icon    : 'fa-commenting',
+                icon    : 'fas fa-comments fa-fw',
                 visible : function() { return document.body.dataset.menuConversation == 'true'; }
             };
         }
@@ -724,19 +711,19 @@ const UI = {
         if (record.meta.isMine || record.raw.retweeted)
             contextMenu.destroy = {
                 name : browser.i18n.getMessage('tweetDestroy'),
-                icon : 'fa-trash'
+                icon : 'fas fa-trash fa-fw'
             };
         // リツイートされたツイート
         if (record.raw.retweet_count
             || record.raw.retweeted_status && record.raw.retweeted_status.retweet_count)
             contextMenu.showretweetedusers = {
                 name : browser.i18n.getMessage('tweetShowretweetedusers'),
-                icon : 'fa-users'
+                icon : 'fas fa-users fa-fw'
             };
         // 既にメタデータ取得済み
         if (record.meta.retweeters) {
             let $tweetRetweeterList = $tweetContent.find('.tweetRetweeterList'),
-                $imageTemplate      = $('#templateContainer > .tweetRetweeterImage');
+                $imageTemplate      = $tweetContent.find('.tweetRetweeterImage').clone().attr('src', '').addClass('my-1');
 
             for (let rt of record.meta.retweeters)
                 $imageTemplate.clone().attr(rt).appendTo($tweetRetweeterList);
@@ -745,13 +732,13 @@ const UI = {
         if (record.meta.screennames.length) {
             contextMenu.users = {
                 name  : browser.i18n.getMessage('tweetUsers'),
-                icon  : 'fa-user-circle',
+                icon  : 'fas fa-user-circle fa-fw',
                 items : {}
             };
             for (let sn of record.meta.screennames) {
                 contextMenu.users.items[sn] = {
                     name : sn,
-                    icon : 'fa-at',
+                    icon : 'fas fa-at fa-fw',
                     callback : (key, opt) => {
                         TwitSideModule.ManageWindows.openWindow('profile', {
                             userid  : this.getActiveColumn().attr('data-userid'),
@@ -765,13 +752,13 @@ const UI = {
         if (entities.hashtags.length) {
             contextMenu.hashtags = {
                 name  : browser.i18n.getMessage('tweetHashtags'),
-                icon  : 'fa-tag',
+                icon  : 'fas fa-tag fa-fw',
                 items : {}
             };
             for (let ht of entities.hashtags) {
                 contextMenu.hashtags.items['#'+ht.text] = {
                     name : '#'+ht.text,
-                    icon : 'fa-hashtag',
+                    icon : 'fas fa-hashtag fa-fw',
                     callback : (key, opt) => {
                         TwitSideModule.ManageWindows.openWindow('search', {
                             userid  : this.getActiveColumn().attr('data-userid'),
@@ -784,14 +771,14 @@ const UI = {
         // URLの数だけメニュー化＆本文置換
         contextMenu.urls = {
             name  : browser.i18n.getMessage('tweetUrls'),
-            icon  : 'fa-link',
+            icon  : 'fas fa-link fa-fw',
             items : {},
             visible : function() { return document.body.dataset.menuUrl == 'true'; }
         };
         {
             const $tweetText      = $tweetContent.find('.tweetText'),
                   $tweetThumbnail = $tweetContent.find('.tweetThumbnail'),
-                  $templateImg    = $('#templateContainer .tweetThumbnailImage');
+                  $templateImg    = $('#templateContainer > .tweetThumbnailImage');
             let index = 0;
 
             for (let url of entities.urls) {
@@ -799,16 +786,15 @@ const UI = {
                 // 右クリックメニュー
                 contextMenu.urls.items['url'+index] = {
                     name : url.display_url,
-                    icon : 'fa-external-link',
+                    icon : 'fas fa-external-link-alt fa-fw',
                     callback : (key, opt) => { openURL(url.url); }
                 };
 
                 // URL置換先オブジェクト
-                const $span = $('<span>').addClass('text-link').text(
+                const $span = $('<span class="text-link" />').text(
                     TwitSideModule.config.getPref('exURL')
                         ? (TwitSideModule.config.getPref('exURL_cut')
-                           ? url.display_url
-                           : url.expanded_url)
+                           ? url.display_url : url.expanded_url)
                         : url.url)
                       .attr({
                           title          : url.expanded_url,
@@ -829,16 +815,15 @@ const UI = {
                 // 右クリックメニュー
                 contextMenu.urls.items['url'+index] = {
                     name : media[0].display_url,
-                    icon : 'fa-external-link',
+                    icon : 'fas fa-external-link fa-fw',
                     callback : (key, opt) => { openURL(media[0].url); }
                 };
 
                 // URL置換先オブジェクト
-                const $span = $('<span>').addClass('text-link').text(
+                const $span = $('<span class="text-link" />').text(
                     TwitSideModule.config.getPref('exURL')
                         ? (TwitSideModule.config.getPref('exURL_cut')
-                           ? media[0].display_url
-                           : media[0].expanded_url)
+                           ? media[0].display_url : media[0].expanded_url)
                         : media[0].url)
                       .attr({
                           title          : media[0].expanded_url,
@@ -901,22 +886,21 @@ const UI = {
         // 属性設定
         $tweetBox.attr({
             'data-tweetid'    : recordStatus.id_str,
-            'data-screenname' : '@' + recordStatus.user.screen_name
+            'data-screenname' : '@' + recordStatus.user.screen_name,
+            'data-listname'   : recordStatus.name,
         });
         // TODO
         $tweetContent.attr({
             'data-subscriber' : recordStatus.subscriber_count,
             'data-member'     : recordStatus.member_count,
-            'data-mode'       : recordStatus.mode
+            'data-protected'  : recordStatus.mode == 'private'
         });
         if (record.meta.isMine) $tweetContent.attr('data-mine', 'true');
 
         // ユーザ情報
         $tweetContent.find('.tweetUserImage')
-            .attr('src', recordStatus.user.profile_image_url_https);
-        $tweetContent.find('.listName').attr({
-            'data-listname'   : recordStatus.name
-        });
+            .attr('src', recordStatus.user.profile_image_url_https.replace('_normal.', '_bigger.'));
+        $tweetContent.find('.listName').text(recordStatus.name);
         $tweetContent.find('.listOwnerName').attr({
             'data-screenname' : '@' + recordStatus.user.screen_name,
             'data-username'   : recordStatus.user.name
@@ -934,47 +918,47 @@ const UI = {
             // 削除
             contextMenu.destroy = {
                 name : browser.i18n.getMessage('tweetDestroylist'),
-                icon : 'fa-trash'
+                icon : 'fas fa-trash fa-fw'
             };
             // 編集
             contextMenu.updatelist = {
                 name : browser.i18n.getMessage('tweetUpdatelist'),
-                icon : 'fa-pencil'
+                icon : 'fas fa-edit fa-fw'
             };
         }
         // メンバー一覧
         contextMenu.showmembers = {
             name : browser.i18n.getMessage('tweetShowmembers'),
-            icon : 'fa-users'
+            icon : 'fas fa-user-friends  fa-fw'
         };
         // 購読者一覧
         contextMenu.showsubscribers = {
             name : browser.i18n.getMessage('tweetShowsubscribers'),
-            icon : 'fa-users'
+            icon : 'fas fa-user-friends fa-fw'
         };
         // リストを購読
         if (record.meta.subscriptionable)
             contextMenu.subscribe = {
                 name : browser.i18n.getMessage('tweetSubscribe'),
-                icon : 'fa-plus-circle'
+                icon : 'fas fa-plus-circle fa-fw'
             };
         // リストの購読解除
         if (record.meta.unsubscriptionable)
             contextMenu.unsubscribe = {
                 name : browser.i18n.getMessage('tweetUnsubscribe'),
-                icon : 'fa-minus-circle'
+                icon : 'fas fa-minus-circle fa-fw'
             };
         // カラムに追加
         if (record.meta.registrable)
             contextMenu.addlist2column = {
                 name : browser.i18n.getMessage('tweetAddcolumn'),
-                icon : 'fa-plus'
+                icon : 'fas fa-expand-arrows-alt fa-fw'
             };
         // スクリーンネーム
         const sn = '@' + recordStatus.user.screen_name;
         contextMenu[sn] = {
             name : sn,
-            icon : 'fa-at',
+            icon : 'fas fa-at fa-fw',
             callback : (key, opt) => {
                 TwitSideModule.ManageWindows.openWindow('profile', {
                     userid  : this.getActiveColumn().attr('data-userid'),
@@ -985,50 +969,6 @@ const UI = {
 
         // コンテクストメニューを登録
         $tweetBox[0].contextMenuItems = contextMenu;
-
-        return $tweetBox[0];
-    },
-
-    // フォロー、フォロワー用
-    _createFriendTweetBox : function(type, record, columnid) {
-        const fullboxid = columnid+'_'+record.meta.boxid;
-
-        // more
-        if (/_more$/.test(fullboxid)) {
-            return this.$tweetMoreBoxTemplate.clone()
-                .attr({
-                    id            : fullboxid,
-                    'data-origid' : record.raw.id_str
-                })[0];
-        }
-
-        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
-              $tweetContent = $tweetBox.children('.tweetContent').eq(0),
-              recordStatus  = record.raw;
-
-        // 属性設定
-        $tweetBox.attr({
-            'data-tweetid'    : recordStatus.id_str,
-            'data-screenname' : '@' + recordStatus.screen_name
-        });
-
-        // ユーザ情報
-        $tweetContent.find('.tweetUserImage')
-            .attr('src', recordStatus.profile_image_url_https);
-        $tweetContent.find('.tweetUserName').attr({
-            'data-screenname' : '@' + recordStatus.screen_name,
-            'data-username'   : recordStatus.name
-        });
-
-        // protected
-        if (recordStatus.protected)
-            $tweetContent.attr('data-protected', 'true');
-        // verified
-        if (recordStatus.verified)
-            $tweetContent.attr('data-verified', 'true');
-        // 説明
-        if (recordStatus.description)
-            $tweetContent.find('.tweetText').text(recordStatus.description);
 
         return $tweetBox[0];
     },
@@ -1064,7 +1004,7 @@ const UI = {
 
         // ユーザ情報
         $tweetContent.find('.tweetUserImage')
-            .attr('src', record.meta.sender.profile_image_url_https);
+            .attr('src', record.meta.sender.profile_image_url_https.replace('_normal.', '_bigger.'));
         $tweetContent.find('.tweetUserName').attr({
             'data-screenname' : '@' + record.meta.sender.screen_name,
             'data-username'   : record.meta.sender.name
@@ -1095,29 +1035,29 @@ const UI = {
         // 返信
         contextMenu.replydm = {
             name : browser.i18n.getMessage('tweetReply'),
-            icon : 'fa-reply'
+            icon : 'fas fa-reply fa-fw'
         };
         // ツイートテキスト
         contextMenu.showtext = {
             name : browser.i18n.getMessage('tweetShowtext'),
-            icon : 'fa-clipboard'
+            icon : 'fas fa-clipboard fa-fw'
         };
         // 削除
         contextMenu.destroy = {
             name : browser.i18n.getMessage('tweetDestroy'),
-            icon : 'fa-trash'
+            icon : 'fas fa-trash fa-fw'
         };
         // スクリーンネーム
         if (record.meta.screennames.length) {
             contextMenu.users = {
                 name : browser.i18n.getMessage('tweetUsers'),
-                icon : 'fa-users',
+                icon : 'fas fa-user-circle fa-fw',
                 items : {}
             };
             for (let sn of record.meta.screennames) {
                 contextMenu.users.items[sn] = {
                     name : sn,
-                    icon : 'fa-at',
+                    icon : 'fas fa-at fa-fw',
                     callback : (key, opt) => {
                         TwitSideModule.ManageWindows.openWindow('profile', {
                             userid  : this.getActiveColumn().attr('data-userid'),
@@ -1130,14 +1070,14 @@ const UI = {
         // URLの数だけメニュー化＆本文置換
         contextMenu.urls = {
             name  : browser.i18n.getMessage('tweetUrls'),
-            icon  : 'fa-link',
+            icon  : 'fas fa-link fa-fw',
             items : {},
             visible : function() { return document.body.dataset.menuUrl == 'true'; }
         };
         {
             const $tweetText      = $tweetContent.find('.tweetText'),
                   $tweetThumbnail = $tweetContent.find('.tweetThumbnail'),
-                  $templateImg    = $('#templateContainer .tweetThumbnailImage');
+                  $templateImg    = $('#templateContainer > .tweetThumbnailImage');
             let index = 0;
 
             for (let url of entities.urls) {
@@ -1145,16 +1085,15 @@ const UI = {
                 // 右クリックメニュー
                 contextMenu.urls.items['url'+index] = {
                     name : url.display_url,
-                    icon : 'fa-external-link',
+                    icon : 'fas fa-external-link fa-fw',
                     callback : (key, opt) => { openURL(url.url); }
                 };
 
                 // URL置換先オブジェクト
-                const $span = $('<span>').addClass('text-link').text(
+                const $span = $('<span class="text-link" />').text(
                     TwitSideModule.config.getPref('exURL')
                         ? (TwitSideModule.config.getPref('exURL_cut')
-                           ? url.display_url
-                           : url.expanded_url)
+                           ? url.display_url : url.expanded_url)
                         : url.url)
                     .attr({
                         title          : url.expanded_url,
@@ -1185,7 +1124,7 @@ const UI = {
         return $tweetBox[0];
     },
 
-    // mute, block, noretweet用
+    // follow、follower, mute, block, noretweet用
     _createUserListBox : function(type, record, columnid) {
         const fullboxid = columnid+'_'+record.meta.boxid;
 
@@ -1210,11 +1149,21 @@ const UI = {
 
         // ユーザ情報
         $tweetContent.find('.tweetUserImage')
-            .attr('src', recordStatus.profile_image_url_https);
+            .attr('src', recordStatus.profile_image_url_https.replace('_normal.', '_bigger.'));
         $tweetContent.find('.tweetUserName').attr({
             'data-screenname' : '@' + recordStatus.screen_name,
             'data-username'   : recordStatus.name
         });
+
+        // protected
+        if (recordStatus.protected)
+            $tweetContent.attr('data-protected', 'true');
+        // verified
+        if (recordStatus.verified)
+            $tweetContent.attr('data-verified', 'true');
+        // 説明
+        if (recordStatus.description)
+            $tweetContent.find('.tweetText').text(recordStatus.description);
 
         /**
          * 基本メニュー
@@ -1225,14 +1174,62 @@ const UI = {
         // 削除
         contextMenu.destroyuser = {
             name    : browser.i18n.getMessage('tweetDestroyuser'),
-            icon    : 'fa-user-times',
+            icon    : 'fas fa-user-times fa-fw',
             visible : function() { return document.body.dataset.ownList == 'true'; }
+        };
+        // DM
+        contextMenu.replydm = {
+            name    : browser.i18n.getMessage('profileSenddm'),
+            icon    : 'fas fa-reply fa-fw',
+            visible : function() { return document.body.dataset.windowType == 'profile'; }
+        };
+        // follow
+        if (record.raw.following) {
+            $tweetContent.attr('data-following', 'true');
+            // unfollow
+            contextMenu.follow = {
+                name    : browser.i18n.getMessage('tweetUnfollowuser'),
+                icon    : 'fas fa-user-minus fa-fw',
+                visible : function() { return document.body.dataset.windowType == 'profile'; }
+            };
+        }
+        else {
+            // follow
+            contextMenu.follow = {
+                name    : browser.i18n.getMessage('tweetFollowuser'),
+                icon    : 'fas fa-user-plus fa-fw',
+                visible : function() { return document.body.dataset.windowType == 'profile'; }
+            };
+        }
+        // unmute
+        contextMenu.unmute = {
+            name    : browser.i18n.getMessage('tweetUnmuteuser'),
+            icon    : 'fas fa-user-minus fa-fw',
+            visible : function() { return document.body.dataset.windowType == 'mute'; }
+        };
+        // block
+        contextMenu.block = {
+            name    : browser.i18n.getMessage('tweetBlockuser'),
+            icon    : 'fas fa-user-slash fa-fw',
+            visible : function() { return document.body.dataset.windowType == 'profile'; }
+        };
+        // unblock
+        contextMenu.unblock = {
+            name    : browser.i18n.getMessage('tweetUnblockuser'),
+            icon    : 'fas fa-user-minus fa-fw',
+            visible : function() { return document.body.dataset.windowType == 'block'; }
+        };
+        // wantrewtweet
+        contextMenu.wantretweet = {
+            name    : browser.i18n.getMessage('tweetWantretweetuser'),
+            icon    : 'fas fa-user-minus fa-fw',
+            visible : function() { return document.body.dataset.windowType == 'noretweet'; }
         };
         // スクリーンネーム
         const sn = '@' + recordStatus.screen_name;
         contextMenu[sn] = {
             name : sn,
-            icon : 'fa-at',
+            icon : 'fas fa-at fa-fw',
             callback : (key, opt) => {
                 TwitSideModule.ManageWindows.openWindow('profile', {
                     userid  : UI.getActiveColumn().attr('data-userid'),
@@ -1279,7 +1276,6 @@ const UI = {
     updateTweetUsers : function() {
         // ユーザ情報取得
         const all_userinfo = TwitSideModule.ManageUsers.getUserInfo();
-
         // ユーザクリア
         $('#menuProfileSeparator').prevAll('.menuProfileItem').remove();
 
@@ -1289,15 +1285,14 @@ const UI = {
                   $menuitem   = this.$menuItemTemplate.clone();
 
             // スクリーンネーム変更
-            if (userinfo.screen_name)
-                $menuitem.attr({
-                    'data-screenname' : '@' + userinfo.screen_name,
-                    'data-label'      : '@' + userinfo.screen_name
-                });
+            if (userinfo.screen_name) {
+                $menuitem.attr('data-screenname', '@' + userinfo.screen_name);
+                $menuitem.children('span').text('@' + userinfo.screen_name);
+            }
             // プロフィール画像変更
             if (userinfo.profile_image_url)
                 $menuitem.children('.menuImage').attr('src', userinfo.profile_image_url);
-            // 左パネル
+            // トップメニューコンテナに追加
             $menuitem.attr('data-userid', userinfo.user_id).insertBefore($('#menuProfileSeparator'));
         }
 
@@ -1307,8 +1302,9 @@ const UI = {
         $tweetUserSelection.find('option').remove();
 
         // ユーザ追加
-        for (let userid in all_userinfo) {
-            const userinfo    = all_userinfo[userid],
+        const userids = Object.keys(all_userinfo);
+        for (let i=0; i<userids.length; i++) {
+            const userinfo    = all_userinfo[userids[i]],
                   $useroption = $tweetUserTemplate.clone();
 
             // スクリーンネーム変更
@@ -1319,6 +1315,10 @@ const UI = {
                 $useroption.attr('data-image', userinfo.profile_image_url);
             // メニューアイテム
             $useroption.val(userinfo.user_id).appendTo($tweetUserSelection);
+
+            // 最初の一人
+            if (i==0)
+                $('#profileOwnImage').css('background-image', 'url(' + userinfo.profile_image_url + ')');
         }
     },
 
@@ -1327,21 +1327,25 @@ const UI = {
      */
     // カラムを作成して末尾に追加
     _makeColumn : function(columnid, columninfo, index) {
-        const $column    = this.$columnTemplate.clone(true),
-              $columnTab = this.$columnTabTemplate.clone(),
+        const $column    = this.$columnTemplate.clone(true, true),
               // タイムライン種別
               columntype = TwitSideModule.getTimelineName(columninfo.tl_type);
 
+        // カラム
         $column.attr({
             id                 : columnid,
             'data-column-type' : columntype,
             'data-userid'      : columninfo.userid
         }).appendTo(this.$columnC);
-        $columnTab.attr({
-            id                 : columnid + '_tab',
-            'data-column-type' : columntype,
-            'data-userid'      : columninfo.userid
-        }).appendTo(this.$columnTabC);
+
+        // メインウィンドウのみ
+        if (this._win_type === TwitSideModule.WINDOW_TYPE.MAIN) {
+            // カラムスパイ
+            this.$columnSpyTemplate.clone().attr({
+                id   : columnid+'_spy',
+                href : '#'+columnid
+            }).appendTo(this.$columnSpyC);
+        }
 
         // カラム設定
         this._changeColumnConf(columnid, columninfo);
@@ -1357,7 +1361,6 @@ const UI = {
         // メインウィンドウのみ
         if (this._win_type === TwitSideModule.WINDOW_TYPE.MAIN) {
             calcColumns();
-            colorColumnTab();
 
             (async () => {
                 const tl = TwitSideModule.ManageColumns.getTimelineInfo($column.index(), 'timeline');
@@ -1391,10 +1394,12 @@ const UI = {
     // カラムの設定変更
     _changeColumnConf : function(columnid, columninfo) {
         const $column    = $('#'+columnid),
-              $columnTab = $('#'+columnid+'_tab');
+              $columnTab = $column.children('.columnTab');
 
         // カラムラベル変更
         $columnTab.text(columninfo.columnlabel);
+        // カラムスパイ・メインウィンドウのみ
+        $('#'+columnid+'_spy').text(columninfo.columnlabel);
 
         // 新しいリストボタン表示
         if (columninfo.tl_type === TwitSideModule.TL_TYPE.TEMP_OWNERSHIPLISTS
@@ -1403,6 +1408,29 @@ const UI = {
 
         // プライバシーモード
         $column.attr('data-veil', columninfo.options.veil ? 'true' : 'false');
+    },
+
+    // カラムの順番変更
+    _sortColumn : function(old_index, new_index) {
+        const $column    = this.$columnC.children().eq(old_index),
+              $columnSpy = this.$columnSpyC.children().eq(old_index);
+
+        if (!$column[0]) return;
+
+        // 後ろへ
+        if (old_index < new_index) {
+            this.$columnC.children().eq(new_index).after($column);
+            this.$columnSpyC.children().eq(new_index).after($columnSpy);
+        }
+        // 前へ
+        else {
+            this.$columnC.children().eq(new_index).before($column);
+            this.$columnSpyC.children().eq(new_index).before($columnSpy);
+        }
+
+        // メインウィンドウのみ
+        if (this._win_type === TwitSideModule.WINDOW_TYPE.MAIN)
+            UI.$columnC.scroll();
     },
 
     // カラムの削除
@@ -1414,36 +1442,12 @@ const UI = {
             : this.$activeColumn = this.$activeColumn.prev();
         // DOMから削除
         $('#'+columnid).remove();
-        $('#'+columnid+'_tab').remove();
+        $('#'+columnid+'_spy').remove();
 
         // メインウィンドウのみ
         if (this._win_type === TwitSideModule.WINDOW_TYPE.MAIN) {
             calcColumns();
-            colorColumnTab();
-        }
-    },
-
-    // カラムの順番変更
-    _sortColumn : function(old_index, new_index) {
-        const $column    = this.$columnC.children().eq(old_index),
-              $columnTab = this.$columnTabC.children().eq(old_index);
-
-        if (!$column[0]) return;
-
-        // 後ろへ
-        if (old_index < new_index) {
-            this.$columnC.children().eq(new_index).after($column);
-            this.$columnTabC.children().eq(new_index).after($columnTab);
-        }
-        // 前へ
-        else {
-            this.$columnC.children().eq(new_index).before($column);
-            this.$columnTabC.children().eq(new_index).before($columnTab);
-        }
-
-        // メインウィンドウのみ
-        if (this._win_type === TwitSideModule.WINDOW_TYPE.MAIN) {
-            colorColumnTab();
+            this.$columnC.scroll();
         }
     },
 
@@ -1456,28 +1460,40 @@ const UI = {
 
         // style settings
         // テーマ
-        document.body.dataset.theme            = config['theme'];
+        if (config['theme'] == 'default') {
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+                document.getElementById('theme').href = 'style/theme-dark.css';
+            else
+                document.getElementById('theme').href = '';
+        }
+        else if (config['theme'] == 'default')
+            document.getElementById('theme').href = '';
+        else
+            document.getElementById('theme').href = 'style/theme-' + config['theme'] + '.css';
         document.body.dataset.colorRetweets    = config['color_retweets'];
         // 画像
         document.body.dataset.viewthumbnail    = config['viewthumbnail'];
+        // 動く画像
+        if (config['movethumbnail'])
+            $('#columnContainer').on('mousemove mouseout', '.tweetThumbnailImage', movePhotos);
+        else
+            $('#columnContainer').off('mousemove mouseout', '.tweetThumbnailImage', movePhotos);
         // スクリーンネーム
         document.body.dataset.screennameFirst  = config['screenname_first'];
         // ソース
         document.body.dataset.viewsource       = config['viewsource'];
         // 改行
         document.body.dataset.linefeed         = config['linefeed'];
-        // アニメーション
-        document.body.dataset.animation        = config['animation'];
-        jQuery.fx.off                          = ! config['animation'];
 
         // scale settings
         // フォント
-        $('body').css('font-size', config['font_size']);
+        $('html').css('font-size', config['font_size']);
         // アイコンサイズ
         document.body.dataset.iconSize         = config['icon_size'];
-        document.body.dataset.buttonSize       = config['button_size'];
         // サークルアイコン
         document.body.dataset.circleIcon       = config['circle_icon'];
+        // アイコン表示
+        document.body.dataset.showIcon         = config['show_icon'];
 
         // tweetmenu settings
         // 右クリックメニュー
@@ -1486,25 +1502,32 @@ const UI = {
         document.body.dataset.menuConversation = config['menu_conversation'];
         document.body.dataset.menuUrl          = config['menu_url'];
         // ツイートメニュー
-        this.setTweetMenuFunc(0, config['hover_menu0']);
-        this.setTweetMenuFunc(1, config['hover_menu1']);
-        this.setTweetMenuFunc(2, config['hover_menu2']);
-        this.setTweetMenuFunc(3, config['hover_menu3']);
+        this.setTweetMenuOrder(config);
+    },
+
+    setTweetMenuOrder : function(config) {
+        const prefix ='.tweetMenuButton[data-func="';
+        let style = '';
+        style += config['hover_menu0'] && prefix + config['hover_menu0'] + '"]' + " { display: flex; order: 1; }\n";
+        style += config['hover_menu1'] && prefix + config['hover_menu1'] + '"]' + " { display: flex; order: 2; }\n";
+        style += config['hover_menu2'] && prefix + config['hover_menu2'] + '"]' + " { display: flex; order: 3; }\n";
+        style += config['hover_menu3'] && prefix + config['hover_menu3'] + '"]' + " { display: flex; order: 4; }\n";
+
+        $('#tweetMenuOrder').text(style);
     },
 
     // アクティブカラムを設定
     setActiveColumn : function($column, fromBox) {
         if (TwitSideModule.config.getPref('auto_user_selection'))
             changeTweetUser($column.attr('data-userid'));
-
         if (this.$activeColumn[0] === $column[0]) return;
 
         // setActiveBoxから
         if (fromBox) {
             this.$activeColumn = $column;
             // メインウィンドウのみ
-            if (this._win_type === TwitSideModule.WINDOW_TYPE.MAIN)
-                scrollColumns($column.index());
+            // if (this._win_type === TwitSideModule.WINDOW_TYPE.MAIN)
+            //     scrollColumns($column.index());
         }
         else {
             const $activeBox = this.getActiveBox($column);
@@ -1526,10 +1549,10 @@ const UI = {
 
             // 一番上の時はactiveBoxを持たない
             if ($tweetBox.index() == 0) {
-                $column[0].$activeBox = null;
+                $column[0].$activeBox = undefined;
                 // 余白を詰める
-                if ($column.find('.timelineBox').scrollTop() <= parseInt($tweetBox.css('margin-top')))
-                    $column.find('.timelineBox').scrollTop(0);
+                if ($column.children('.timelineBox').scrollTop() <= parseInt($tweetBox.css('margin-top')))
+                    $column.children('.timelineBox').scrollTop(0);
             }
             else
                 $column[0].$activeBox = $tweetBox;
@@ -1538,7 +1561,7 @@ const UI = {
             this.setActiveColumn($column, true);
         }
         else {
-            $tweetBox.focus();
+            $tweetBox[0].focus({ preventScroll : true });
         }
     },
 
@@ -1546,34 +1569,9 @@ const UI = {
         if ($column == null) $column = this.$activeColumn;
 
         // activeBoxがnullなら一番上
-        return $column[0].$activeBox == null
+        return $column[0].$activeBox == undefined
             ? $column.find('.tweetBox:first')
             : $column[0].$activeBox;
-    },
-
-    // ツイートボタンの機能を取得
-    getTweetMenuFunc : function(column_type, menuindex_int) {
-        if (column_type == 'directmessage')
-            return this.tweetMenuFuncList.replydm;
-
-        else {
-            const command = $(document.body).attr('data-tweet-menu-button'+menuindex_int);
-            if (command)
-                return this.tweetMenuFuncList[command];
-            else
-                return () => {};
-        }
-    },
-
-    // ボタンと関数の紐付け、設定に保存
-    setTweetMenuFunc : function(menuindex_int, command_str) {
-        // コマンドを割り当てない
-        if (command_str == null
-            || !this.tweetMenuFuncList[command_str])
-            $(document.body).attr('data-tweet-menu-button'+menuindex_int, '');
-        // コマンドを割り当て
-        else
-            $(document.body).attr('data-tweet-menu-button'+menuindex_int, command_str);
     },
 
     // メッセージ
@@ -1582,18 +1580,40 @@ const UI = {
         // transMessageの返値
         if (Array.isArray(message)) [message, text_flag] = message;
 
-        const $messageC = $('#messageContainer');
+        const $body = $('#messageToast > .toast-body');
 
-        $messageC.text('');
+        $body.text('');
         text_flag
-            ? $messageC.text(message)
-            : $messageC.html(message);
+            ? $body.text(message)
+            : $body.html(message);
 
         // 表示
-        $messageC.removeClass('hidden').addClass('visible')
-            .delay(5000).queue(function() {
-                $(this).removeClass('visible').addClass('hidden').dequeue();
-            });
+        $('#messageToast').toast('show');
+    },
+
+    confirm : function(message, OKfunc, confirm) {
+        if (confirm !== false) {
+            const $alertModal = $('#templateContainer > .alertModal').clone(true).appendTo('body');
+
+            $alertModal
+                .on('shown.bs.modal', function() {
+                    // モーダル表示時OKボタンフォーカス
+                    $alertModal.find('.modal-footer > .btn:eq(0)').focus();
+                })
+                .on('hidden.bs.modal', function() {
+                    // モーダル表示DOM削除
+                    $alertModal.remove();
+                });
+
+            // OKボタン
+            $alertModal.find('.btn-primary').on('click', OKfunc);
+
+            $alertModal.find('.modal-body').text(message);
+            $alertModal.modal('show');
+        }
+        else {
+            OKfunc();
+        }
     }
 };
 
@@ -1603,38 +1623,23 @@ const UI = {
  */
 // localization content ui
 const localization = () => {
-    for (let datum of l10nDefinition) {
-        if (datum.selector == 'title') {
-            document.title = browser.i18n.getMessage(datum.word);
-            continue;
-        }
+    const suffixList = ['', 'title', 'placeholder'];
 
-        switch (datum.place) {
-        case "text":
-            $(datum.selector).text(browser.i18n.getMessage(datum.word));
-            break;
-        case "html":
-            $(datum.selector).html(browser.i18n.getMessage(datum.word));
-            break;
-        case "attr":
-            $(datum.selector).attr(datum.attr, browser.i18n.getMessage(datum.word));
-            break;
-        }
+    for (const suffix of suffixList) {
+        const attr = 'data-string' + (suffix ? '-' + suffix : '');
+        $('['+attr+']').each(function(i, e) {
+            suffix
+                ? $(e).attr(suffix, browser.i18n.getMessage($(e).attr(attr)))
+                : $(e).text(browser.i18n.getMessage($(e).attr(attr)));
+        });
     }
 };
 
 // add click or press Enter key event listener
 const buttonize = (buttonItems, commandExec) => {
     // common buttons
-    $(document).on('click keypress', buttonItems.join(','), function(e) {
-        // click or on press Enter
-        if (e.type == 'keypress'
-            && !(e.originalEvent.key == 'Enter'
-                 || e.originalEvent.key == ' ')) return;
-        // stop if disabled
-        if (this.dataset.disabled == "true") return;
-
-        commandExec(this);
+    $(document).on('click', buttonItems.join(','), function(e) {
+        return commandExec(this);
     });
 };
 
@@ -1643,43 +1648,32 @@ const showProgressbar = (progress) => {
     // debug message
     TwitSideModule.debug.log('progress: ' + progress);
 
-    const $bar = $('#progressBar');
+    const $bar = $('#progressContainer > .progress-bar');
 
     if ($bar.attr('data-progress') > progress)
-        $bar.stop(true, true).css('width', 0);
+        $bar.css('width', 0);
     $bar.attr('data-progress', progress).css('display', '');
 
     if (progress >= 100) {
-        $bar.stop(true, false).animate(
-            { width : '100%' },
-            200, 'swing', function() {
-                $(this).delay(400).fadeOut(400).queue(function() {
-                    $(this).attr('data-progress', 0).css({
-                        width   : 0,
-                        display : 'none'
-                    }).dequeue();
-                });
-            });
+        $bar.css('width', '100%').delay(600).fadeOut(400).delay(400).queue(function() {
+            $bar.attr('data-progress', 0).css('width', 0).dequeue();;
+        });
     }
-    else {
-        $bar.stop(true, false).animate(
-            { width : progress + '%' },
-            200, 'swing'
-        );
-    }
+    else
+        $bar.css('width', progress+'%');
 };
 
-// ローディング
+// ローディング column or other
 const showLoadingProgressbar = (sw, columnid) => {
     if (sw) {
         columnid
-            ? $('#'+columnid).find('.progressBarColumn').attr('data-loading', 'true')
-            : $('#progressBarOther').attr('data-loading', 'true'); // 全体のバー
+            ? $('#'+columnid).find('.progressBarColumn').removeClass('d-none')
+            : $('#progressBarOther').removeClass('d-none'); // 全体のバー
     }
     else {
         columnid
-            ? $('#'+columnid).find('.progressBarColumn').attr('data-loading', 'false')
-            : $('#progressBarOther').attr('data-loading', 'false'); // 全体のバー
+            ? $('#'+columnid).find('.progressBarColumn').addClass('d-none')
+            : $('#progressBarOther').addClass('d-none'); // 全体のバー
     }
 };
 
@@ -1745,9 +1739,19 @@ const keyeventChangeFocus = (event) => {
 
     switch (key) {
     case 'J':
+        // メインウィンドウ
+        if (UI._win_type === TwitSideModule.WINDOW_TYPE.MAIN) {
+            if (!getColumnIndex().includes(UI.getActiveColumn().index()))
+                UI.$columnC.children().eq(getColumnIndex()[0]).focus();
+        }
         UI.getActiveBox().next().focus();
         break;
     case 'K':
+        // メインウィンドウ
+        if (UI._win_type === TwitSideModule.WINDOW_TYPE.MAIN) {
+            if (!getColumnIndex().includes(UI.getActiveColumn().index()))
+                UI.$columnC.children().eq(getColumnIndex()[0]).focus();
+        }
         UI.getActiveBox().prev().focus();
         break;
     case 'H':
@@ -1764,9 +1768,9 @@ const keyeventChangeFocus = (event) => {
         // フォーカス横移動
         const $activeColumn = UI.getActiveColumn();
         if (key == 'H' && $activeColumn.prev()[0])
-            $activeColumn.prev().focus();
+            scrollColumns(UI.$activeColumn.index() - 1);
         else if (key == 'L' && $activeColumn.next()[0])
-            $activeColumn.next().focus();
+            scrollColumns(UI.$activeColumn.index() + 1);
         break;
     case 'G':
         event.shiftKey
@@ -1784,13 +1788,21 @@ const showTweetRef = async (tweetBox, type, tweetinfo) => {
     const $replyUsersSelection = $('#replyUsersSelection').empty();
     // 操作を制限
     $(tweetBox).children('.tweetContent').eq(0).clone()
-        .appendTo($('#refTweetBox').empty())
+        .appendTo($('#refTweetContainer').empty())
         .children().remove(':not(.tweetMainContent)');
-    $('#refTweetContainer').attr('data-type', type);
+
+    // quote
+    if (type == 'inline') {
+        $('#refTweetReply').addClass('d-none');
+        $('#refTweetInline').removeClass('d-none');
+    }
 
     // 返信ユーザ
     if (type == 'reply' || type == 'replyall') {
-        const $templateReplyUser = $('#templateContainer .replyUser');
+        const $templateReplyUser = $('#templateContainer > .replyUser');
+
+        $('#refTweetReply').removeClass('d-none');
+        $('#refTweetInline').addClass('d-none');
 
         // ツイートしたユーザ
         if (!tweetinfo.raw.retweeted_status) {
@@ -1819,11 +1831,13 @@ const showTweetRef = async (tweetBox, type, tweetinfo) => {
                 .text('@'+tweetinfo.raw.user.screen_name)
                 .appendTo($replyUsersSelection);
         }
-        if (type == 'reply') {
-            $replyUsersSelection.children().first().nextAll()
-                .attr('data-reply', 'false');
-        }
+        if (type == 'reply')
+            $replyUsersSelection.children(':gt(0)').addClass('disabled');
+        // 1人目は選択させない
+        $replyUsersSelection.children(':eq(0)').attr('tabindex', 0);
     }
+
+    $('#refTweetBox').show();
 
     countNewTweet();
     $('#newTweet').focus();
@@ -1833,15 +1847,15 @@ const showTweetRef = async (tweetBox, type, tweetinfo) => {
 const onClickRetweet = (tweetBox) => {
     const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
 
-    if (TwitSideModule.config.getPref('confirm_retweet')
-        && !confirm(browser.i18n.getMessage('confirmRetweet')))
-        return;
-
-    TwitSideModule.ManageColumns.getTimelineInfo(
-        getColumnIndexFromBox(tweetBox),
-        'timeline',
-        UI._win_type
-    ).retweet(boxid);
+    UI.confirm(browser.i18n.getMessage('confirmRetweet'),
+               () => {
+                   TwitSideModule.ManageColumns.getTimelineInfo(
+                       getColumnIndexFromBox(tweetBox),
+                       'timeline',
+                       UI._win_type
+                   ).retweet(boxid);
+               },
+               TwitSideModule.config.getPref('confirm_retweet'));
 };
 
 // [MAIN] コメントつきリツイート
@@ -2012,25 +2026,20 @@ const onClickReplyall = (tweetBox, tweetinfo, userid) => {
     }
 };
 
-// お気に入りへ追加
+// お気に入り
 const onClickFavorite = (tweetBox) => {
-    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''), // columnidを除去
+          sw    = !$(tweetBox).children('.tweetContent').attr('data-favorited');
 
-    // ツイート情報
-    const state   = $(tweetBox).children('.tweetContent').attr('data-favorited') == 'true';
-
-    if (state && TwitSideModule.config.getPref('confirm_favorite')
-        && !confirm(browser.i18n.getMessage('confirmRemoveFavorite')))
-        return;
-    if (!state && TwitSideModule.config.getPref('confirm_favorite')
-        && !confirm(browser.i18n.getMessage('confirmAddFavorite')))
-        return;
-
-    TwitSideModule.ManageColumns.getTimelineInfo(
-        getColumnIndexFromBox(tweetBox),
-        'timeline',
-        UI._win_type
-    ).favorite(boxid, !state);
+    UI.confirm(browser.i18n.getMessage(sw ? 'confirmAddFavorite' : 'confirmRemoveFavorite'),
+               () => {
+                   TwitSideModule.ManageColumns.getTimelineInfo(
+                       getColumnIndexFromBox(tweetBox),
+                       'timeline',
+                       UI._win_type
+                   ).favorite(boxid, sw);
+               },
+               TwitSideModule.config.getPref('confirm_favorite'));
 };
 
 // 会話を表示
@@ -2039,10 +2048,10 @@ const onClickShowreply = (tweetBox) => {
     const $replyBox = $(tweetBox).find('.replyTweetBox').last();
 
     // 既に読み込まれているときは何もしない
-    if ($replyBox.attr('data-reply-open') == 'true') return;
+    if ($replyBox.attr('data-open') == 'true') return;
 
     // 会話を全て閉じるボタン
-    $(tweetBox).closest('.timelineBox').siblings('.clearRepliesBox').attr('data-replies-open', 'true');
+    $(tweetBox).closest('.timelineBox').siblings('.clearAllRepliesButton').removeClass('d-none');
 
     TwitSideModule.ManageColumns.getTimelineInfo(
         getColumnIndexFromBox(tweetBox),
@@ -2050,26 +2059,26 @@ const onClickShowreply = (tweetBox) => {
         UI._win_type
     ).replies(boxid);
 
-    $replyBox.attr('data-reply-open', 'true');
+    $replyBox.attr('data-open', 'true');
 };
 
 // 会話を消す
 const clearReplies = (button) => {
     const $replyBox = $(button).closest('.replyTweetBox');
-    $replyBox.attr('data-reply-open', 'false').children('.replies').empty();
+    $replyBox.attr('data-open', 'false').children('.replies').empty();
 
     // 会話を全て閉じるボタン
-    if (!$replyBox.closest('.timelineBox').find('.replyTweetBox[data-reply-open="true"]').length)
-        $replyBox.closest('.timelineBox').siblings('.clearRepliesBox').attr('data-replies-open', 'false');
+    if (!$.contains($replyBox.closest('.timelineBox'), ('.replyTweetBox[data-open="true"]')))
+        $replyBox.closest('.timelineBox').siblings('.clearAllRepliesButton').addClass('d-none');
 };
 
 // 会話を全て消す
 const clearAllReplies = (button) => {
-    const $replyBox = $(button).siblings('.timelineBox').find('.replyTweetBox[data-reply-open="true"]');
-    $replyBox.attr('data-reply-open', 'false').children('.replies').empty();
+    const $replyBox = $(button).siblings('.timelineBox').find('.replyTweetBox[data-open="true"]');
+    $replyBox.attr('data-open', 'false').children('.replies').empty();
 
     // 会話を全て閉じるボタン
-    button.dataset.repliesOpen = false;
+    $(button).addClass('d-none');
 };
 
 // 削除
@@ -2089,30 +2098,15 @@ const onClickDestroy = (tweetBox) => {
         }
     })();
 
-    if (TwitSideModule.config.getPref('confirm_delete')
-        && !confirm(message))
-        return;
-
-    TwitSideModule.ManageColumns.getTimelineInfo(
-        getColumnIndexFromBox(tweetBox),
-        'timeline',
-        UI._win_type
-    ).destroy(boxid);
-};
-
-// ユーザ削除（ミュート、リツイート非表示）
-const onClickDestroyUser = (tweetBox) => {
-    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
-
-    if (TwitSideModule.config.getPref('confirm_delete')
-        && !confirm(browser.i18n.getMessage('confirmRemoveUser')))
-        return;
-
-    TwitSideModule.ManageColumns.getTimelineInfo(
-        getColumnIndexFromBox(tweetBox),
-        'timeline',
-        UI._win_type
-    ).destroy(boxid);
+    UI.confirm(message,
+               () => {
+                   TwitSideModule.ManageColumns.getTimelineInfo(
+                       getColumnIndexFromBox(tweetBox),
+                       'timeline',
+                       UI._win_type
+                   ).destroy(boxid);
+               },
+               TwitSideModule.config.getPref('confirm_delete'));
 };
 
 // リツイートしたユーザを表示
@@ -2154,6 +2148,18 @@ const showPhotos = (e) => {
         openURL(imagebox.dataset.fullurl);
 };
 
+// 画像移動
+const movePhotos = (e) => {
+    if (e.type == 'mousemove') {
+        const rect = e.target.getBoundingClientRect(),
+              xp   = (e.originalEvent.x - rect.x) / rect.width * 100,
+              yp   = (e.originalEvent.y - rect.y) / rect.height * 100;
+        $(e.target).css('object-position', xp+'% '+yp+'%');
+    }
+    else if (e.type == 'mouseout')
+        $(e.target).css('object-position', '');
+};
+
 // DMへ返信
 const onClickReplydm = (tweetBox) => {
     // ツイート情報
@@ -2186,7 +2192,10 @@ const openURL = (url) => {
  * サジェスト
  */
 // サジェスト作成
-const suggestScreenname = (textarea, suggestContainer) => {
+const suggestScreenname = (textarea, suggestContainer, e) => {
+    if (e && e.originalEvent &&
+        (e.originalEvent.ctrlKey || e.originalEvent.shiftKey || e.originalEvent.altKey)) return;
+
     const $newTweet = $(textarea),
           $suggest  = $(suggestContainer),
           re        = new RegExp('(@[a-zA-Z0-9_]*)$', 'i');
@@ -2212,7 +2221,7 @@ const suggestScreenname = (textarea, suggestContainer) => {
                 });
             if (filtered.length) {
                 for (let sn of filtered)
-                    $('<option />').val(matched).text(sn).appendTo($suggest);
+                    $('<option class="p-1" />').val(matched).text(sn).appendTo($suggest);
 
                 $suggest.show(0);
                 $suggest[0].selectedIndex = 0;
@@ -2236,7 +2245,7 @@ const suggestOnSelect = (e, textarea, suggestContainer, focus, callback) => {
         case e.key == 'ArrowUp':
             if ($suggest[0].selectedIndex == 0)
                 $newTweet.focus();
-            else if (e.key == 'Tab')
+            else// if (e.key == 'Tab')
                 $suggest[0].selectedIndex--;
             return;
         case e.key == 'Tab':
@@ -2245,7 +2254,7 @@ const suggestOnSelect = (e, textarea, suggestContainer, focus, callback) => {
                 hideSuggest(suggestContainer);
                 if (focus) $(focus).focus();
             }
-            else if (e.key == 'Tab')
+            else// if (e.key == 'Tab')
                 $suggest[0].selectedIndex++;
             return;
         }
@@ -2278,4 +2287,44 @@ const suggestOnSelect = (e, textarea, suggestContainer, focus, callback) => {
 const hideSuggest = (suggestContainer) => {
     $(suggestContainer).hide();
 };
+
+/**
+ * スクリーンネームチェック
+ */
+const checkScreenname = (screenname) => {
+    const $check    = $('#screennameCheck');
+
+    // 未入力
+    if (!screenname) {
+        $check.attr('data-status', 'unchecked');
+        return Promise.reject();
+    }
+    // 正規化スクリーンネーム
+    const sn = (/^@?(\S+)\s*$/.exec(screenname))[0];
+
+    const result = TwitSideModule.Friends.searchFriendFromSn(sn);
+    // 結果あり（latestfriends）
+    if (result) {
+        $check.attr('data-status', 'checkok');
+        return Promise.resolve();
+    }
+    else {
+        // 読み込み中
+        $check.attr('data-status', 'loading');
+        // lookup
+        return (new Tweet(
+            TwitSideModule.ManageUsers.getUserInfo(TwitSideModule.ManageUsers.allUserid[0])
+        )).userShow({ screen_name : sn })
+              .then((result) => {
+                  TwitSideModule.Friends.updateLatestFriends(result.data);
+                  $check.attr('data-status', 'checkok');
+                  return Promise.resolve();
+              })
+              .catch(() => {
+                  $check.attr('data-status', 'checkng');
+                  return Promise.reject();
+              });
+    }
+};
+
 

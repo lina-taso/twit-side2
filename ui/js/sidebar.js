@@ -49,26 +49,23 @@ window.addEventListener('load', async () => {
             }, LOADWAIT);
         }));
     }
-    $('#loading').addClass('hidden');
 
     TwitSideModule = bg.TwitSideModule;
 
+    TwitSideModule.timer(1000, () => {
+        $('#loading').fadeOut(200).queue(function() { $(this).remove(); });
+    });
+
     localization();
-    buttonize(['.buttonItem', '.menuItem', '.notifItem',
-               '.tweetRetweeterImage', '.tweetMoreBox',
-               '.clearRepliesBox', '.tweetMenuButton'],
-              commandExec);
+    buttonize(['.ts-btn, .tweetRetweeterImage'], commandExec);
     vivify();
 
     // UI初期化
     UI.initialize(TwitSideModule.WINDOW_TYPE.MAIN);
 
-    // チュートリアル
-    if (TwitSideModule.config.getPref('tutorial'))
-        runTutorial();
     // ユーザ無し
-    else if (!TwitSideModule.ManageUsers.allUserid.length)
-        newUserContainerToggle(true);
+    if (!TwitSideModule.ManageUsers.allUserid.length)
+        $('#newUserContainer').modal('show');
 
     // 初期化
     newTweetContainerToggle(
@@ -83,13 +80,44 @@ window.addEventListener('load', async () => {
 
 // add other event listener
 const vivify = () => {
+    // トースト有効化
+    $().toast({ });
+
     $(window).resize(() => {
         // TODO horizontal resize
-        $('#mainContainer').scrollLeft(0);
         calcColumns();
-        scrollColumns();
+        UI.$columnC.scroll();
     });
+
+    // トップメニュー
+    $('#topMenuContainer > .dropdown')
+        .on('shown.bs.dropdown', function () {
+            $(this).children().addClass('active');
+        })
+        .on('hidden.bs.dropdown', function () {
+            $(this).children().removeClass('active');
+        });
+
+    // ユーザ追加コンテナ
+    $('#newUserContainer')
+        .on('show.bs.modal', function () {
+            oauth_token = null;
+            $('#pin').val('');
+            checkPinBox();
+        })
+        .on('shown.bs.modal', function() {
+            $('#request').focus();
+        });
     $('#pin').on('click keyup paste drop', () => { setTimeout(checkPinBox, 100); });
+
+    // #newTweetContainer
+    $('#newTweetContainer')
+        .on('show.bs.collapse', function() {
+            $('#sharePicture, #unpinNewTweetC, #pinNewTweetC').removeClass('d-none');
+        })
+        .on('hide.bs.collapse', function() {
+            $('#sharePicture, #unpinNewTweetC, #pinNewTweetC').addClass('d-none');
+        });
 
     // 入力ボックス
     $('#newTweet')
@@ -109,48 +137,59 @@ const vivify = () => {
             return false;
         });
     $('#replyUsersSelection')
-        .on('click', '.replyUser:gt(0)', toggleReplyUser);
-    // メインコンテナ
-    $('#mainContainer')
-        .on('scroll', function() {
-            if (this.timer) { clearTimeout(this.timer); }
-            this.timer = setTimeout(scrollColumns, 150);
-        })
+        .on('click', '.replyUser:gt(0)', function() { $(this).toggleClass('disabled'); });
+
+    // カラムコンテナ
+    $('#columnContainer')
         .on('mousedown', function(e) {
             cursor.x = e.originalEvent.clientX;
         })
-        .on('mouseup', function() {
-            if (cursor.x != null) cursor.x = null;
+        .on('mouseup mouseleave', function() {
+            cursor.x = null;
         })
         .on('mousemove', function(e) {
             // 前のカーソル位置
             if (!cursor.x) return;
             // ドラッグされていない
-            if (e.originalEvent.buttons == 0) {
+            if (e.originalEvent.buttons != 1) {
                 $(this).mouseup();
                 return;
             }
+
+            // this.classList.add('drag');
             const dx = cursor.x - e.originalEvent.clientX;
-            cursor.x = e.originalEvent.clientX;
-            UI.$mainC.scrollLeft(UI.$mainC.scrollLeft() + dx * 2);
-        });
-    // カラムコンテナ
-    $('#columnContainer')
+            // 右移動
+            if (dx > 50) {
+                // カーソルリセット
+                cursor.x = e.originalEvent.clientX;
+                scrollColumns(getColumnIndex().pop()+1);
+            }
+            // 左移動
+            else if (dx < -100) {
+                // カーソルリセット
+                cursor.x = e.originalEvent.clientX;
+                scrollColumns(getColumnIndex().shift()-1);
+            }
+        })
+        .on('scroll', function() {
+            changeColumnSpy();
+        })
         .keypress(keyeventChangeFocus)
-        .on('focus', '.column', function() {
+        .on('mouseover', '.columnTab', hoverColumnTab)
+        .on('mouseout', '.columnTab', unhoverColumnTab)
+        .on('focus', '> .column', function() {
             UI.setActiveColumn($(this));
         })
         .on('focus', '.timelineBox > .tweetBox', function(e) {
             e.stopPropagation();
             UI.setActiveBox($(this));
         })
-        .on('click','.tweetThumbnailImage', showPhotos); // サムネイル
-    // タイムライン
+        .on('click', '.tweetThumbnailImage', showPhotos); // サムネイル
+    // タイムライン（scrollイベントは個別指定）
     $('#templateContainer .timelineBox')
         .on('scroll', function() {
-            // 影
-            $(this).siblings('.columnShadowBox')
-                .height(this.scrollTop < 10 ? this.scrollTop : 10);
+            // ドラッグ判定
+            if (cursor.x) $(this).mouseup();
 
             // 最上部
             if (this.scrollTop == 0) {
@@ -166,19 +205,15 @@ const vivify = () => {
                     loadMore(this.lastChild);
             }
         });
-    // カラムタブ
-    $('#columnTabContainer')
-        .mousemove(scrollColumnTabC)
-        .hover(hoverColumnTabC, unhoverColumnTabC)
-        .on('mouseenter', '.columnTab', hoverColumnTab)
-        .on('mouseout', '.columnTab', function() {
-            UI.$columnTabC.find('.columnTab').removeClass('hoverTab');
+
+    // カラムスパイ
+    $('#columnSpyContainer')
+        .on('click', '.columnSpy', function() {
+            scrollColumns($(this).index());
         })
-        .on('click', '.columnTab', function(ptr) {
-            const idx = $(this).index();
-            UI.setActiveColumn(UI.$columnC.children().eq(idx));
-            scrollColumns(idx, true, ptr);
-        });
+        .on('mouseover', hoverColumnTab)
+        .on('mouseout', unhoverColumnTab);
+
     // ファイル選択
     $('#filepicker')
         .on('change', function() {
@@ -189,22 +224,15 @@ const vivify = () => {
         .on('click', '> div', function() {
             cancelFile(this);
         });
-    // グレーアウト
-    $('#grayout').on('click', function() {
-        leftContainerToggle(false);
-        notifContainerToggle(false);
-    });
-}
+};
 
 // event asignment
 const commandExec = (btn) => {
+    if (btn.classList.contains('disabled')) return false;
+
     // identify from id
     switch (btn.id) {
 
-    case 'openLeftC': // topMenuContainer
-        return leftContainerToggle(true);
-    case 'openNewTweetC':
-        return newTweetContainerToggle(true, false);
     case 'sharePicture': // newTweetContainer
         return openFile();
     case 'sharePage':
@@ -213,53 +241,42 @@ const commandExec = (btn) => {
         return newTweetContainerToggle(false, false);
     case 'pinNewTweetC':
         return newTweetContainerToggle(true, true);
-    case 'closeNewTweetC':
-        return newTweetContainerToggle(false, false);
     case 'tweetButton':
         return sendTweet();
+    case 'profileOwnImage':
+        return TwitSideModule.ManageWindows.openWindow('profile', {
+            userid  : UI.$tweetUserSelection.val(),
+            keyword : UI.$tweetUserSelection[0].selectedOptions[0].textContent,
+        }, fg.id);
     case 'clearRefButton':
         return clearTweetRef();
-    case 'closeLeftC': // leftContainer
-        return leftContainerToggle(false);
-    case 'openNotifC':
-        return notifContainerToggle(true);
-    case 'menuProfile':
-        leftContainerToggle(false);
+    case 'menuProfile': // topMenuContainer
         return TwitSideModule.ManageWindows.openWindow('profile', {
-            userid : UI.$tweetUserSelection[0].selectedOptions[0].value
+            userid : UI.$tweetUserSelection.val()
         }, fg.id);
     case 'menuSearch':
-        leftContainerToggle(false);
         return TwitSideModule.ManageWindows.openWindow('search', {
-            userid : UI.$tweetUserSelection[0].selectedOptions[0].value
+            userid : UI.$tweetUserSelection.val()
         }, fg.id);
-    case 'menuLogin':
-        leftContainerToggle(false);
-        return newUserContainerToggle(true);
     case 'menuManageColumns':
-        leftContainerToggle(false);
         return TwitSideModule.ManageWindows.openWindow('columns', {}, fg.id);
     case 'menuManageTsMutes':
-        leftContainerToggle(false);
         return TwitSideModule.ManageWindows.openWindow('ts_mutes', {}, fg.id);
     case 'menuPreferences':
-        leftContainerToggle(false);
         return browser.runtime.openOptionsPage();
     case 'menuHelp':
-        leftContainerToggle(false);
         return openURL(HELP_URL);
+    case 'menuLogin':
+        return $('#newUserContainer').modal('show');
     case 'menuLogout':
-        leftContainerToggle(false);
         return onClickLogout();
-    case 'closeNotifC': // notifContainer
-        return notifContainerToggle(false);
-    case 'clearNotif':
+    case 'notifItemClear': // notifContainer
         return clearNotifications();
-    case 'clearNotifNext':
+    case 'notifItemNext':
         return clearNotificationsNext();
-    case 'closeNewUserC': // newUserContainer
-        return newUserContainerToggle(false);
-    case 'request':
+    case 'notifItemNothing':
+        return true;
+    case 'request': // newUserContainer
         return onClickRequest();
     case 'access':
         return onClickAccess();
@@ -269,24 +286,28 @@ const commandExec = (btn) => {
 
     // identify from class
     switch (true) {
-    case btn.classList.contains('menuProfileItem'):
-        leftContainerToggle(false);
+    case btn.classList.contains('menuProfileItem'): // topMenuContainer
         return TwitSideModule.ManageWindows.openWindow('profile', {
             userid  : btn.dataset.userid,
             keyword : btn.dataset.screenname
         }, fg.id);
-    case btn.classList.contains('clearRepliesBox'): // column
+    case btn.classList.contains('notifItem'): // notifContainer
+        return clearNotifications(btn);
+    case btn.classList.contains('clearAllRepliesButton'): // column
         return clearAllReplies(btn);
-
     case btn.classList.contains('toTopButton'): // columnMenuBox
+        btn.blur();
         return timelineMove('top');
     case btn.classList.contains('toBottomButton'):
+        btn.blur();
         return timelineMove('bottom');
-    case btn.classList.contains('updateButton'):
+    case btn.classList.contains('columnUpdateButton'):
+        btn.blur();
         return loadNewer(getColumnIndexFromBox(btn));
     case btn.classList.contains('newListButton'):
         return null;
     case btn.classList.contains('newDmButton'):
+        btn.blur();
         return TwitSideModule.ManageWindows.openWindow('newdm', {
             userid : UI.getActiveColumn().attr('data-userid')
         }, fg.id);
@@ -295,17 +316,12 @@ const commandExec = (btn) => {
 
     case btn.classList.contains('tweetMoreBox'): // tweetBox
         return loadMore(btn);
-    case btn.classList.contains('clearReplyButton'):
+    case btn.classList.contains('clearReplies'):
         return clearReplies(btn);
     case btn.classList.contains('tweetRetweeterImage'):
         return onClickRetweeterImage(btn);
     case btn.classList.contains('tweetMenuButton'):
-        return UI.getTweetMenuFunc(
-            UI.getActiveColumn().attr('data-column-type'),
-            $(btn).index())(btn);
-
-    case btn.classList.contains('notifItem'): // notifContainer
-        return clearNotifications(btn);
+        return UI.tweetMenuFuncList[btn.dataset.func](btn);
 
         //    case btn.classList.contains(''):
         //        break;
@@ -313,31 +329,10 @@ const commandExec = (btn) => {
     return null;
 };
 
-const runTutorial = () => {
-    leftContainerToggle(true);
-    $('#menuHelp').addClass('blink')
-        .delay(6000).queue(function() {
-            $(this).removeClass('blink');
-        });
-
-    TwitSideModule.config.setPref('tutorial', false);
-};
-
 
 /**
  * Panel operation
  */
-const leftContainerToggle = (open) => {
-    $('#leftContainer')[0].dataset.open = open;
-    $('#grayout').toggleClass('hidden', !open);
-};
-
-const notifContainerToggle = (open) => {
-    $('#notifContainer')[0].dataset.open = open;
-    $('#leftContainer')[0].dataset.open = false;
-    $('#grayout').toggleClass('hidden', !open);
-};
-
 const newTweetContainerToggle = async (open, pin) => {
     let pinned = TwitSideModule.config.getPref('newtweet_pinned');
 
@@ -350,20 +345,10 @@ const newTweetContainerToggle = async (open, pin) => {
         }
     }
     pinned
-        ? $('#newTweetContainer')[0].dataset.open = true
-        : $('#newTweetContainer')[0].dataset.open = open;
+        ? $('#newTweetContainer').collapse('show')
+        : $('#newTweetContainer').collapse(open ? 'show' : 'hide');
 
     if (open) $('#newTweet').focus();
-};
-
-const newUserContainerToggle = (open) => {
-    $('#newUserContainer')[0].dataset.open = open;
-    if (!open) {
-        // Clear temporary value
-        oauth_token = null;
-        $('#pin').val('');
-        checkPinBox();
-    }
 };
 
 
@@ -385,25 +370,25 @@ const countNewTweet = (e) => {
     // 文字数
     $newTweetCount.text((TWEET_MAX_LENGTH - count).toString() + '/' + TWEET_MAX_LENGTH);
     if (count > TWEET_MAX_LENGTH) {
-        $newTweetCount.attr('data-labelcolor', 'countNg');
-        $tweetButton.attr('data-disabled', 'true');
+        $newTweetCount.addClass('badge-danger').removeClass('badge-success badge-warning');
+        $tweetButton.addClass('disabled');
     }
     else if (count > TWEET_MAX_LENGTH - warn) {
-        $newTweetCount.attr('data-labelcolor', 'countWarn');
-        $tweetButton.attr('data-disabled', 'false');
+        $newTweetCount.addClass('badge-warning').removeClass('badge-success badge-danger');
+        $tweetButton.removeClass('disabled');
     }
     else if (count > 0) {
-        $newTweetCount.attr('data-labelcolor', 'countOk');
-        $tweetButton.attr('data-disabled', 'false');
+        $newTweetCount.addClass('badge-success').removeClass('badge-warning badge-danger');
+        $tweetButton.removeClass('disabled');
     }
     else {
-        $newTweetCount.attr('data-labelcolor', 'countOk');
+        $newTweetCount.addClass('badge-success').removeClass('badge-warning badge-danger');
         if ($newTweet.attr('data-reply-id') == ''
             && $newTweet.attr('data-attachment-url') == ''
             && $('#pictureThumbnails').children().length == 0)
-            $tweetButton.attr('data-disabled', 'true');
+            $tweetButton.addClass('disabled');
         else
-            $tweetButton.attr('data-disabled', 'false');
+            $tweetButton.removeClass('disabled');
     }
 
     suggestScreenname($newTweet, $suggest);
@@ -414,8 +399,7 @@ const keypressNewTweet = (e) => {
     e = e.originalEvent;
 
     // サジェスト
-    if (e && !e.shiftKey && e.key == 'Tab'
-        || e && e.key == 'ArrowDown') {
+    if (e && !e.shiftKey && e.key == 'Tab' || e && e.key == 'ArrowDown') {
         if ($('#suggestContainer').is(':visible')) {
             setTimeout(() => {$('#suggestContainer').focus(); }, 0);
             return false;
@@ -423,11 +407,11 @@ const keypressNewTweet = (e) => {
     }
     // ツイート
     else if (e && e.ctrlKey && e.key == 'Enter') {
-        if ($('#tweetButton').attr('data-disabled') == 'false') {
-            if (TwitSideModule.config.getPref('confirm_tweet')
-                && !confirm(browser.i18n.getMessage('confirmTweet'))) return true;
-
-            sendTweet();
+        if (!$('#tweetButton').hasClass('disabled')) {
+            UI.confirm(browser.i18n.getMessage('confirmTweet'),
+                       sendTweet,
+                       TwitSideModule.config.getPref('confirm_tweet'));
+            return true;
         }
     }
     return true;
@@ -456,13 +440,13 @@ const sendTweet = async () => {
     };
     const error = (result) => {
         showProgressbar(100);
-        button.dataset.disabled = false;
+        $tweetButton.removeClass('disabled');
         UI.showMessage(TwitSideModule.Message.transMessage(result));
         return Promise.reject();
     };
 
-    const userid           = UI.$tweetUserSelection[0].selectedOptions[0].value,
-          button           = $('#tweetButton')[0],
+    const userid           = UI.$tweetUserSelection.val(),
+          $tweetButton     = $('#tweetButton'),
           $newTweet        = $('#newTweet'),
           optionsHash      = { status : $newTweet.val() },
           optionsHashImage = {},
@@ -474,7 +458,7 @@ const sendTweet = async () => {
         optionsHash.auto_populate_reply_metadata = true;
         // 返信除外
         const noreply = [];
-        $('#replyUsersSelection').children('.replyUser[data-reply="false"]').each(function() {
+        $('#replyUsersSelection').children('.replyUser.disabled').each(function() {
             noreply.push(this.dataset.userid);
         });
         optionsHash.exclude_reply_user_ids = noreply.join(',');
@@ -492,7 +476,7 @@ const sendTweet = async () => {
         optionsHashImage.media_category = $('#pictureThumbnails').attr('data-mode');
     }
 
-    button.dataset.disabled = true;
+    $tweetButton.addClass('disabled');
     // 通常ツイート
     if (!files.length) {
         await (new Tweet(TwitSideModule.ManageUsers.getUserInfo(userid))).tweet(optionsHash).catch(error);
@@ -513,7 +497,7 @@ const openFile = () => {
     $('#filepicker').click();
 };
 
-const pickedFile = (filepicker) => {
+const pickedFile = async (filepicker) => {
     if (!filepicker.files.length) return;
 
     const filetypeError = () => {
@@ -545,7 +529,27 @@ const pickedFile = (filepicker) => {
 
     // gif フラグ
     const anigif_flag = file.type === 'image/gif'
-          ? confirm(browser.i18n.getMessage('confirmAniGif')) : null;
+          && await(async () => {
+              const file_buf = await file.arrayBuffer(),
+                    file_arr = new Uint8Array(file_buf);
+              let i, len,
+                  frames = 0,
+                  length = file_arr.length;
+
+              for (i=0, len = length - 3; i < len && frames < 2; ++i) {
+                  if (file_arr[i] === 0x00 && file_arr[i+1] === 0x21 && file_arr[i+2] === 0xF9) {
+                      let blocklength = file_arr[i+3];
+                      let afterblock = i + 4 + blocklength;
+                      if (afterblock + 1 < length &&
+                          file_arr[afterblock] === 0x00 &&
+                          (file_arr[afterblock+1] === 0x2C || file_arr[afterblock+1] === 0x21)) {
+                          frames++;
+                      }
+                  }
+              }
+              // 2以上ならanimation GIF
+              return frames > 1;
+          })() || null;
 
     // ファイルサイズチェック
     const filesizeError_flag = (() => {
@@ -595,10 +599,17 @@ const pickedFile = (filepicker) => {
     }
     // アップロードファイルへ登録
     else if (file.type !== 'video/mp4')
-        $('<div tabindex="1" />').css('background-image', 'url(' + url + ')')
+        $('<div class="rounded" />').css('background-image', 'url(' + url + ')').attr({
+            title    : file.name,
+            tabindex : 1
+        })
         .appendTo($thumbnails)[0].file = file;
     else
-        $('<div tabindex="1" />').append(
+        $('<div />').attr({
+            title    : file.name,
+            tabindex : 1
+        })
+        .append(
             $('<video />').append(
                 $('<source />').attr({ src : url, type : file.type })))
         .appendTo($thumbnails)[0].file = file;
@@ -612,71 +623,59 @@ const pickedFile = (filepicker) => {
     case 'image/jpeg':
         // モード変更
         $thumbnails.attr('data-mode', 'tweet_image');
-        // ステータスアイコン
-        $('#imageEnabled').attr('data-enabled', true)
-            .siblings('.attachmentStatus').attr('data-enabled', false);
         // 最大枚数
         if ($thumbnails.children().length >= MAX_IMAGES)
-            $('#sharePicture').attr('data-disabled', true);
+            $('#sharePicture').addClass('disabled');
         break;
     case 'image/gif':
         // 静止画GIF
         if (!anigif_flag) {
             // モード変更
             $thumbnails.attr('data-mode', 'tweet_image');
-            // ステータスアイコン
-            $('#imageEnabled').attr('data-enabled', true)
-                .siblings('.attachmentStatus').attr('data-enabled', false);
             // 最大枚数
             if ($thumbnails.children().length >= MAX_IMAGES)
-                $('#sharePicture').attr('data-disabled', true);
+                $('#sharePicture').addClass('disabled');
         }
         // アニメーションGIF
         else {
             // モード変更
             $thumbnails.attr('data-mode', 'tweet_gif');
-            // ステータスアイコン
-            $('#anigifEnabled').attr('data-enabled', true)
-                .siblings('.attachmentStatus').attr('data-enabled', false);
             // 最大枚数
             if (anigif_flag && $thumbnails.children().length >= MAX_ANIGIFS)
-                $('#sharePicture').attr('data-disabled', true);
+                $('#sharePicture').addClass('disabled');
         }
         break;
     case 'video/mp4':
         // モード変更
         $thumbnails.attr('data-mode', 'tweet_video');
-        // ステータスアイコン
-        $('#videoEnabled').attr('data-enabled', true)
-            .siblings('.attachmentStatus').attr('data-enabled', false);
         // 最大枚数
         if ($thumbnails.children().length >= MAX_VIDEOS)
-            $('#sharePicture').attr('data-disabled', true);
+            $('#sharePicture').addClass('disabled');
         break;
     }
 };
 
 const cancelFile = (file) => {
-    $('#sharePicture').attr('data-disabled', 'false');
+    $('#sharePicture').removeClass('disabled');
     $(file).remove();
 
     if ($('#pictureThumbnails').children().length == 0) {
         // ステータスアイコン
-        $('.attachmentStatus').attr('data-enabled', false);
+        $('.attachmentStatus').addClass('disabled');
         // モード変更
-        $('#pictureThumbnails').attr('data-mode', '');
+        $('#pictureThumbnails').removeAttr('data-mode');
     }
     countNewTweet();
 };
 
 const cancelAllFile = () => {
-    $('#sharePicture').attr('data-disabled', 'false');
+    $('#sharePicture').removeClass('disabled');
     $('#pictureThumbnails').empty();
 
     // ステータスアイコン
-    $('.attachmentStatus').attr('data-enabled', false);
+    $('.attachmentStatus').addClass('disabled');
     // モード変更
-    $('#pictureThumbnails').attr('data-mode', '');
+    $('#pictureThumbnails').removeAttr('data-mode');
 
     countNewTweet();
 };
@@ -692,15 +691,10 @@ const sharePage = () => {
     });
 };
 
-const toggleReplyUser = (e) => {
-    const user = e.target;
-    user.dataset.reply = user.dataset.reply == 'false';
-};
-
 // 返信・引用ツイート非表示
 const clearTweetRef = () => {
-    $('#replyUsersSelection, #refTweetBox').empty();
-    $('#refTweetContainer').attr('data-type', '');
+    $('#refTweetBox').hide();
+    $('#replyUsersSelection, #refTweetContainer').empty();
     $('#newTweet').attr({
         'data-attachment-url' : '',
         'data-reply-id'       : ''
@@ -712,103 +706,33 @@ const clearTweetRef = () => {
 /**
  * Column operation
  */
-// visible column index
+// 表示中のカラム番号を返す
 const getColumnIndex = () => {
-    const ret   = [],
+    const ret        = [],
           // 一画面に表示するカラム数
-          count = parseInt(UI.$columnC.attr('data-count'));
+          count      = parseInt(UI.$columnC.attr('data-count')),
+          width      = UI.$columnC.width(),
+          scrollLeft = UI.$columnC.scrollLeft(),
+          cWidth     = width / count,
+          cSnapWidth = cWidth / 2,
+          firstC     = parseInt((scrollLeft + cSnapWidth) / cWidth);
 
-    for (let i=0; i<count; i++)
-        ret.push(parseInt(UI.$columnC.attr('data-first')) + i);
-
-    return ret;
+    return [...Array(count).keys()].map(i => i+firstC);
 };
 
-// scroll snap
-const scrollColumns = (index_int, edge, ptr) => {
-    UI.$mainC.stop(true, true);
-
-    const now          = UI.$mainC.scrollLeft(),
-          $columns     = UI.$columnC.children(),
-          count        = $columns.length,
-          columnsCount = parseInt(UI.$columnC.attr('data-count'));
-    let left  = 0,
-        right = null;
+// 指定カラムに移動
+const scrollColumns = (index_int) => {
+    const $columns = UI.$columnC.children(),
+          count    = $columns.length;
 
     // index_intの値がおかしい場合
-    if (index_int && (index_int < 0 || index_int >= count))
-        return;
+    if (index_int == null || index_int < 0 || index_int >= count) return;
 
-    // 自動スクロールイベント（スクロールの最後に必ず実行される）
-    if (index_int == null) {
-        let start = 0;
-        for (start; start < count; start++) {
-            const offsetleft = $columns.eq(start).position().left + now;
-            now >= offsetleft
-                ? left = offsetleft
-                : right = offsetleft;
-            if (right) break;
-        }
-        // 右端
-        if (right == null) right = left;
-        // 右移動
-        if (now - left > right - now) left = right;
-        // 左移動
-        else start--;
-
-        // 移動後カラムタブ
-        UI.$columnC.attr('data-first', start);
-        colorColumnTab();
-        // 移動
-        UI.$mainC.animate({
-            scrollLeft : left
-        }, 200, 'swing', () => {
-            // 移動後のフォーカス
-            const focus = (() => {
-                const columnIndexes = getColumnIndex();
-                // より左
-                if (UI.getActiveColumn().index() < columnIndexes[0])
-                    return columnIndexes[0];
-                // より右
-                else if (UI.getActiveColumn().index() > columnIndexes[columnIndexes.length - 1])
-                    return columnIndexes[columnIndexes.length - 1];
-                // 表示内
-                else return -1;
-            })();
-            if (focus >= 0)
-                UI.getActiveBox(UI.$columnC.children().eq(focus)).focus();
-            else
-                UI.getActiveBox().focus();
-        });
-    }
-    // 移動先指定（移動必要）
-    else {
-        if (edge)
-            left = $columns.eq(index_int).position().left + now;
-        else if (getColumnIndex().indexOf(index_int) < 0) {
-            left = $columns.eq(
-                index_int < getColumnIndex()[0]
-                    ? index_int
-                    : index_int - columnsCount + 1
-            ).position().left + now;
-        }
-        // 移動無し、フォーカスのみ
-        else {
-            UI.getActiveBox().focus();
-            return;
-        }
-        // 移動
-        UI.$mainC.animate({
-            scrollLeft : left
-        }, 100, 'swing').queue(() => {
-            // カラムタブクリック時
-            if (ptr && UI.$columnTabC.attr('data-hover') == 'true')
-                scrollColumnTabC(ptr);
-        });
-    }
+    $columns.eq(index_int)[0].focus({ preventScroll : true });
+    $columns.eq(index_int)[0].scrollIntoView({ behavior : 'smooth' });
 };
 
-// Adjust column's width
+// カラム幅を計算
 const calcColumns = () => {
     const winWidth = window.innerWidth,
           minWidth = TwitSideModule.config.getPref('column_minwidth'),
@@ -822,124 +746,66 @@ const calcColumns = () => {
     })();
 
     // タイムラインコンテナ＋カラムタブの幅
-    //    UI.$mainC.css('scroll-snap-points-x', 'repeat( calc( 100vw / ' + count + ' )' );
     UI.$columnC.attr('data-count', count)
         .children().css('width', 'calc(100vw / ' + count + ')');
-    UI.$columnTabC.children().css('width',
-                                  'calc(100vw / ' + count + ' - ' + COLUMN_TAB_MARGIN + 'px )');
 };
 
-const hoverColumnTabC = () => {
-    if (UI.$columnTabC.timer) clearTimeout(UI.$columnTabC.timer);
-    if (UI.$columnTabC[0].dataset.hover == 'true') return;
-
-    UI.$columnTabC.timer = setTimeout(() => {
-        // 動作中アニメーション停止
-        if (UI.$columnTabC[0].style.transition != '')
-            UI.$columnTabC.off('transitionend').css({ transition : '' });
-
-        const count     = UI.$columnTabC.children().length,
-              winWidth  = window.innerWidth;
-        let tabWidth  = COLUMN_TAB_WIDTH - COLUMN_TAB_MARGIN,
-            tabCWidth = COLUMN_TAB_WIDTH * count;
-
-        // ウィンドウが大きいときは等分
-        if (winWidth > count * COLUMN_TAB_WIDTH) {
-            tabWidth = winWidth / count - COLUMN_TAB_MARGIN;
-            tabCWidth = winWidth;
-        }
-        // 画面上の位置を固定
-        UI.$columnC.css('margin-top', UI.$columnTabC.height());
-        UI.$columnTabC.attr('data-hover', true).css({
-            width    : tabCWidth,
-            position : 'fixed'
-        }).children().css({ width : tabWidth });
-    }, 200);
-};
-
-const unhoverColumnTabC = () => {
-    if (UI.$columnTabC.timer) clearTimeout(UI.$columnTabC.timer);
-    if (UI.$columnTabC[0].dataset.hover != 'true') return;
-
-    UI.$columnTabC.timer = setTimeout(() => {
-        // 一旦margin-leftを調整
-        UI.$columnTabC.attr('data-hover', false).css({
-            width      : '',
-            transition : ''
-        });
-        // タブ幅を戻す
-        setTimeout(() => {
-            UI.$columnTabC.css({
-                transition : 'margin-left 0.4s ease 0s',
-                marginLeft : -1 * $('#mainContainer').scrollLeft()
-            }).on('transitionend', function() {
-                $(this).css({
-                    transition : '',
-                    position   : '',
-                    marginLeft : 0
-                }).off('transitionend');
-                // 画面上の位置固定を解除
-                UI.$columnC.css('margin-top', 0);
-                // カラムタブ初期化
-                calcColumns();
-            }).children().css({
-                width : UI.$columnC.children().width() - COLUMN_TAB_MARGIN
-            });
-        }, 0);
-    }, 600);
-};
-
-// adjust margin-left on mouse hovering
-const scrollColumnTabC = (ptr) => {
-    const count     = UI.$columnTabC.children().length,
-          winWidth  = window.innerWidth;
-    let tabWidth  = COLUMN_TAB_WIDTH - COLUMN_TAB_MARGIN,
-        tabCWidth = COLUMN_TAB_WIDTH * count,
-        margin    = 0;
-
-    // ウィンドウの方が大きい
-    if (winWidth > count * COLUMN_TAB_WIDTH) {
-        tabWidth = winWidth / count - COLUMN_TAB_MARGIN;
-        tabCWidth = winWidth;
-        margin = 0;
-    }
-    // タブの方が大きい
-    else
-        margin = (ptr.clientX + 1) * (winWidth - tabCWidth) / winWidth;
-
-    if (UI.$columnTabC[0].dataset.hover == 'true')
-        UI.$columnTabC.css({ marginLeft : margin });
-};
-
-// color hovering column tab
-const hoverColumnTab = (e) => {
-    const $tab         = $(e.target),
-          columnsCount = parseInt(UI.$columnC.attr('data-count')),
-          count        = UI.$columnC.children().length,
-          index        = parseInt($tab.index());
-
-    UI.$columnTabC.children().removeClass('hoverTab');
-    // マウス位置が表示カラムタブ左端よりも左側
-    if (index + columnsCount < count) {
-        for (let i=index; i<index+columnsCount; i++)
-            UI.$columnTabC.children().eq(i).addClass('hoverTab');
-    }
-    // マウス位置が表示カラムタブ左端よりも右側
-    else {
-        for (let i=-1; i>-1-columnsCount; i--)
-            UI.$columnTabC.children().eq(i).addClass('hoverTab');
-    }
-};
-
-// カラムタブの色（現在表示中）
-const colorColumnTab = () => {
+// スパイ追従
+const changeColumnSpy = () => {
     // 表示中のカラム番号一覧
     const indexes = getColumnIndex();
 
-    UI.$columnTabC.children().removeClass('displayTab');
-    for (let i=0; i<indexes.length; i++) {
-        UI.$columnTabC.children().eq(indexes[i]).addClass('displayTab');
+    // 変更
+    if (UI.$columnSpyC.children('.active').index() != indexes[0]) {
+        UI.$columnSpyC.children().removeClass('active').slice(indexes[0], indexes.pop()+1).addClass('active');
+
+        // hover時は表示し続ける
+        if (UI.$columnSpyC.hasClass('bg-light')) return;
+        UI.$columnSpyC.addClass('show');
+        TwitSideModule.timer(150, () => { UI.$columnSpyC.removeClass('show'); });
     }
+};
+
+// スパイ表示
+const hoverColumnTab = () => {
+    if ($('.columnTab').hasClass('hover')) return;
+    $('.columnTab').addClass('hover')
+        .on('transitionstart.hover', function() {
+            $(this)
+                .on('transitionend.hover', function() {
+                    $(this).off('transitionend.hover transitioncancel.hover');
+
+                    const rect = $('.columnTab')[0].getBoundingClientRect(),
+                          top  = rect.top + rect.height - 1;
+
+                    UI.$columnSpyC.stop()
+                        .addClass('show bg-light').removeClass('delay-transition').css('top', top+'px');
+                })
+                .on('transitioncancel.hover', function() {
+                    $(this).off('transitionend.hover transitioncancel.hover');
+                })
+                .off('transitionstart.hover');
+        })
+};
+
+// スパイ非表示
+const unhoverColumnTab = () => {
+    if (!$('.columnTab').hasClass('hover')) return;
+    $('.columnTab').removeClass('hover')
+        .on('transitionstart.unhover', function() {
+            $(this)
+                .on('transitionend.unhover', function() {
+                    $(this).off('transitionend.unhover transitioncancel.unhover');
+
+                    UI.$columnSpyC.removeClass('show').delay(150).queue(function() {
+                        $(this).css('top', '').addClass('delay-transition').removeClass('bg-light').dequeue();
+                    });
+                })
+                .on('transitioncancel.unhover', function() {
+                    $(this).off('transitionend.unhover transitioncancel.unhover');
+                })
+                .off('transitionstart.unhover');
+        })
 };
 
 
@@ -950,7 +816,7 @@ const colorColumnTab = () => {
 const changeTweetUser = (userid) => {
     // userid未指定
     if (userid == null) userid = UI.getActiveColumn().attr('data-userid');
-    UI.$tweetUserSelection.select2('val', [userid]);
+    UI.$tweetUserSelection.val(userid).trigger('input');
 };
 
 
@@ -959,7 +825,7 @@ const changeTweetUser = (userid) => {
  */
 const onClickRequest = async () => {
     const error = (result) => {
-        UI.showMessage(result.message, result.text_flag);
+        UI.showMessage(TwitSideModule.Message.transMessage(result));
         return Promise.reject();
     };
     // リクエスト送信
@@ -973,7 +839,7 @@ const onClickRequest = async () => {
 
 const onClickAccess = async () => {
     const error = (result) => {
-        UI.showMessage(result.message, result.text_flag);
+        UI.showMessage(TwitSideModule.Message.transMessage(result));
         return Promise.reject();
     };
 
@@ -987,9 +853,9 @@ const onClickAccess = async () => {
     // アクセス送信
     const oauth_hash = await (new Tweet(oauth_token)).access($pin.val()).catch(error);
 
-    newUserContainerToggle(false);
+    $('#newUserContainer').modal('hide');
 
-    // ユーザー作成
+    // ユーザ作成
     await TwitSideModule.ManageUsers.addUser(oauth_hash);
     const count = TwitSideModule.ManageUsers.allUserid.length;
 
@@ -1056,19 +922,18 @@ const onClickAccess = async () => {
 };
 
 const checkPinBox = () => {
-    $('#access')[0].dataset.disabled =
-        oauth_token != null && $('#pin').val().length == 7
-        ? false : true;
+    $('#access').toggleClass('disabled', !(oauth_token != null && /\d{7}/.test($('#pin').val())));
 };
 
 // All users logout
 const onClickLogout = () => {
-    if (!confirm(browser.i18n.getMessage('confirmLogout'))) return;
-
-    // ユーザも一緒にリセット
-    TwitSideModule.ManageColumns.reset(TwitSideModule.WINDOW_TYPE.MAIN);
-    // ログイン画面
-    newUserContainerToggle(true);
+    UI.confirm(browser.i18n.getMessage('confirmLogout'),
+               () => {
+                   // ユーザも一緒にリセット
+                   TwitSideModule.ManageColumns.reset(TwitSideModule.WINDOW_TYPE.MAIN);
+                   // ログイン画面
+                   $('#newUserContainer').modal('show');
+               });
 };
 
 
@@ -1077,15 +942,13 @@ const onClickLogout = () => {
  */
 // Get notifications
 const updateNotifications = () => {
-    const $notifList     = $('#notifItemList'),
-          $notifTemplate = $('#templateContainer .notifItem'),
-          $clearButton   = $('#clearNotif'),
-          $nextButton    = $('#clearNotifNext');
-
+    const $notifList     = $('#notifList'),
+          $notifTemplate = $('#templateContainer > .notifItem');
     // 通知取得
     const notifs = TwitSideModule.Message.getNotifications(),
           count  = notifs.data.length;
     readNotifications(count);
+
 
     // 通知クリア
     $notifList.children().remove();
@@ -1097,15 +960,15 @@ const updateNotifications = () => {
 
         // from Twit Side
         if (notif.userid == '-1') {
-            $notif.children('.neverNotifyButton')
-                .attr('data-notifid', notif.id)
+            $notif.children('.notifNever')
+                .removeClass('d-none')
                 .on('click', () => {
                     neverNotify(notif.id);
                 });
             $notif.find('.notifUserName').text(userinfo.screen_name);
             const $notifUrl = $notif.children('.notifUrl');
-            for (let url of notif.urls)
-                $('<div />').addClass('text-link')
+            for (let url of notif.urls || [])
+                $('<div class="text-link" />')
                 .attr('href', url).text(url)
                 .on('click', () => { openURL(url); return false; })
                 .appendTo($notifUrl);
@@ -1122,39 +985,45 @@ const updateNotifications = () => {
                 TwitSideModule.config.getPref('time_locale'),
                 TwitSideModule.text.createTimeformat()
             ));
+
+        // 通知追加
         $notif.appendTo($notifList);
     }
 
-    // 通知削除
-    $clearButton.text(browser.i18n.getMessage(count ? 'clear_notif' : 'no_notif'));
-
     // 通知続き
-    $nextButton.text(browser.i18n.getMessage('clear_notif_next', notifs.count));
-    $nextButton.css('display', notifs.next ? '' : 'none');
+    $('#notifItemNext').text(browser.i18n.getMessage('clear_notif_next', notifs.count))
+        .toggleClass('d-none', !notifs.next);
 
     // 通知件数0の時
-    if (count == 0 && $('#notifContainer').attr('data-open') == 'true')
-        notifContainerToggle(false);
+    if (count == 0) {
+        $('#notifItemClear, #notifItemSeparator').addClass('d-none');
+        $('#notifItemNothing').removeClass('d-none');
+    }
+    else {
+        $('#notifItemClear, #notifItemSeparator').removeClass('d-none');
+        $('#notifItemNothing').addClass('d-none');
+    }
 };
 
-// read notifications
+// 通知カウント
 const readNotifications = (count) => {
-    document.documentElement.dataset.unreadNotif = count != 0;
-    $('#openLeftC .badge').text(count);
+    $('#notifContainerToggle .badge').text(count ? count : '');
 };
 
-// clear specific / all notifications
+// 特定/全ての通知クリア
 const clearNotifications = (notifItem) => {
     TwitSideModule.Message.removeNotifications(notifItem ? [notifItem.id] : null);
+    // 通知件数0じゃない時はドロップダウンを閉じない
+    return (TwitSideModule.Message.getNotifications()).data.length ? false : true;
 };
 
-// clear displayed notifications and show continuations
+// 今の通知を消して次の通知を表示
 const clearNotificationsNext = () => {
-    const notifIds = [];
-    $('#notifItemList').children().each(function() {
-        notifIds.push(this.id);
-    });
-    TwitSideModule.Message.removeNotifications(notifIds);
+   const notifIds = [];
+   $('#notifList').children().each(function() { notifIds.push(this.id); });
+   TwitSideModule.Message.removeNotifications(notifIds);
+    // 通知件数0じゃない時はドロップダウンを閉じない
+    return (TwitSideModule.Message.getNotifications()).data.length ? false : true;
 };
 
 // never notify a message from Twit Side

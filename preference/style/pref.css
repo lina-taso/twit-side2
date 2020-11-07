@@ -8,111 +8,71 @@
     }
 }
 
-section {
-    margin: 1em;
-    padding: 1em;
-    border-radius: 1em;
-    background-color: #eee;
+html, body {
+    width: 100%;
 }
 
-form {
-    padding: 0.5em;
-    border-bottom: 1px solid darkgray;
+h2, h3, h4 {
+    font-weight: bold !important;
 }
 
-p {
-    margin: 0.2em;
-    line-height: 2.2em;
-}
-
-label {
-    display: inline-block;
-    line-height: 2.2em;
-}
 label[for] {
     cursor: pointer;
 }
 
-table {
-    width: 70%;
-    border-collapse: collapse;
-    border: 1px solid darkgray;
+#hovermenuContainer {
+    table-layout: fixed;
 }
-
-#hovermenuContainer tr {
-    cursor: pointer;
+#hovermenuContainer th:nth-of-type(1),
+#hovermenuContainer td:nth-of-type(1) {
+    width: 10%;
 }
-
-#hovermenuContainer tr:hover {
-    background-color: Highlight;
+#hovermenuContainer th:nth-of-type(2),
+#hovermenuContainer td:nth-of-type(2) {
+    width: 90%;
 }
-
-button.save_button {
-    margin: 1em 0;
+#hovermenuContainer tbody > tr {
+    display: flex;
+    cursor: move;
 }
-
-button.save_button2 {
-    margin: 1em 0;
+#hovermenuContainer tbody label {
+    margin-bottom: 0;
 }
 
 .blink {
     animation: font-blink 1s ease-in-out infinite alternate;
 }
 
-p.info,
-p.warn,
-p.error,
-p.success {
-    margin: 0.2em 0.2em 0.5em;
-    padding: 0.2em;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 0.4em;
+select.custom-select {
+    background-color: white;
+    color: black;
 }
 
-p.info::before,
-p.warn::before,
-p.error::before,
-p.success::before {
-    display: inline-block;
-    text-align: center;
-    width: 1.5em;
-    font-family: FontAwesome;
+/* tweetBox */
+.tweetBox {
+    pointer-events: none;
 }
-
-p.info {
-    border-color: #abf;
-    background-color: #def;
-    color: #128;
+.tweetMainContent {
+    flex-wrap: nowrap;
 }
-p.info::before {
-    content: '\f129';
+.tweetContent {
+    line-height: 1.3;
 }
-
-p.warn {
-    border-color: #fc4;
-    background-color: #ffd;
-    color: #c40;
+.tweetUserName {
+    font-weight: bold;
+    line-height: 1.4;
+    text-decoration: underline;
 }
-p.warn::before {
-    content: '\f12a';
+.tweetUserName::before {
+    content: attr( data-username ) " (" attr( data-screenname ) ") ";
 }
-
-p.error {
-    border-color: #faa;
-    background-color: #fdd;
-    color: #800;
+.tweetMenuButtonBox > .tweetMenuButton {
+    display: none;
+    flex-wrap: nowrap;
+    flex-grow: 1;
+    justify-content: center;
 }
-p.error:before {
-    content: '\f00d';
+/* お気に入り */
+.tweetMenuButton[data-func="favorite"] > .fas {
+    display: none;
 }
-
-p.success {
-    border-color: #6c6;
-    background-color: #cfc;
-    color: #060;
-}
-p.success:before {
-    content: '\f00c';
-}
-

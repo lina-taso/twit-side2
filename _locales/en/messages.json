@@ -36,28 +36,28 @@
         "message" : "Unfavorite failed."
     },
     "destroy_success" : {
-        "message" : "Delete a tweet success."
+        "message" : "Delete success."
     },
     "destroy_failed" : {
         "message" : "Delete failed."
     },
     "destroyList_success" : {
-        "message" : "Delete a list success."
+        "message" : "Delete the list success."
     },
     "destroyUser_success" : {
-        "message" : "Remove a user success."
+        "message" : "Remove the user success."
     },
     "subscribeList_success" : {
-        "message" : "Subscribe a list success."
+        "message" : "Subscribe the list success."
     },
     "subscribeList_failed" : {
-        "message" : "Subscribe a list failed."
+        "message" : "Subscribe the list failed."
     },
     "unsubscribeList_success" : {
-        "message" : "Unsubscribe a list success."
+        "message" : "Unsubscribe the list success."
     },
     "unsubscribeList_failed" : {
-        "message" : "Unsubscribe a list failed."
+        "message" : "Unsubscribe the list failed."
     },
     "createList_success" : {
         "message" : "Create a list success."
@@ -66,10 +66,28 @@
         "message" : "Create a list failed."
     },
     "updateList_success" : {
-        "message" : "Update a list success."
+        "message" : "Update the list success."
     },
     "updateList_failed" : {
-        "message" : "Update a list failed."
+        "message" : "Update the list failed."
+    },
+    "follow_success" : {
+        "message" : "Follow the user success."
+    },
+    "follow_failed" : {
+        "message" : "Follow the user failed."
+    },
+    "unfollow_success" : {
+        "message" : "Unfollow the user success."
+    },
+    "unfollow_failed" : {
+        "message" : "Unfollow the user failed."
+    },
+    "block_success" : {
+        "message" : "Block the user success."
+    },
+    "block_failed" : {
+        "message" : "Block the user failed."
     },
 
     "tweetSent" : {
@@ -78,12 +96,35 @@
     "dmSent" : {
         "message" : "Sent a direct message."
     },
+
     "columnAdded" : {
         "message" : "New column is added."
+    },
+    "columnDeleted" : {
+        "message" : "The column is deleted."
+    },
+    "columnEdited" : {
+        "message" : "The column is modified."
+    },
+
+    "muteKeywordAdded" : {
+        "message" : "New mute keyword is added."
+    },
+    "muteUserAdded" : {
+        "message" : "New mute user is added."
+    },
+    "muteKeywordDeleted" : {
+        "message" : "The mute keyword is deleted."
+    },
+    "muteUserDeleted" : {
+        "message" : "The mute user is deleted."
     },
 
     "commonError" : {
         "message" : "Internal error."
+    },
+    "networkError" : {
+        "message" : "Network error."
     },
     "authError" : {
         "message" : "Can't communicate with authentication server.\nPlease try it again at a little time.\nPlease make sure the clock of your PC is correct just in case."
@@ -122,6 +163,12 @@
     "code44" : {
         "message" : "The provided URL can't be attached to this tweet. (400)"
     },
+    "code50" : {
+        "message" : "The user is not found. (404)"
+    },
+    "code63" : {
+        "message" : "User has been suspended. (403)"
+    },
     "code64" : {
         "message" : "Your account is suspended and is not permitted to access this feature. (403)"
     },
@@ -139,6 +186,9 @@
     },
     "code135" : {
         "message" : "Authentication server shows the wrong time.\nPlease contact the developer."
+    },
+    "code144" : {
+        "message" : "No status found with that ID. (404)"
     },
     "code179" : {
         "message" : "This user is protected."
@@ -197,7 +247,7 @@
         "message" : "No notification"
     },
     "clear_notif" : {
-        "message" : "Clear all notifications"
+        "message" : "Dismiss all notifications"
     },
     "clear_notif_next" : {
         "message" : "Clear below notifications and show next $COUNT$ notifications",
@@ -231,33 +281,6 @@
     },
     "newRetweet" : {
         "message" : "%$1S retweets your tweet",
-        "placeholders" : {
-            "user" : {
-                "content" : "$1",
-                "example" : "@screenname"
-            }
-        }
-    },
-    "newFavorited" : {
-        "message" : "$USER$ adds your tweet to favorites",
-        "placeholders" : {
-            "user" : {
-                "content" : "$1",
-                "example" : "@screenname"
-            }
-        }
-    },
-    "newUnFavorited" : {
-        "message" : "$USER$ removes your tweet from favorites",
-        "placeholders" : {
-            "user" : {
-                "content" : "$1",
-                "example" : "@screenname"
-            }
-        }
-    },
-    "newFollowed" : {
-        "message" : "$USER$ follows you",
         "placeholders" : {
             "user" : {
                 "content" : "$1",
@@ -347,9 +370,6 @@
     },
     "confirmLogout" : {
         "message" : "Logout all accounts?"
-    },
-    "confirmAniGif" : {
-        "message" : "Is this GIF image an animated GIF image?"
     },
     "messageUploadType" : {
         "message" : "One type of images (up to 4) or an animated GIF (only 1) or a video (only 1) can be uploaded"
@@ -466,9 +486,6 @@
     "column_listtimeline" : {
         "message" : "List"
     },
-    "column_autoreload" : {
-        "message" : "Auto reloading"
-    },
 
     "column_follow" : {
         "message" : "Follow"
@@ -487,25 +504,19 @@
     },
 
 
+    "authAdduser" : {
+        "message" : "New Account"
+    },
     "authRequest" : {
-        "message" : "(1) Authorize this application"
+        "message" : "Authorize this application"
     },
     "authPin" : {
-        "message" : "(2) Enter PIN number"
+        "message" : "Enter PIN number"
     },
     "authAccess" : {
-        "message" : "(3) Allow this application"
+        "message" : "Allow this application"
     },
 
-    "topUploadimage" : {
-        "message" : "Upload pictures"
-    },
-    "topUploadvideo" : {
-        "message" : "Upload a video"
-    },
-    "topUploadanigif" : {
-        "message" : "Upload an animation gif"
-    },
     "topSharepicture" : {
         "message" : "Share pictures or a video"
     },
@@ -531,9 +542,6 @@
     "topSearch" : {
         "message" : "Search"
     },
-    "topAdduser" : {
-        "message" : "Add an account"
-    },
     "topManagecolumns" : {
         "message" : "Columns management"
     },
@@ -545,6 +553,9 @@
     },
     "topHelp" : {
         "message" : "Help"
+    },
+    "topAdduser" : {
+        "message" : "Add an account"
     },
     "topLogout" : {
         "message" : "Logout all"
@@ -558,13 +569,6 @@
     },
     "tweetMore" : {
         "message" : "Load more tweets"
-    },
-
-    "tweetClear_replies" : {
-        "message" : "Clear all conversations"
-    },
-    "tweetReplyto" : {
-        "message" : "Reply to: "
     },
     "tweetReplies" : {
         "message" : "Conversations: "
@@ -641,13 +645,56 @@
     "tweetDestroyuser" : {
         "message" : "Remove the user"
     },
+    "tweetFollowuser" : {
+        "message" : "Follow the user"
+    },
+    "tweetUnfollowuser" : {
+        "message" : "Unfollow the user"
+    },
+    "tweetUnmuteuser" : {
+        "message" : "Unmute the user"
+    },
+    "tweetBlockuser" : {
+        "message" : "Block the user"
+    },
+    "tweetUnblockuser" : {
+        "message" : "Unblock the user"
+    },
+    "tweetWantretweetuser" : {
+        "message" : "Receive retweets"
+    },
+
+    "columnmenuClearreplies" : {
+        "message" : "Clear all conversations"
+    },
+    "columnmenuNewdm" : {
+        "message" : "New DM"
+    },
+    "columnmenuNewlist" : {
+        "message" : "New List"
+    },
+    "columnmenuAddcolumn" : {
+        "message" : "Add to column"
+    },
+    "columnmenuTop" : {
+        "message" : "Top"
+    },
+    "columnmenuButtom" : {
+        "message" : "Bottom"
+    },
+    "columnmenuUpdate" : {
+        "message" : "Update"
+    },
 
 
+    "profileFollowed" : {
+        "message" : "Followed"
+    },
     "profileTweet" : {
         "message" : "Tweet"
     },
     "profileSenddm" : {
-        "message" : "Send a DM to"
+        "message" : "create a DM"
     },
     "profileRestriction1" : {
         "message" : "API limits"
@@ -670,32 +717,23 @@
     "profileRelation1requesting" : {
         "message" : "Follow requesting"
     },
-    "profileRelation2followed" : {
-        "message" : "Followed"
-    },
-    "profileRelation2notfollowed" : {
-        "message" : "Not followed"
-    },
-    "profileRelation2blocked" : {
-        "message" : "Blocked"
-    },
-    "profileRelation3muting" : {
+    "profileRelation2muting" : {
         "message" : "Muting"
     },
-    "profileRelation3mute" : {
+    "profileRelation2mute" : {
         "message" : "Mute"
     },
-    "profileRelation4blocking" : {
+    "profileRelation3blocking" : {
         "message" : "Blocking"
     },
-    "profileRelation4block" : {
+    "profileRelation3block" : {
         "message" : "Block"
     },
-    "profileRelation5noretweeting" : {
-        "message" : "Retweets hiding"
+    "profileRelation4noretweeting" : {
+        "message" : "Hiding retweets"
     },
-    "profileRelation5noretweet" : {
-        "message" : "Show retweets"
+    "profileRelation4noretweet" : {
+        "message" : "Hide retweets"
     },
     "profileAddlist" : {
         "message" : "Add a list"
@@ -712,32 +750,8 @@
     "profileListmode" : {
         "message" : "Public/Private"
     },
-    "profilePublic" : {
-        "message" : "Public"
-    },
     "profilePrivate" : {
         "message" : "Private"
-    },
-    "profileMessageEnterlistlabel" : {
-        "message" : "Enter label text"
-    },
-    "profileMessageToolonglistlabel" : {
-        "message" : "Enter label text with up to $LENGTH$",
-        "placeholders" : {
-            "length" : {
-                "content" : "$1",
-                "example" : "10"
-            }
-        }
-    },
-    "profileMessageToolonglistdesc" : {
-        "message" : "Enter description with up to $LENGTH$",
-        "placeholders" : {
-            "length" : {
-                "content" : "$1",
-                "example" : "10"
-            }
-        }
     },
 
 
@@ -766,14 +780,17 @@
     "columnsType" : {
         "message" : "Type"
     },
+    "columnsOptions" : {
+        "message" : "Options"
+    },
     "columnsNotif" : {
-        "message" : "Notify"
+        "message" : "Notification"
     },
     "columnsOnstart" : {
-        "message" : "Loading on startup"
+        "message" : "Auto start"
     },
     "columnsAutoreload" : {
-        "message" : "Auto reloading"
+        "message" : "Auto reload"
     },
     "columnsVeil" : {
         "message" : "Privacy mode"
@@ -790,9 +807,6 @@
     "columnsEdit" : {
         "message" : "Edit the column"
     },
-    "columnsMessageEntercolumnlabel" : {
-        "message" : "Enter label text"
-    },
 
 
     "tsMutesDescription" : {
@@ -804,14 +818,14 @@
     "tsMutesTabUsers" : {
         "message" : "Users"
     },
-    "tsMutesKeyword" : {
-        "message" : "Keyword"
-    },
     "tsMutesType" : {
         "message" : "Type"
     },
-    "tsMutesTypeText" : {
-        "message" : "PlainText"
+    "tsMutesKeyword" : {
+        "message" : "Keyword"
+    },
+    "tsMutesKeywordType" : {
+        "message" : "Keyword Type"
     },
     "tsMutesTypeRegexp" : {
         "message" : "Regexp"
@@ -885,14 +899,23 @@
     },
 
 
-    "apiApi" : {
-        "message" : "API"
-    },
     "apiRemaining" : {
         "message" : "remaining [times]"
     },
     "apiLimit" : {
         "message" : "limit [times]"
+    },
+    "apiReset_until" : {
+        "message" : "reset until"
+    },
+    "apiReset_timeleft" : {
+        "message" : "$REMAIN$ sec left",
+        "placeholders" : {
+            "remain" : {
+                "content" : "$1",
+                "example" : "10"
+            }
+        }
     },
     "apiReset_time" : {
         "message" : "reset time"
@@ -981,20 +1004,29 @@
     "prefLabelStyleRestart_required" : {
         "message" : "Some changes are restart Firefox required"
     },
-    "prefLabelStyleDesign" : {
-        "message" : "Design"
+    "prefLabelStyleAppearance" : {
+        "message" : "Appearance"
     },
     "prefTheme" : {
         "message" : "Theme"
+    },
+    "prefShachiku" : {
+        "message" : "Shachiku (社畜) mode"
+    },
+    "prefShachiku_button" : {
+        "message" : "Hide user icons and thumbnail images, then save preferences."
     },
     "prefColor_retweets" : {
         "message" : "Color the background of retweets"
     },
     "prefScreenname_first" : {
-        "message" : "Display user in format '@screenname (name)'"
+        "message" : "Display user in format '@screenname (username)'"
     },
     "prefCircle_icon" : {
-        "message" : "Round the user icon"
+        "message" : "Round user icons"
+    },
+    "prefShow_icon" : {
+        "message" : "Show user icons"
     },
     "prefLabelStyleTimestamp" : {
         "message" : "Timestamp"
@@ -1047,6 +1079,9 @@
     "prefViewthumbnail" : {
         "message" : "Display thumbnail images"
     },
+    "prefMovethumbnail" : {
+        "message" : "Enable movable thumbnail images"
+    },
     "prefPopup_photo" : {
         "message" : "Show photos in a dialog (when unchecked, open photo's url in a tab)"
     },
@@ -1058,9 +1093,6 @@
     },
     "prefLinefeed" : {
         "message" : "Display line break"
-    },
-    "prefAnimation" : {
-        "message" : "Enable animation"
     },
     "prefLabelScale" : {
         "message" : "Scale"
@@ -1085,9 +1117,6 @@
     },
     "prefIcon_size" : {
         "message" : "Icon size"
-    },
-    "prefButton_size" : {
-        "message" : "Button size"
     },
     "prefLabelNotification" : {
         "message" : "Notification"

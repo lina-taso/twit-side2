@@ -1,80 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" style="font-size: 12px;">
   <head>
-    <title />
+    <title data-string="windowNewdmTitle"/>
     <meta charset="utf-8" />
     <link href="style/common.css" rel="stylesheet" type="text/css" />
-    <link href="style/select2.css" rel="stylesheet" type="text/css" />
+    <link href="style/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="style/theme-light.css" rel="stylesheet" type="text/css" />
+    <link id="theme" href="" rel="stylesheet" type="text/css" />
 
-    <script src="l10n/l10n-definition-newdm.js"></script>
+    <script src="js/twitter-text.min.js"></script>
     <script src="/scripts/tweet.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/jquery.min.js"></script>
-    <script src="js/select2.min.js"></script>
-    <script src="js/twitter-text.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
   </head>
 
-  <body
-    data-window-type="photo"
-    data-theme="default"
-    data-icon-size="large"
-    data-button-size="medium"
-    data-circle-icon="true"
-    data-animation="true"
-    style="font-size: 12px;">
+  <body data-window-type="newdm">
 
-    <div id="newdmHeaderContainer">
-      <div>
-        <label for="tweetUserSelection" />
-        <select id="tweetUserSelection" tabindex="1" />
+    <nav id="topMenuContainer" class="container-fluid bg-light">
+      <div class="row mx-1 my-2">
+        <label class="col-2 col-form-label" for="tweetUserSelection" data-string="newdmFrom" />
+        <div class="col-8 input-group">
+          <div class="input-group-prepend">
+            <button id="profileOwnImage" class="btn ts-btn btn-outline-secondary" tabindex="1" />
+          </div>
+          <select class="custom-select" id="tweetUserSelection" tabindex="1" />
+        </div>
       </div>
-      <div>
-        <label for="recipientScreenname" />
-        <input type="text" id="recipientScreenname" tabindex="1" />
+
+      <div class="row mx-1 my-2">
+        <label class="col-2 col-form-label" for="recipientScreenname" data-string="newdmTo" />
+        <div class="col-8">
+          <input class="form-control" type="text" id="recipientScreenname" tabindex="1" />
+          <select id="suggestContainer" class="form-control custom-select" size="3" tabindex="1" style="display: none;" />
+        </div>
+        <label class="" id="screennameCheck" data-status="unchecked" />
       </div>
-      <select id="suggestContainer"
-              size="3"
-              style="display: none;" />
-    </div>
+    </nav>
 
-    <div id="mainContainer">
-      <div id="newdmContainer">
-        <textarea id="newTweet"
-                  spellcheck="false"
-                  tabindex="1" />
+    <div id="newdmContainer" class="card">
+      <div class="card-body">
+        <div class="row mb-1 position-relative">
+          <span id="pictureThumbnails" />
+          <textarea id="newTweet" class="form-control" tabindex="1"
+                    data-attachment-url="" spellcheck="false" />
+        </div>
+        <div class="row">
+          <button id="tweetButton" class="btn ts-btn btn-outline-primary mr-2 disabled" tabindex="1">
+            <span data-string="newdmSend" />
+            <span id="newTweetCount" class="badge badge-success">10000/10000</span>
+          </button>
+          <button id="sharePicture" class="btn ts-btn btn-light mr-auto" title="" data-string-title="topSharepicture" tabindex="1">
+            <i class="fas fa-file-upload" />
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="textButtonList">
-      <div class="spacer" />
-      <div id="tweetButton" class="buttonItem textButtonItem" tabindex="1"
-           data-label=""
-           data-disabled="">
-        <span id="newTweetCount"
-              data-labelcolor="countOk">10000/10000</span>
+    <!-- .progressBar -->
+    <div id="progressContainer" class="progress">
+      <div class="progress-bar progress-bar-striped progress-bar-animated" data-progress="" style="width: 0; display: none;" />
+    </div>
+    <!-- /.progressBar -->
+
+    <div id="messageContainer" class="mb-5">
+      <div id="messageToast" class="toast hide" data-autohide="true" data-delay="3000">
+        <div class="toast-body">Toast</div>
       </div>
-      <div id="closeButton" class="buttonItem textButtonItem" tabindex="1" />
     </div>
 
-    <div id="progressContainer">
-      <div id="progressBar" />
+    <input id="filepicker" class="d-none" type="file" accept=".png,.jpg,.jpeg,.gif,.mp4"/>
+
+    <!-- #TemplateContainer -->
+    <div id="templateContainer" class="d-none">
+
+      <!-- .tweetUserOption -->
+      <option class="tweetUserOption" value="" data-image="" />
+
+      <!-- .alertModal -->
+      <div class="modal fade alertModal">
+        <div class="modal-dialog modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirm</h5>
+              <button class="close" data-dismiss="modal">
+                <i class="fas fa-times fa-sm" />
+              </button>
+            </div>
+            <div class="modal-body" />
+            <div class="modal-footer">
+              <button class="btn btn-primary" data-dismiss="modal" tabindex="1">OK</button>
+              <button class="btn btn-secondary" data-dismiss="modal" tabindex="1">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /.alertModal -->
+
     </div>
-
-    <!-- position: fixed -->
-    <div id="messageContainer" class="hidden" />
-
-    <!-- hidden -->
-    <div id="templateContainer">
-
-      <!-- tweetUserSelection -->
-      <select>
-        <option class="tweetUserOption" value=""
-                data-image="" />
-      </select>
-
-    </div>
+    <!-- /#TemplateContainer -->
 
     <!-- at last -->
     <script src="js/newdm.js"></script>

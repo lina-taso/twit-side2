@@ -70,7 +70,7 @@ class Tweet {
 
     // 発言
     async tweet(optionsHash) {
-        optionsHash['weighted_character_count'] = 'true';
+        // optionsHash['weighted_character_count'] = 'true';
         const result = await this._sendRequest('SIGNATURE', {
             api     : 'API',
             method  : 'POST',
@@ -131,6 +131,7 @@ class Tweet {
 
     // ファボ一覧
     async favoritelist(optionsHash) {
+        optionsHash['tweet_mode'] = 'extended';
         return await this._sendRequest('SIGNATURE', {
             api     : 'API',
             method  : 'GET',
@@ -977,7 +978,7 @@ class Tweet {
             // タイムアウト初期値
             xhr.timeout = TwitSideModule.config.getPref('timeout') * 1000;
             // エラー初期値
-            xhr.onerror = () => { reject(new Error()); };
+            xhr.onerror = () => { reject('networkError'); };
 
             switch (type) {
             case 'REQUEST':
@@ -1095,7 +1096,7 @@ class Tweet {
 
             xhr.setRequestHeader('User-Agent', Tweet.userAgent);
             xhr.timeout   = TwitSideModule.config.getPref('timeout') * 1000;
-            xhr.onerror   = () => { reject(new Error()); };
+            xhr.onerror   = () => { reject('networkError'); };
             xhr.ontimeout = () => { reject('timeout'); };
             xhr.onload    = returnSignature;
             xhr.send(data_hash && data_hash.form || null);

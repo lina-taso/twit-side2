@@ -1,42 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" style="font-size: 12px;">
   <head>
-    <title />
+    <title data-string="windowColumnsTitle" />
     <meta charset="utf-8" />
     <link href="style/common.css" rel="stylesheet" type="text/css" />
     <link href="style/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="style/theme-light.css" rel="stylesheet" type="text/css" />
+    <link id="theme" href="" rel="stylesheet" type="text/css" />
 
-    <script src="l10n/l10n-definition-columns.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/jquery.min.js"></script>
-    <script src="js/jquery.ui.sortable.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
   </head>
 
-  <body
-    data-window-type="columns"
-    data-theme="default"
-    data-icon-size="large"
-    data-button-size="medium"
-    data-circle-icon="true"
-    data-animation="true"
-    style="font-size: 12px;">
+  <body data-window-type="columns">
 
-    <div id="draggable" />
+    <p class="lead m-1" data-string="columnsDraggable" />
 
-    <div id="mainContainer">
-      <table id="columnListContainer">
-        <thead>
+    <div id="columnListContainerWrapper">
+      <table id="columnListContainer" class="table">
+        <thead class="thead-light sticky-top">
           <tr id="columnListHead">
-            <th title=""></th>
-            <th title=""></th>
-            <th title=""></th>
-            <th title=""></th>
-            <th title=""></th>
-            <th title=""></th>
-            <th title=""></th>
-            <th title=""></th>
+            <th title="" data-string-title="columnsColumnlabel" />
+            <th title="" data-string-title="columnsScreenname" />
+            <th title="" data-string-title="columnsType" />
+            <th title="" class="text-center" data-string-title="columnsNotif">
+              <i class="fas fa-bell fa-fw" />
+            </th>
+            <th title="" class="text-center" data-string-title="columnsOnstart">
+              <i class="fas fa-play fa-fw" />
+            </th>
+            <th title="" class="text-center" data-string-title="columnsAutoreload">
+              <i class="fas fa-sync-alt fa-fw" />
+            </th>
+            <th title="" class="text-center" data-string-title="columnsVeil">
+              <i class="fas fa-shield-alt fa-fw" />
+            </th>
+            <th title="" data-string-title="columnsOther" />
+            <th />
           </tr>
         </thead>
         <tbody id="columnListBody">
@@ -44,97 +48,160 @@
       </table>
     </div>
 
-    <div class="textButtonList">
-      <div id="addButton" class="buttonItem textButtonItem" tabindex="1" />
-      <div id="removeButton" class="buttonItem textButtonItem" tabindex="1" />
-      <div id="editButton" class="buttonItem textButtonItem" tabindex="1" />
-      <div class="spacer" />
-      <div id="closeButton" class="buttonItem textButtonItem" tabindex="1" />
+    <button id="addButton" class="btn ts-btn circle-button btn-secondary" tabindex="1" data-string-title="columnsAdd">
+      <i class="columnMenu fas fa-plus fa-fw" />
+    </button>
+
+    <!-- #addColumnContainer -->
+    <div id="addColumnContainer" class="modal fade" data-type="" data-edit-columnindex="">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="addColumnForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addColumnTitle" data-string="columnsAdd" />
+              <h5 class="modal-title d-none" id="editColumnTitle" data-string="columnsEdit" />
+              <button class="close" data-dismiss="modal" type="button">
+                <i class="fas fa-times fa-sm" />
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group row mb-3">
+                <label class="col-3 col-form-label" for="tlType" data-string="columnsType" />
+                <div class="col-9">
+                  <select class="custom-select" id="tlType" tabindex="1">
+                    <option class="tlTypeOption" value="1" data-string="column_timeline" />
+                    <option class="tlTypeOption" value="2" data-string="column_connect" />
+                    <option class="tlTypeOption" value="3" data-string="column_retweeted" />
+                    <option class="tlTypeOption" value="4" data-string="column_favorite" />
+                    <option class="tlTypeOption" value="5" data-string="column_directmessage" />
+                    <option class="tlTypeOption" value="6" data-string="column_search" />
+                    <option class="tlTypeOption" value="7" data-string="column_listtimeline" />
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row mb-3">
+                <label class="col-3 col-form-label" for="screenname" data-string="columnsScreenname" />
+                <div class="col-9">
+                  <select class="custom-select" id="screenname" tabindex="1" />
+                </div>
+              </div>
+              <div class="form-group row mb-3">
+                <label class="col-3 col-form-label" for="columnLabel" data-string="columnsColumnlabel" />
+                <div class="col-9">
+                  <input class="form-control" type="text" id="columnLabel" data-value="" required="" tabindex="1" autocomplete="off" />
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label class="col-3" data-string="columnsOptions" />
+                <div class="col-2 custom-control custom-switch">
+                  <input class="custom-control-input" type="checkbox" id="notif" tabindex="1" />
+                  <label class="custom-control-label" for="notif" data-string="columnsNotif" />
+                </div>
+                <div class="col-2 custom-control custom-switch">
+                  <input class="custom-control-input" type="checkbox" id="onstart" tabindex="1" />
+                  <label class="custom-control-label" for="onstart" data-string="columnsOnstart" />
+                </div>
+                <div class="col-2 custom-control custom-switch">
+                  <input class="custom-control-input" type="checkbox" id="autoreload" tabindex="1" />
+                  <label class="custom-control-label" for="autoreload" data-string="columnsAutoreload" />
+                </div>
+                <div class="col-2 custom-control custom-switch">
+                  <input class="custom-control-input" type="checkbox" id="veil" tabindex="1" />
+                  <label class="custom-control-label" for="veil" data-string="columnsVeil" />
+                </div>
+              </div>
+              <div class="form-group row mb-3 d-none">
+                <label class="col-3 col-form-label" for="parameter" data-string="columnsOther" />
+                <div class="col-9">
+                  <textarea class="form-control" id="parameter" rows="3" disabled="" />
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button id="okButton" class="btn btn-secondary" type="submit" tabindex="1">OK</button>
+              <button class="btn btn-seconday" data-dismiss="modal" type="button" tabindex="1">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- /#addColumnContainer -->
+
+    <div id="messageContainer" class="mb-5">
+      <div id="messageToast" class="toast hide" data-autohide="true" data-delay="3000">
+        <div class="toast-body">Toast</div>
+      </div>
     </div>
 
-    <div id="addColumnContainer" class="dialog"
-         data-type=""
-         data-edit-columnindex=""
-         data-open="false">
-      <ul class="buttonList smallButtonList">
-        <li id="closeAddColumnC" class="buttonItem" tabindex="1">
-          <i class="buttonImage fa fa-times fa-fw" />
-        </li>
-      </ul>
+    <!-- #templateContainer -->
+    <div id="templateContainer" class="d-none">
 
-      <div id="addColumnTitle" />
-      <div id="editColumnTitle" />
+      <!-- .columnListRow -->
+      <tr class="columnListRow" data-tltype="">
+        <td title="" />
+        <td title="" />
+        <td title="" />
+        <td title="" class="text-center">
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" disabled="" />
+            <label class="custom-control-label" />
+          </div>
+        </td>
+        <td title="" class="text-center">
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" disabled="" />
+            <label class="custom-control-label" />
+          </div>
+        </td>
+        <td title="" class="text-center">
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" disabled="" />
+            <label class="custom-control-label" />
+          </div>
+        </td>
+        <td title="" class="text-center">
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" disabled="" />
+            <label class="custom-control-label" />
+          </div>
+        </td>
+        <td title="" />
+        <td>
+          <button class="btn ts-btn btn-sm btn-outline-primary editButton" title="" data-string-title="columnsEdit" tabindex="1">
+            <i class="fas fa-pen" />
+          </button>
+          <button class="btn ts-btn btn-sm btn-outline-primary removeButton" title="" data-string-title="columnsRemove" tabindex="1">
+            <i class="fas fa-minus" />
+          </button>
+        </td>
+      </tr>
+      <!-- /.columnListRow -->
 
-      <div class="columninfoBox">
-        <label for="tlType" />
-        <select id="tlType" tabindex="10">
-          <option class="tlTypeOption" value="1" />
-          <option class="tlTypeOption" value="2" />
-          <option class="tlTypeOption" value="3" />
-          <option class="tlTypeOption" value="4" />
-          <option class="tlTypeOption" value="5" />
-          <option class="tlTypeOption" value="6" />
-          <option class="tlTypeOption" value="7" />
-        </select>
-      </div>
-      <div class="columninfoBox">
-        <label for="screenname" />
-        <select id="screenname" tabindex="10" />
-      </div>
-      <div class="columninfoBox">
-        <label for="columnLabel" />
-        <input type="text" id="columnLabel" tabindex="10" data-value="" />
-      </div>
-      <div class="columninfoBox">
-        <label for="notif" />
-        <input type="checkbox" id="notif" tabindex="10" />
-      </div>
-      <div class="columninfoBox">
-        <label for="onstart" />
-        <input type="checkbox" id="onstart" tabindex="10" />
-      </div>
-      <div class="columninfoBox">
-        <label for="autoreload" />
-        <input type="checkbox" id="autoreload" tabindex="10" />
-      </div>
-      <div class="columninfoBox">
-        <label for="veil" />
-        <input type="checkbox" id="veil" tabindex="10" />
-      </div>
-      <div class="columninfoBox" style="display: none;">
-        <label for="parameter" />
-        <textarea id="parameter" rows="3" disabled="disabled" />
-      </div>
+      <!-- .TweetUserOption -->
+      <option class="tweetUserOption" value="" />
 
-      <div class="textButtonList">
-        <div class="spacer" />
-        <div id="okButton" class="buttonItem textButtonItem" tabindex="10">OK</div>
-        <div id="cancelButton" class="buttonItem textButtonItem" tabindex="10">Cancel</div>
+      <!-- .alertModal -->
+      <div class="modal fade alertModal">
+        <div class="modal-dialog modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirm</h5>
+              <button class="close" data-dismiss="modal">
+                <span><i class="fas fa-times fa-sm" /></span>
+              </button>
+            </div>
+            <div class="modal-body" />
+            <div class="modal-footer">
+              <button class="btn btn-primary" data-dismiss="modal" tabindex="1">OK</button>
+              <button class="btn btn-secondary" data-dismiss="modal" tabindex="1">Cancel</button>
+            </div>
+          </div>
+        </div>
       </div>
+      <!-- Modal -->
 
     </div>
-
-    <!-- hidden -->
-    <div id="templateContainer">
-      <table>
-        <tr class="columnListRow" tabindex="1"
-            data-selected=""
-            data-tltype="">
-          <td title="" />
-          <td title="" />
-          <td title="" />
-          <td title=""><input type="checkbox" disabled="disabled" /></td>
-          <td title=""><input type="checkbox" disabled="disabled" /></td>
-          <td title=""><input type="checkbox" disabled="disabled" /></td>
-          <td title=""><input type="checkbox" disabled="disabled" /></td>
-          <td title="" />
-        </tr>
-      </table>
-
-      <select>
-        <option class="tweetUserOption" value="" />
-      </select>
-    </div>
+    <!-- /#templateContainer -->
 
     <!-- at last -->
     <script src="js/columns.js"></script>

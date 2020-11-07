@@ -59,13 +59,13 @@ TwitSideModule.Mutes = {
     get muteUsers() { return JSON.parse(JSON.stringify(this._users)); },
 
     // ミュートキーワード追加
-    addMuteKeyword : async function(type, data, until) {
+    addMuteKeyword : async function(regexp, data, until) {
         if (until
             && until < TwitSideModule.text.getUnixTime())
             return;
 
         this._keywords.push({
-            type  : type,
+            type  : regexp ? 'Regexp' : 'Text',
             data  : data,
             until : until
         });

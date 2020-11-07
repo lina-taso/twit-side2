@@ -41,22 +41,23 @@ window.addEventListener('load', async () => {
     restorePrefs();
     localization();
     initHovermenu();
+    setTweetMenuOrder();
 });
 
 // add other event listener
 const vivify = () => {
-    // カラム並び替え
-    $('#hovermenuContainer').sortable({
-        items       : 'tr',
-        cursor      : 'more',
+    // ホバーメニュー並び替え
+    $('#hovermenuBody').sortable({
+        items       : '.hovermenuRow',
         opacity     : '0.5',
         axis        : 'y',
-        containment : '#hovermenuContainer',
-        distance    : 10,
+        containment : 'parent',
+        helper      : 'clone',
         tolerance   : 'pointer',
         update : (e, ui) => {
             $('button.save_button_hover').addClass('blink');
             $('#hovermenuContainer').attr('data-changed', 'true');
+            setTweetMenuOrder();
         }
     });
     // フォーム
@@ -72,6 +73,7 @@ const vivify = () => {
                 if (!checkHovermenu(e.target)) return;
                 $('button.save_button_hover').addClass('blink');
                 $('#hovermenuContainer').attr('data-changed', 'true');
+                setTweetMenuOrder();
             }
 
             // タイムスタンプ
@@ -86,12 +88,12 @@ const vivify = () => {
     // UI変更の保存ボタン
     $('button.save_button2')
         .on('click', saveSection2);
-    // 検索カラム変更の保存ボタン
-    $('button.save_button3')
-        .on('click', saveSection2);
     // ホバーメニュー保存ボタン
     $('button.save_button_hover')
         .on('click', saveHoverSection);
+    // 社畜ボタン
+    $('#shachiku')
+        .on('click', onClickShachiku)
 };
 
 
@@ -100,23 +102,15 @@ const vivify = () => {
  */
 // localization content ui
 const localization = () => {
-    for (let datum of l10nDefinition) {
-        if (datum.selector == 'title') {
-            document.title = browser.i18n.getMessage(datum.word);
-            continue;
-        }
+    const suffixList = [''];
 
-        switch (datum.place) {
-        case "text":
-            $(datum.selector).text(browser.i18n.getMessage(datum.word));
-            break;
-        case "html":
-            $(datum.selector).html(browser.i18n.getMessage(datum.word));
-            break;
-        case "attr":
-            $(datum.selector).attr(datum.attr, browser.i18n.getMessage(datum.word));
-            break;
-        }
+    for (const suffix of suffixList) {
+        const attr = 'data-string' + (suffix ? '-' + suffix : '');
+        $('['+attr+']').each(function(i, e) {
+            suffix
+                ? $(e).attr(suffix, browser.i18n.getMessage($(e).attr(attr)))
+                : $(e).text(browser.i18n.getMessage($(e).attr(attr)));
+        });
     }
 
     // timestamp sample
@@ -182,7 +176,7 @@ const initHovermenu = () => {
 
     for (let i=0; i<4; i++) {
         if (menux[i] == '') continue;
-        $('#hover_'+menux[i]).closest('tr').insertBefore($('#hovermenuContainer tr').eq(i));
+        $('#hover_'+menux[i]).closest('tr').insertBefore($('#hovermenuContainer > tbody > tr').eq(i));
     }
 };
 
@@ -268,4 +262,28 @@ const saveHoverSection = async (e) => {
         await TwitSideModule.config.setPref(el.id, el.checked);
         $(el).removeAttr('data-changed');
     });
+
+    TwitSideModule.windows.sendMessage({
+        reason : TwitSideModule.UPDATE.UI_CHANGED
+    }, null, null);
+};
+
+const setTweetMenuOrder = function() {
+    const prefix ='.tweetMenuButton[data-func="';
+    let style = '',
+        menux = $('#hovermenuContainer').find(':checked').toArray();
+
+    for (let i=0; i<4; i++)
+        style += menux[i] && prefix + (menux[i] ? menux[i].value : '') + '"]' + " { display: flex; order: "+ (i+1) +"; }\n";
+
+    $('#tweetMenuOrder').text(style);
+}
+
+const onClickShachiku = async (e) => {
+    $('#show_icon, #viewthumbnail').prop('checked', false).each(await async function() {
+        await TwitSideModule.config.setPref(this.id, this.checked);
+    });
+    TwitSideModule.windows.sendMessage({
+        reason : TwitSideModule.UPDATE.UI_CHANGED
+    }, null, null);
 };

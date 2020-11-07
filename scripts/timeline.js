@@ -1135,6 +1135,10 @@ class Timeline {
         meta.text = datum.retweeted_status
             ? datum.retweeted_status.full_text || datum.text
             : datum.full_text || datum.text;
+        meta.display_text_range = {};
+        Object.assign(meta.display_text_range, datum.retweeted_status
+                      ? datum.retweeted_status.display_text_range
+                      : datum.display_text_range, {});
 
         // ユーザ一覧
         const screennamelist = [], // ツイートに含まれるすべてのユーザ（リツイートした人も含む）
@@ -1183,18 +1187,6 @@ class Timeline {
 
         const analyzePicApi = async (index) => {
             switch (urls.provider) {
-            case 'twitter':
-                const [thumb, response] = await Promise.all([
-                    this._tweet.dmOAuth(urls.id+':medium', {}),
-                    this._tweet.dmOAuth(urls.id+':large', {})
-                ]);
-
-                if (thumb && thumb.data
-                    && response && response.data) {
-                    urls.thumburl = URL.createObjectURL(thumb.data);
-                    urls.rawurl   = URL.createObjectURL(response.data);
-                };
-                break;
             default:
                 return Promise.reject();
             }
@@ -1226,19 +1218,19 @@ class Timeline {
             urls.id       = RegExp.$1;
             break;
 
-        case (re = RegExp('^https?://instagr[.]am/p/([\\w-_]+)/([?].*)?([?].*)?$')).test(url):
-            urls.provider = 'instagram';
-            urls.thumburl = url.replace(re, 'http://instagr.am/p/$1/media/?size=l');
-            urls.rawurl   = url.replace(re, 'http://instagr.am/p/$1/media/?size=l');
-            urls.id       = RegExp.$1;
-            break;
+        // case (re = RegExp('^https?://instagr[.]am/p/([\\w-_]+)/([?].*)?([?].*)?$')).test(url):
+        //     urls.provider = 'instagram';
+        //     urls.thumburl = url.replace(re, 'http://instagr.am/p/$1/media/?size=l');
+        //     urls.rawurl   = url.replace(re, 'http://instagr.am/p/$1/media/?size=l');
+        //     urls.id       = RegExp.$1;
+        //     break;
 
-        case (re = RegExp('^https?://(www[.])?instagram.com/p/([\\w-_]+)/([?].*)?$')).test(url):
-            urls.provider = 'instagram';
-            urls.thumburl = url.replace(re, 'http://instagr.am/p/$2/media/?size=l');
-            urls.rawurl   = url.replace(re, 'http://instagr.am/p/$2/media/?size=l');
-            urls.id       = RegExp.$2;
-            break;
+        // case (re = RegExp('^https?://(www[.])?instagram.com/p/([\\w-_]+)/([?].*)?$')).test(url):
+        //     urls.provider = 'instagram';
+        //     urls.thumburl = url.replace(re, 'http://instagr.am/p/$2/media/?size=l');
+        //     urls.rawurl   = url.replace(re, 'http://instagr.am/p/$2/media/?size=l');
+        //     urls.id       = RegExp.$2;
+        //     break;
 
         case (re = RegExp('^https?://movapic[.]com/pic/(\\w+)([?].*)?$')).test(url):
             urls.provider = 'movapic';
@@ -1289,17 +1281,6 @@ class Timeline {
             urls.thumburl = url.replace(re, 'http://embed.pixiv.net/decorate.php?illust_id=$2');
             urls.rawurl   = url.replace(re, 'http://embed.pixiv.net/decorate.php?illust_id=$2');
             urls.id       = RegExp.$2;
-            break;
-
-        case (re = RegExp('^https?://ton[.]twitter[.]com/1[.]1([\\w/.]+)$')).test(url):
-            // twitter (for DM)
-            urls.provider = 'twitter';
-            urls.loading  = true;
-            urls.thumburl = url.replace(re, browser.extension.getURL('images/loading.svg')
-                                        + '?' + urls.provider + '#' + urls.id);
-            urls.rawurl   = '';
-            urls.id       = RegExp.$1;
-            analyzePicApi(meta.pics.length);
             break;
 
         default:
@@ -1687,7 +1668,7 @@ class DmTimeline extends Timeline {
             // メディア
             for (let media of [meta.attachment.media] || [])
                 // Twitter
-                this._analyzePicURL(media.media_url_https, meta);
+                this._procPicTwtrURL(media, meta);
         }
 
         const screennamelist = [],
@@ -1721,6 +1702,79 @@ class DmTimeline extends Timeline {
             return await this._getDmMetadata(datum, boxid).catch(error);
         }
         return meta;
+    }
+    // pic.twitter画像URL処理
+    _procPicTwtrURL(media, meta) {
+        const analyzePicApi = async (index) => {
+            switch (urls.provider) {
+            case 'twitter':
+                const [thumb, response] = await Promise.all([
+                    this._tweet.dmOAuth(urls.id+':medium', {}),
+                    this._tweet.dmOAuth(urls.id+':large', {})
+                ]);
+
+                if (thumb && thumb.data
+                    && response && response.data) {
+                    urls.thumburl = URL.createObjectURL(thumb.data);
+                    urls.rawurl   = URL.createObjectURL(response.data);
+                };
+                break;
+            default:
+                return Promise.reject();
+            }
+
+            delete urls.loading;
+
+            // 更新通知
+            await TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.IMAGE_LOADED,
+                boxid    : meta.boxid,
+                index    : index,
+                columnid : this._columnid
+            }, null, this._win_type);
+        };
+
+        const url  = media.media_url_https,
+              urls = {};
+        let re;
+
+        switch (true) {
+        case (re = RegExp('^https?://ton[.]twitter[.]com/1[.]1([\\w/.]+)$')).test(url):
+            // twitter (for DM picture)
+            urls.provider = 'twitter';
+            urls.loading  = true;
+            urls.thumburl = url.replace(re, browser.extension.getURL('images/loading.svg')
+                                        + '?' + urls.provider + '#' + urls.id);
+            urls.rawurl   = '';
+            urls.id       = RegExp.$1;
+            analyzePicApi(meta.pics.length);
+            break;
+
+        case (re = RegExp('^https?://pbs[.]twimg[.]com/dm_video_preview/([\\w/.]+)$')).test(url):
+            // twitter (for DM video)
+            urls.provider = 'twitter';
+            urls.fullurl  = media.expanded_url,
+            urls.thumburl = media.media_url_https;
+            urls.rawurl   = media.media_url_https;
+            urls.id       = null;
+            urls.variants = media.video_info ? media.video_info.variants : null;
+            break;
+
+        case (re = RegExp('^https?://pbs[.]twimg[.]com/dm_gif_preview/([\\w/.]+)$')).test(url):
+            // twitter (for DM gif)
+            urls.provider = 'twitter';
+            urls.fullurl  = media.expanded_url,
+            urls.thumburl = media.media_url_https;
+            urls.rawurl   = media.media_url_https;
+            urls.id       = null;
+            urls.variants = media.video_info ? media.video_info.variants : null;
+            break;
+
+        default:
+            return null;
+        }
+
+        meta.pics.push(urls);
     }
 
 } //DmTimeline
@@ -2139,9 +2193,13 @@ class FriendTimeline extends Timeline {
         if (this._own_userid != this._targetid)
             switch(this._tl_type) {
             case TwitSideModule.TL_TYPE.TEMP_FOLLOW:
+                TwitSideModule.Friends.clearFriends(
+                    TwitSideModule.FRIEND_TYPE.FOLLOW, this._targetid
+                );
+                break;
             case TwitSideModule.TL_TYPE.TEMP_FOLLOWER:
                 TwitSideModule.Friends.clearFriends(
-                    this._tl_type, this._targetid
+                    TwitSideModule.FRIEND_TYPE.FOLLOWER, this._targetid
                 );
                 break;
             }
@@ -2176,16 +2234,28 @@ class FriendTimeline extends Timeline {
         // カーソルリセット
         switch (this._tl_type) {
         case TwitSideModule.TL_TYPE.TEMP_FOLLOW:
+            TwitSideModule.Friends.clearFriends(
+                TwitSideModule.FRIEND_TYPE.FOLLOW, this._targetid
+            );
+            break;
         case TwitSideModule.TL_TYPE.TEMP_FOLLOWER:
             TwitSideModule.Friends.clearFriends(
-                this._tl_type, this._targetid
+                TwitSideModule.FRIEND_TYPE.FOLLOWER, this._targetid
             );
             break;
         case TwitSideModule.TL_TYPE.TEMP_MUTE:
+            TwitSideModule.Friends.clearFriends(
+                TwitSideModule.FRIEND_TYPE.MUTE, this._targetid
+            );
+            break;
         case TwitSideModule.TL_TYPE.TEMP_BLOCK:
+            TwitSideModule.Friends.clearFriends(
+                TwitSideModule.FRIEND_TYPE.BLOCK, this._targetid
+            );
+            break;
         case TwitSideModule.TL_TYPE.TEMP_NORETWEET:
             TwitSideModule.Friends.clearFriends(
-                this._tl_type, this._own_userid
+                TwitSideModule.FRIEND_TYPE.NORETWEET, this._own_userid
             );
             break;
         }
@@ -2352,6 +2422,95 @@ class FriendTimeline extends Timeline {
                 false,
                 this._tweet
             ).catch(error));
+    }
+    async follow(boxid, sw) {
+        const error = (result) => {
+            TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
+                action   : sw ? 'follow' : 'unfollow',
+                result   : 'failed',
+                boxid    : boxid,
+                columnid : this._columnid,
+                message  : TwitSideModule.Message.transMessage(result)
+            }, null, this._win_type);
+
+            return Promise.reject();
+        };
+
+        const idPath   = boxid.split('_'),
+              targetId = idPath.pop();
+
+        const result = await TwitSideModule.Friends.updateFriendship(
+            TwitSideModule.FRIEND_TYPE.FOLLOW,
+            targetId,
+            sw,
+            this._tweet
+        ).catch(error);
+
+        // アクション完了
+        TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
+            action   : sw ? 'follow' : 'unfollow',
+            result   : 'success',
+            boxid    : boxid,
+            columnid : this._columnid
+        }, null, this._win_type);
+
+        if (!sw && this._tl_type === TwitSideModule.TL_TYPE.TEMP_FOLLOW)
+            await this._removeTweets([boxid]);
+        else {
+            // ツイート再読込
+            const result = await TwitSideModule.Friends.lookup(
+                [targetId],
+                this._tweet
+            );
+
+            // 受信データを登録
+            const more   = this.record.ids.includes(NINE_FILL + '_more'),
+                  tweets = await this._saveTweets(result.data, more);
+            await TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.TWEET_LOADED,
+                tweets   : tweets,
+                tl_type  : this._tl_type,
+                columnid : this._columnid
+            }, null, this._win_type);
+        }
+    }
+    async block(boxid) {
+        const error = (result) => {
+            TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
+                action   : 'block',
+                result   : 'failed',
+                boxid    : boxid,
+                columnid : this._columnid,
+                message  : TwitSideModule.Message.transMessage(result)
+            }, null, this._win_type);
+
+            return Promise.reject();
+        };
+
+        const idPath   = boxid.split('_'),
+              targetId = idPath.pop();
+
+        const result = await TwitSideModule.Friends.updateFriendship(
+            TwitSideModule.FRIEND_TYPE.BLOCK,
+            targetId,
+            true,
+            this._tweet
+        ).catch(error);
+
+        // アクション完了
+        TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
+            action   : 'block',
+            result   : 'success',
+            boxid    : boxid,
+            columnid : this._columnid
+        }, null, this._win_type);
+
+        // ブロックしたらフォロー・フォロワーが外れる
+        await this._removeTweets([boxid]);
     }
     async _sendQuery(optionsHash) {
         return await this._getFriends(optionsHash);
@@ -2607,7 +2766,9 @@ class FriendTimeline extends Timeline {
                 raw  : datum
             };
 
-            this.record.ids.push(target_id);
+            // 更新じゃない場合
+            if (!this.record.ids.includes(target_id))
+                this.record.ids.push(target_id);
 
             // 更新データ（取得順）
             tweets.push(target_id);

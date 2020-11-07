@@ -26,7 +26,7 @@ window.addEventListener('load', async () => {
     if (!TwitSideModule.ManageWindows.getOpenerId(SUFFIX)) browser.windows.remove(fg.id);
 
     localization();
-    buttonize(['.buttonItem', '.tweetMoreBox'], commandExec);
+    buttonize(['.ts-btn'], commandExec);
     vivify();
 
     // UI初期化
@@ -34,7 +34,7 @@ window.addEventListener('load', async () => {
 
     // noretweet
     initialize();
-    showMutes();
+    showUsers();
 
     window.addEventListener('beforeunload', () => {
         TwitSideModule.windows.removeReceiver(fg.id);
@@ -45,42 +45,32 @@ window.addEventListener('load', async () => {
 
 // add other event listener
 const vivify = () => {
-    $('#tweetUserSelection').on('select2:select', showMutes);
+    $('#tweetUserSelection').on('change', showUsers);
+
     // カラムコンテナ
     $('#columnContainer')
         .keypress(keyeventChangeFocus)
-        .on('focus', '.column',
-            function(e) {
-                UI.setActiveColumn($(this));
-            })
-        .on('focus', '.timelineBox > .tweetBox',
-            function(e) {
-                e.stopPropagation();
-                UI.setActiveBox($(this));
-            });
+        .on('focus', '.timelineBox > .tweetBox', function(e) {
+            e.stopPropagation();
+            UI.setActiveBox($(this));
+        });
     // タイムライン
     $('#templateContainer .timelineBox')
         .on('scroll', function() {
-            // 影
-            $(this).siblings('.columnShadowBox')
-                .height(this.scrollTop < 10 ? this.scrollTop : 10);
-
             // オートページャ
             if (this.scrollHeight - this.clientHeight - 200 < this.scrollTop
-                && TwitSideModule.config.getPref('autopager')) {
+                && TwitSideModule.config.getPref('autopager'))
                 loadMore(this.lastChild);
-            }
         });
 };
 
 // event asignment
 const commandExec = (btn) => {
+    if (btn.classList.contains('disabled')) return false;
+
     // identify from id
     switch (btn.id) {
 
-    case 'closeButton':
-        window.close();
-        break;
 //    case '':
 //        break;
     }
@@ -89,18 +79,17 @@ const commandExec = (btn) => {
     switch (true) {
 
     case btn.classList.contains('toTopButton'): // columnMenuBox
-        timelineMove('top');
-        break;
+        btn.blur();
+        return timelineMove('top');
     case btn.classList.contains('toBottomButton'):
-        timelineMove('bottom');
-        break;
-    case btn.classList.contains('updateButton'):
-        loadNewer(getColumnIndexFromBox(btn));
-        break;
+        btn.blur();
+        return timelineMove('bottom');
+    case btn.classList.contains('columnUpdateButton'):
+        btn.blur();
+        return loadNewer(getColumnIndexFromBox(btn));
 
     case btn.classList.contains('tweetMoreBox'): // tweetBox
-        loadMore(btn);
-        break;
+        return loadMore(btn);
 //    case btn.classList.contains(''):
 //        break;
     }
@@ -114,12 +103,12 @@ const initialize = () => {
     changeTweetUser(searchParams.userid);
 };
 
-const showMutes = async () => {
+const showUsers = async () => {
     // カラム初期化
     await TwitSideModule.ManageColumns.reset(UI._win_type);
 
     // ユーザ
-    const ownid = UI.$tweetUserSelection[0].selectedOptions[0].value;
+    const ownid = UI.$tweetUserSelection.val();
 
     /**
      * ミュートタイムライン
@@ -131,11 +120,26 @@ const showMutes = async () => {
           autoreload : false,
           notif      : false,
           veil       : false },
-        { },
+        { user_id   : ownid },
         UI._win_type, 0
     );
 
     loadNewer(0);
+};
+
+// ユーザ削除（ミュート）
+const onClickDestroyMuteUser = (tweetBox) => {
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
+
+    UI.confirm(browser.i18n.getMessage('confirmUnmute'),
+               () => {
+                   TwitSideModule.ManageColumns.getTimelineInfo(
+                       getColumnIndexFromBox(tweetBox),
+                       'timeline',
+                       UI._win_type
+                   ).destroy(boxid);
+               },
+               TwitSideModule.config.getPref('confirm_mute'));
 };
 
 
@@ -145,5 +149,5 @@ const showMutes = async () => {
 // change screenname list
 const changeTweetUser = (userid) => {
     if (userid == null) return; // _makeColumn
-    UI.$tweetUserSelection.select2('val', [userid]);
+    UI.$tweetUserSelection.val(userid).trigger('input');
 };

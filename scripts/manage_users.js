@@ -180,7 +180,7 @@ TwitSideModule.ManageUsers = {
               });
 
         const userinfo = {
-            profile_image_url : result.data.profile_image_url,
+            profile_image_url : result.data.profile_image_url_https,
             screen_name       : result.data.screen_name
         };
 

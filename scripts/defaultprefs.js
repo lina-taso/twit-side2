@@ -30,10 +30,11 @@ const defaultconfig = {
 //    retweets_onlyfriends: false,
 //    domestic_search: true,
     // style
-    theme: "card_white",
+    theme: "default",
     color_retweets: true,
     screenname_first: false,
     circle_icon: true,
+    show_icon: true,
     time_locale: "locale",
     time_date: 'year',
     time_weekday: false,
@@ -43,6 +44,7 @@ const defaultconfig = {
     exURL_cut: true,
     URL_tabactive: true,
     viewthumbnail: true,
+    movethumbnail: true,
     popup_photo: true,
     viewsource: true,
     linefeed: true,
@@ -52,7 +54,7 @@ const defaultconfig = {
 //    lock: true,
     font_size: 12,
     icon_size: 'large',
-    button_size: 'medium',
+//    button_size: 'medium',
     // notification
     notif_all: false,
     notif_forme: true,
@@ -93,7 +95,7 @@ const defaultconfig = {
     users: "",
     hidden_message: "[]",
     newtweet_pinned: false,
-    tutorial: true,
+//    tutorial: true,
     mute_keywords: "[]",
     mute_users: "[]",
     // limit

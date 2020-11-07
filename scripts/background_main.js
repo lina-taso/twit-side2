@@ -6,8 +6,7 @@
  */
 
 const firstrun_url = 'https://www2.filewo.net/wordpress/category/products/twit-side-addon/',
-      sidebar_url  = browser.extension.getURL('/ui/sidebar.xhtml'),
-      windows      = {};
+      sidebar_url  = browser.extension.getURL('/ui/sidebar.xhtml');
 
 this.initialized = false;
 
@@ -41,6 +40,10 @@ const install = async (details) => {
         }
         TwitSideModule.config.setPref('columns', JSON.stringify(columns));
     }
+    // from ver 1.1.0 theme system changed
+    if (config_version < '1.1.0') {
+        TwitSideModule.config.setPref('theme');
+    }
 };
 browser.runtime.onInstalled.addListener(install);
 
@@ -61,7 +64,8 @@ browser.browserAction.onClicked.addListener(onclicked);
 
 const init = async () => {
     if (!TwitSideModule.config.initialized)
-        await TwitSideModule.config.initialize();
+        await Promise.all([TwitSideModule.config.initialize(),
+                           new Promise((resolve, reject) => { TwitSideModule.timer(500, resolve); }) ]);
 
     TwitSideModule.debug.log('TwitSide startup');
 

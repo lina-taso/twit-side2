@@ -32,10 +32,7 @@ window.addEventListener('load', async () => {
     if (!TwitSideModule.ManageWindows.getOpenerId(SUFFIX)) browser.windows.remove(fg.id);
 
     localization();
-    buttonize(['.countboxButton', '.buttonItem',
-               '.tweetRetweeterImage', '.tweetMoreBox',
-               '.clearRepliesBox', '.tweetMenuButton'],
-              commandExec);
+    buttonize(['.ts-btn, .tweetRetweeterImage'], commandExec);
     vivify();
 
     // UI初期化
@@ -56,14 +53,20 @@ window.addEventListener('load', async () => {
 const vivify = () => {
     // スクリーンネーム入力ボックス
     $('#screenname')
-        .on('keyup', function() { suggestScreenname($(this), $('#suggestContainer')); })
-        .on('keydown', keypressSearchbox);
+        .on('keyup', function(e) { suggestScreenname($(this), $('#suggestContainer'), e); })
+        .on('keydown', keypressSearchbox)
+        .on('blur', function(e) {
+            setTimeout(() => {
+                if ($('#suggestContainer').is(':focus')) return;
+                hideSuggest($('#suggestContainer'));
+            }, 100);
+        });
     // プロフィール画像
     $('#profileUserImage')
         .on('click', function() { openURL(this.src); });
     // URL
     $('#profileUrl')
-        .on('click', function() { openURL(this.textContent); });
+        .on('click', function() { openURL(profileJson.url); });
     $('#suggestContainer')
         .on('click', 'option', function() {
             suggestOnSelect(false, $('#screenname'), $('#suggestContainer'), null, searchUser);
@@ -80,87 +83,91 @@ const vivify = () => {
     // カラムコンテナ
     $('#columnContainer')
         .keypress(keyeventChangeFocus)
-        .on('focus', '.column', function() {
+        .on('focus', '> .column', function() {
             UI.setActiveColumn($(this));
         })
         .on('focus', '.timelineBox > .tweetBox', function(e) {
             e.stopPropagation();
             UI.setActiveBox($(this));
         })
-        .on('dblclick', '.column[data-column-type=follow] .timelineBox > .tweetBox, .column[data-column-type=follower] .timelineBox > .tweetBox', function(e) {
-            TwitSideModule.ManageWindows.openWindow('profile', {
-                userid  : userinfo.user_id,
-                keyword : this.dataset.screenname
-            }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
-        })
-        .on('click','.tweetThumbnailImage', showPhotos); // サムネイル
+        .on('click', '.tweetThumbnailImage', showPhotos); // サムネイル
     // タイムライン
     $('#templateContainer .timelineBox')
         .on('scroll', function() {
-            // 影
-            $(this).siblings('.columnShadowBox')
-                .height(this.scrollTop < 10 ? this.scrollTop : 10);
-
-            // オートページャ
-            if (this.scrollHeight - this.clientHeight - 200 < this.scrollTop
-                && TwitSideModule.config.getPref('autopager')) {
-                loadMore(this.lastChild);
+            // 最上部
+            if (this.scrollTop == 0) {
+                if (this.parentNode.dataset.top == 'false')
+                    this.parentNode.dataset.top = true;
             }
+            else {
+                if (this.parentNode.dataset.top == 'true')
+                    this.parentNode.dataset.top = false;
+                // オートページャ
+                if (this.scrollHeight - this.clientHeight - 200 < this.scrollTop
+                    && TwitSideModule.config.getPref('autopager'))
+                    loadMore(this.lastChild);
+            }
+        });
+    // リストラベル
+    $('#listLabel')
+        .on('keyup paste drop blur', function() {
+            $('#okButton').toggleClass('disabled', this.value == '');
+        });
+    // カラム追加コンテナ
+    $('#addListContainer')
+        .on('shown.bs.modal', function() {
+            $('#listLabel').focus();
+        });
+    // フォーム送信しない
+    $('#addListForm')
+        .on('submit', function() {
+            onAcceptForAddList();
+            return false;
         });
 };
 
 // event asignment
 const commandExec = (btn) => {
+    if (btn.classList.contains('disabled')) return false;
+
     // identify from id
     switch (btn.id) {
 
     case 'goback':
-        history.back();
-        break;
+        return history.back();
     case 'goahead':
-        history.forward();
-        break;
+        return history.forward();
     case 'profileOwnImage':
-        TwitSideModule.ManageWindows.openWindow('profile', {
+        return TwitSideModule.ManageWindows.openWindow('profile', {
             userid  : userinfo.user_id,
             keyword : btn.title
         }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
-        break;
     case 'search':
-        searchUser();
-        break;
+        return searchUser();
     case 'restrictionButton1':
-        TwitSideModule.ManageWindows.openWindow('api', {
+        return TwitSideModule.ManageWindows.openWindow('api', {
             userid : userinfo.user_id
         }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
-        break;
     case 'restrictionButton2':
-        TwitSideModule.ManageWindows.openWindow('mute', {
+        return TwitSideModule.ManageWindows.openWindow('mute', {
             userid : userinfo.user_id
         }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
-        break;
     case 'restrictionButton3':
-        TwitSideModule.ManageWindows.openWindow('block', {
+        return TwitSideModule.ManageWindows.openWindow('block', {
             userid : userinfo.user_id
         }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
-        break;
     case 'restrictionButton4':
-        TwitSideModule.ManageWindows.openWindow('noretweet', {
+        return TwitSideModule.ManageWindows.openWindow('noretweet', {
             userid : userinfo.user_id
         }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
-        break;
     case 'relationButton1':
-        makeFriendship('follow');
-        break;
+        return makeFriendship('follow');
+    case 'relationButton2':
+        return makeFriendship('mute');
     case 'relationButton3':
-        makeFriendship('mute');
-        break;
+        return makeFriendship('block');
     case 'relationButton4':
-        makeFriendship('block');
-        break;
-    case 'relationButton5':
-        makeFriendship('noretweet');
-        break;
+        return makeFriendship('noretweet');
     case 'profileButton1':
     case 'profileButton2':
     case 'profileButton3':
@@ -168,24 +175,15 @@ const commandExec = (btn) => {
     case 'profileButton5':
     case 'profileButton6':
     case 'profileButton7':
-        loadNewerAfterChangeColumn($(btn).index());
-        break;
+        return loadNewerAfterChangeColumn($(btn).index('#profileButtonList button'));
     case 'profileButton8':
         if ($('#profileContainer').attr('data-profile-own') == 'true')
-            loadNewerAfterChangeColumn($(btn).index());
+            return loadNewerAfterChangeColumn(7);
         else
-            TwitSideModule.ManageWindows.openWindow('newdm', {
+            return TwitSideModule.ManageWindows.openWindow('newdm', {
                 userid    : userinfo.user_id,
                 recipient : '@' + profileJson.screen_name
             }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
-        break;
-    case 'closeAddListC':
-    case 'cancelButton':
-        addListContainerToggle(false);
-        break;
-    case 'okButton':
-        onAcceptForAddList();
-        break;
 
 //    case '':
 //        break;
@@ -194,44 +192,36 @@ const commandExec = (btn) => {
     // identify from class
     switch (true) {
 
-    case btn.classList.contains('clearRepliesBox'): // column
-        clearAllReplies(btn);
-        break;
-
+    case btn.classList.contains('clearAllRepliesButton'): // column
+        return clearAllReplies(btn);
     case btn.classList.contains('toTopButton'): // columnMenuBox
-        timelineMove('top');
-        break;
+        btn.blur();
+        return timelineMove('top');
     case btn.classList.contains('toBottomButton'):
-        timelineMove('bottom');
-        break;
-    case btn.classList.contains('updateButton'):
-        loadNewer(getColumnIndexFromBox(btn));
-        break;
+        btn.blur();
+        return timelineMove('bottom');
+    case btn.classList.contains('columnUpdateButton'):
+        btn.blur();
+        return loadNewer(getColumnIndexFromBox(btn));
     case btn.classList.contains('newListButton'):
-        onClickAddList();
-        break;
+        btn.blur();
+        return onClickAddList();
     case btn.classList.contains('newDmButton'):
-        TwitSideModule.ManageWindows.openWindow('newdm', {
+        btn.blur();
+        return TwitSideModule.ManageWindows.openWindow('newdm', {
             userid : userinfo.user_id
         }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
-        break;
     case btn.classList.contains('addColumnButton'):
-        break;
+        return null;
 
     case btn.classList.contains('tweetMoreBox'): // tweetBox
-        loadMore(btn);
-        break;
-    case btn.classList.contains('clearReplyButton'):
-        clearReplies(btn);
-        break;
+        return loadMore(btn);
+    case btn.classList.contains('clearReplies'):
+        return clearReplies(btn);
     case btn.classList.contains('tweetRetweeterImage'):
-        onClickRetweeterImage(btn);
-        break;
+        return onClickRetweeterImage(btn);
     case btn.classList.contains('tweetMenuButton'):
-        UI.getTweetMenuFunc(
-            UI.getActiveColumn().attr('data-column-type'),
-            $(btn).index())(btn);
-        break;
+        return UI.tweetMenuFuncList[btn.dataset.func](btn);
 
 //    case btn.classList.contains(''):
 //        break;
@@ -242,8 +232,7 @@ const keypressSearchbox = (e) => {
     e = e.originalEvent;
 
     // サジェスト
-    if (e && !e.shiftKey && e.key == 'Tab'
-        || e && e.key == 'ArrowDown') {
+    if (e && !e.shiftKey && e.key == 'Tab' || e && e.key == 'ArrowDown') {
         if ($('#suggestContainer').is(':visible')) {
             setTimeout(() => { $('#suggestContainer').focus(); }, 0);
             return false;
@@ -261,12 +250,15 @@ const keypressSearchbox = (e) => {
  * Panel operation
  */
 const initialize = () => {
-    document.title = browser.i18n.getMessage('windowProfileDefaulttitle');
-    userinfo       = TwitSideModule.ManageUsers.getUserInfo(searchParams.userid);
+    userinfo = TwitSideModule.ManageUsers.getUserInfo(searchParams.userid);
     $('#profileOwnImage').attr('title', '@' + userinfo.screen_name)
-        .children('img.buttonImage').attr('src', userinfo.profile_image_url);
+        .css('background-image', 'url(' + userinfo.profile_image_url + ')');
 
     $('#screenname').focus();
+
+    // 最大文字数
+    $('#listLabel').attr('maxlength', LISTNAME_MAX_LENGTH);
+    $('#listDescription').attr('maxlength', LISTDESC_MAX_LENGTH);
 };
 
 // 検索実施
@@ -287,8 +279,9 @@ const searchUser = async () => {
 const showUser = async () => {
     const error = (result) => {
         showLoadingProgressbar(false);
-        $('#topMenuContainer .buttonItem').attr('data-disabled', false);
-        UI.showMessage(result.message, result.text_flag);
+        $('#topMenuContainer .btn.ts-btn').removeClass('disabled');
+        $('#topMenuContainer input').removeAttr('disabled');
+        UI.showMessage(TwitSideModule.Message.transMessage(result));
         return Promise.reject();
     };
 
@@ -299,7 +292,8 @@ const showUser = async () => {
 
     // 読み込み中
     showLoadingProgressbar(true);
-    $('#topMenuContainer .buttonItem').attr('data-disabled', true);
+    $('#topMenuContainer .btn.ts-btn').addClass('disabled');
+    $('#topMenuContainer input').attr('disabled', 'disabled');
 
     // ユーザ情報
     const result_usershow = await (new Tweet(userinfo)).userShow({ screen_name : screenname }).catch(error);
@@ -313,8 +307,9 @@ const showUser = async () => {
 
         // 読み込み完了
         showLoadingProgressbar(false);
-        $('#grayout').toggleClass('hidden', true);
-        $('#topMenuContainer .buttonItem').attr('data-disabled', false);
+        $('#grayout').addClass('d-none');
+        $('#topMenuContainer .btn.ts-btn').removeClass('disabled');
+        $('#topMenuContainer input').removeAttr('disabled');
         // ボタン無効化
         $('.profileButtonList .countboxButton').attr('data-disabled', true);
         return;
@@ -325,124 +320,59 @@ const showUser = async () => {
 
         // 読み込み完了
         showLoadingProgressbar(false);
-        $('#grayout').toggleClass('hidden', true);
-        $('#topMenuContainer .buttonItem').attr('data-disabled', false);
+        $('#grayout').addClass('d-none');
+        $('#topMenuContainer .btn.ts-btn').removeClass('disabled');
+        $('#topMenuContainer input').removeAttr('disabled');
         // ボタン無効化
         $('.profileButtonList .countboxButton').attr('data-disabled', true);
         return;
     }
 
-    /**
-     * ユーザータイムライン
-     */
-    await TwitSideModule.ManageColumns.addColumn(
-        TwitSideModule.TL_TYPE.TEMP_USERTIMELINE,
-        '', userinfo.user_id,
-        { onstart    : false,
-          autoreload : false,
-          notif      : false,
-          veil       : false },
-        { user_id    : profileJson.id_str },
-        UI._win_type, 0
-    );
-    /**
-     * フォロータイムライン
-     */
-    await TwitSideModule.ManageColumns.addColumn(
-        TwitSideModule.TL_TYPE.TEMP_FOLLOW,
-        '', userinfo.user_id,
-        { onstart    : false,
-          autoreload : false,
-          notif      : false,
-          veil       : false },
-        { user_id    : profileJson.id_str },
-        UI._win_type, 1
-    );
-    /**
-     * フォロワータイムライン
-     */
-    await TwitSideModule.ManageColumns.addColumn(
-        TwitSideModule.TL_TYPE.TEMP_FOLLOWER,
-        '', userinfo.user_id,
-        { onstart    : false,
-          autoreload : false,
-          notif      : false,
-          veil       : false },
-        { user_id    : profileJson.id_str },
-        UI._win_type, 2
-    );
-    /**
-     * お気に入りタイムライン
-     */
-    await TwitSideModule.ManageColumns.addColumn(
-        TwitSideModule.TL_TYPE.TEMP_FAVORITE,
-        '', userinfo.user_id,
-        { onstart    : false,
-          autoreload : false,
-          notif      : false,
-          veil       : false },
-        { user_id    : profileJson.id_str },
-        UI._win_type, 3
-    );
-    /**
-     * 保有リスト一覧
-     */
-    await TwitSideModule.ManageColumns.addColumn(
-        TwitSideModule.TL_TYPE.TEMP_OWNERSHIPLISTS,
-        '', userinfo.user_id,
-        { onstart    : false,
-          autoreload : false,
-          notif      : false,
-          veil       : false },
-        { user_id    : profileJson.id_str },
-        UI._win_type, 4
-    );
-    /**
-     * 購読リスト一覧
-     */
-    await TwitSideModule.ManageColumns.addColumn(
-        TwitSideModule.TL_TYPE.TEMP_SUBSCRIPTIONLISTS,
-        '', userinfo.user_id,
-        { onstart    : false,
-          autoreload : false,
-          notif      : false,
-          veil       : false },
-        { user_id    : profileJson.id_str },
-        UI._win_type, 5
-    );
-    /**
-     * フォローされたリスト一覧
-     */
-    await TwitSideModule.ManageColumns.addColumn(
-        TwitSideModule.TL_TYPE.TEMP_MEMBERSHIPLISTS,
-        '', userinfo.user_id,
-        { onstart    : false,
-          autoreload : false,
-          notif      : false,
-          veil       : false },
-        { user_id    : profileJson.id_str },
-        UI._win_type, 6
-    );
-    /**
-     * ダイレクトメッセージタイムライン
-     */
-    if (profileJson.id_str == userinfo.user_id) {
-        await TwitSideModule.ManageColumns.addColumn(
-            TwitSideModule.TL_TYPE.TEMP_DIRECTMESSAGE,
-            '', userinfo.user_id,
-            { onstart    : false,
-              autoreload : false,
-              notif      : false,
-              veil       : false },
-            null,
-            UI._win_type, 7
-        );
+    const timelines = [
+        { tl_type : TwitSideModule.TL_TYPE.TEMP_USERTIMELINE,
+          options : { onstart : false, autoreload : false, notif : false, veil : false }},
+        { tl_type : TwitSideModule.TL_TYPE.TEMP_FOLLOW,
+          options : { onstart : false, autoreload : false, notif : false, veil : false }},
+        { tl_type : TwitSideModule.TL_TYPE.TEMP_FOLLOWER,
+          options : { onstart : false, autoreload : false, notif : false, veil : false }},
+        { tl_type : TwitSideModule.TL_TYPE.TEMP_FAVORITE,
+          options : { onstart : false, autoreload : false, notif : false, veil : false }},
+        { tl_type : TwitSideModule.TL_TYPE.TEMP_OWNERSHIPLISTS,
+          options : { onstart : false, autoreload : false, notif : false, veil : false }},
+        { tl_type : TwitSideModule.TL_TYPE.TEMP_SUBSCRIPTIONLISTS,
+          options : { onstart : false, autoreload : false, notif : false, veil : false }},
+        { tl_type : TwitSideModule.TL_TYPE.TEMP_MEMBERSHIPLISTS,
+          options : { onstart : false, autoreload : false, notif : false, veil : false }},
+        { tl_type : TwitSideModule.TL_TYPE.TEMP_DIRECTMESSAGE,
+          options : { onstart : false, autoreload : false, notif : false, veil : false }}
+        ];
+
+    for (let i=0; i<8; i++) {
+        if (i < 7)
+            await TwitSideModule.ManageColumns.addColumn(
+                timelines[i].tl_type,
+                '', userinfo.user_id,
+                timelines[i].options,
+                { user_id    : profileJson.id_str },
+                UI._win_type, i
+            );
+
+        // ダイレクトメッセージ
+        else if (profileJson.id_str == userinfo.user_id)
+            await TwitSideModule.ManageColumns.addColumn(
+                timelines[i].tl_type,
+                '', userinfo.user_id,
+                timelines[i].options,
+                null,
+                UI._win_type, i
+            );
     }
 
     // 読み込み完了
     showLoadingProgressbar(false);
-    $('#grayout').toggleClass('hidden', true);
-    $('#topMenuContainer .buttonItem').attr('data-disabled', false);
+    $('#grayout').addClass('d-none');
+    $('#topMenuContainer .btn.ts-btn').removeClass('disabled');
+    $('#topMenuContainer input').removeAttr('disabled');
 
     // 1つのカラムだけ表示
     loadNewerAfterChangeColumn(0);
@@ -451,7 +381,7 @@ const showUser = async () => {
 // プロフィールの表示更新
 const updateProfile = async (data) => {
     const error = (result) => {
-        UI.showMessage(result.message, result.text_flag);
+        UI.showMessage(TwitSideModule.Message.transMessage(result));
         return Promise.reject();
     };
 
@@ -492,69 +422,74 @@ const updateProfile = async (data) => {
     $('#profileUsername').text(profileJson.name);
     if (profileJson.description) {
         $('#profileDescription').text(profileJson.description);
-        extractProfileDescription($('#profileDescription'));
+        extractProfileDescription($('#profileDescription'), profileJson.entities.description.urls);
     }
 
     // 付加情報
     profileJson.location && $('#profileLocation').text(profileJson.location);
-    profileJson.url      && $('#profileUrl').text(profileJson.url);
+    profileJson.url      && $('#profileUrl').text(
+        TwitSideModule.config.getPref('exURL')
+            ? (TwitSideModule.config.getPref('exURL_cut')
+               ? profileJson.entities.url.urls[0].display_url : profileJson.entities.url.urls[0].expanded_url)
+            : profileJson.entities.url[0].url);
 
     // ユーザカラー
     if (profileJson.profile_link_color) {
         const color = '#' + profileJson.profile_link_color;
         $('#profileContainer .text-link').css('color', color);
         $('#countboxStyle')
-            .text('.countbox { border-color : ' + color + '; background-color : ' + color + ' ;}');
+            .text('#restrictionButtonList > button, #relationButtonList > button, #profileButtonList button { border-color: ' + color + '; }\
+#restrictionButtonList > button, #relationButtonList > button { background-color: ' + color + '; }');
     }
 
     // カウンター
-    $('#profileButton1').text(profileJson.statuses_count);
-    $('#profileButton2').text(profileJson.friends_count);
-    $('#profileButton3').text(profileJson.followers_count);
-    $('#profileButton4').text(profileJson.favourites_count);
-    $('#profileButton7').text(profileJson.listed_count);
+    $('#profileButton1 > .count').text(profileJson.statuses_count);
+    $('#profileButton2 > .count').text(profileJson.friends_count);
+    $('#profileButton3 > .count').text(profileJson.followers_count);
+    $('#profileButton4 > .count').text(profileJson.favourites_count);
+    $('#profileButton7 > .count').text(profileJson.listed_count);
 };
 
 // プロフィール文章を展開
-const extractProfileDescription = ($description) => {
+const extractProfileDescription = ($description, urls) => {
     if ($description[0] == null) throw new Error('PARAMETER_IS_NOT_DEFINED');
     const entities = twttr.txt.extractEntitiesWithIndices($description.text());
 
     for (let entity of entities) {
         if (entity.hashtag) {
-            let span = document.createElement('span');
-            span.classList.add('text-link');
-            span.textContent = '#' + entity.hashtag;
-            span.addEventListener('click', function() {
-                TwitSideModule.ManageWindows.openWindow('search', {
-                    userid  : userinfo.user_id,
-                    keyword : this.textContent
-                }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
-            });
+            let $span = $('<span class="text-link" tabindex="1" />')
+                .text('#' + entity.hashtag)
+                .on('click', function() {
+                    TwitSideModule.ManageWindows.openWindow('search', {
+                        userid  : userinfo.user_id,
+                        keyword : this.textContent
+                    }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
+                });
             // ハッシュタグ置換
-            UI.insertNodeIntoText($description[0], entity.hashtag, span);
-        }
-        else if (entity.url) {
-            let span = document.createElement('span');
-            span.classList.add('text-link');
-            span.textContent = entity.url;
-            span.addEventListener('click', function() {
-                openURL(this.textContent);
-            });
-            UI.insertNodeIntoText($description[0], entity.url, span);
+            UI.insertNodeIntoText($description[0], '#' + entity.hashtag, $span[0]);
         }
         else if (entity.screenName) {
-            let span = document.createElement('span');
-            span.classList.add('text-link');
-            span.textContent = '@' + entity.screenName;
-            span.addEventListener('click', function() {
-                TwitSideModule.ManageWindows.openWindow('profile', {
-                    userid  : userinfo.user_id,
-                    keyword : this.textContent
-                }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
-            });
-            UI.insertNodeIntoText($description[0], '@' + entity.screenName, span);
+            let $span = $('<span class="text-link" tabindex="1" />')
+                .text('@' + entity.screenName)
+                .on('click', function() {
+                    TwitSideModule.ManageWindows.openWindow('profile', {
+                        userid  : userinfo.user_id,
+                        keyword : this.textContent
+                    }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
+                });
+            UI.insertNodeIntoText($description[0], '@' + entity.screenName, $span[0]);
         }
+    }
+    // twttr.txt ではなくレスポンスを利用
+    for (let url of urls) {
+        let $span = $('<span class="text-link" tabindex="1" />')
+            .text(
+                TwitSideModule.config.getPref('exURL')
+                    ? (TwitSideModule.config.getPref('exURL_cut')
+                       ? url.display_url : url.expanded_url)
+                    : url.url)
+            .on('click', function() { openURL(url.url); });
+        UI.insertNodeIntoText($description[0], url.url, $span[0]);
     }
 };
 
@@ -564,127 +499,108 @@ const extractProfileDescription = ($description) => {
  */
 // 友達になる
 const makeFriendship = async (type_str) => {
-    const error = (result) => {
-        UI.showMessage(result.message, result.text_flag);
-        return Promise.reject();
-    };
 
-    let type, value;
+    const updateFriendship = async (type, value) => {
+        const error = (result) => {
+            UI.showMessage(TwitSideModule.Message.transMessage(result));
+            return Promise.reject();
+        };
+
+        await TwitSideModule.Friends.updateFriendship(
+            type,
+            profileJson.id_str,
+            value,
+            new Tweet(userinfo)
+        ).catch(error);
+
+        // ユーザ情報
+        const result_usershow = await (new Tweet(userinfo)).userShow({ user_id : profileJson.id_str }).catch(error);
+        updateProfile(result_usershow.data);
+    };
 
     switch (type_str) {
     case 'follow':
-        if (TwitSideModule.config.getPref('confirm_follow')
-            && !confirm(browser.i18n.getMessage(profileJson.following
-                                                ? 'confirmUnfollow'
-                                                : 'confirmFollow')))
-            return;
-
-        type  = TwitSideModule.FRIEND_TYPE.FOLLOW;
-        value = !profileJson.following;
-        break;
+        UI.confirm(browser.i18n.getMessage(profileJson.following ? 'confirmUnfollow' : 'confirmFollow'),
+                   () => {
+                       updateFriendship(
+                           TwitSideModule.FRIEND_TYPE.FOLLOW,
+                           !profileJson.following
+                       );
+                   },
+                   TwitSideModule.config.getPref('confirm_follow'));
+        return;
     case 'mute':
-        if (TwitSideModule.config.getPref('confirm_mute')
-            && !confirm(browser.i18n.getMessage(profileJson.relationship.source.muting
-                                                ? 'confirmUnmute'
-                                                : 'confirmMute')))
-            return;
-
-        type  = TwitSideModule.FRIEND_TYPE.MUTE;
-        value = !profileJson.relationship.source.muting;
-        break;
+        UI.confirm(browser.i18n.getMessage(profileJson.relationship.source.muting ? 'confirmUnmute' : 'confirmMute'),
+                   () => {
+                       updateFriendship(
+                           TwitSideModule.FRIEND_TYPE.MUTE,
+                           !profileJson.relationship.source.muting
+                       );
+                   },
+                   TwitSideModule.config.getPref('confirm_mute'));
+        return;
     case 'block':
-        if (TwitSideModule.config.getPref('confirm_block')
-            && !confirm(browser.i18n.getMessage(profileJson.relationship.source.blocking
-                                                ? 'confirmUnblock'
-                                                : 'confirmBlock')))
-            return;
-
-        type  = TwitSideModule.FRIEND_TYPE.BLOCK;
-        value = !profileJson.relationship.source.blocking;
-        break;
+        UI.confirm(browser.i18n.getMessage(profileJson.relationship.source.blocking ? 'confirmUnblock' : 'confirmBlock'),
+                   () => {
+                       updateFriendship(
+                           TwitSideModule.FRIEND_TYPE.BLOCK,
+                           !profileJson.relationship.source.blocking
+                       );
+                   },
+                   TwitSideModule.config.getPref('confirm_block'));
+        return;
     case 'noretweet':
-        if (TwitSideModule.config.getPref('confirm_noretweet')
-            && !confirm(browser.i18n.getMessage(profileJson.relationship.source.want_retweets
-                                                ? 'confirmNoretweet'
-                                                : 'confirmWantretweet')))
-            return;
-
-        type  = TwitSideModule.FRIEND_TYPE.NORETWEET;
-        value = profileJson.relationship.source.want_retweets;
-        break;
+        UI.confirm(browser.i18n.getMessage(profileJson.relationship.source.want_retweets ? 'confirmNoretweet' : 'confirmWantretweet'),
+                   () => {
+                       updateFriendship(
+                           TwitSideModule.FRIEND_TYPE.NORETWEET,
+                           profileJson.relationship.source.want_retweets
+                       );
+                   },
+                   TwitSideModule.config.getPref('confirm_noretweet'));
+        return;
     }
-
-    await TwitSideModule.Friends.updateFriendship(
-        type,
-        profileJson.id_str,
-        value,
-        new Tweet(userinfo)
-    ).catch(error);
-
-    // ユーザ情報
-    const result_usershow = await (new Tweet(userinfo)).userShow({ user_id : profileJson.id_str }).catch(error);
-    updateProfile(result_usershow.data);
 };
 
 
 /**
  * List operation
  */
-const addListContainerToggle = (open) => {
-    $('#addListContainer').attr('data-open', open);
-    if (open) $('#listLabel').focus();
-};
-
 // リストの作成
 const onClickAddList = () => {
     resetAddListC();
-    addListContainerToggle(true);
+    $('#addListContainer').modal('show');
 };
 
 // リストの編集
 const onClickEditList = (vbox) => {
     resetAddListC({
         id : vbox.dataset.tweetid,
-        name : $(vbox).find('.listName').attr('data-listname'),
+        name : vbox.dataset.listname,
         description : $(vbox).find('.tweetText').text(),
-        mode : vbox.dataset.mode
+        mode : $(vbox).find('> .tweetContent').attr('data-protected') ? 'private' : 'public'
     });
-    addListContainerToggle(true);
+    $('#addListContainer').modal('show');
 };
 
 const onAcceptForAddList = async () => {
-    const type = $('#addListContainer').attr('data-type');
-
-    if (!$('#listLabel').val()) {
-        alert(browser.i18n.getMessage('profileMessageEnterlistlabel'));
-        return;
-    }
-    if ($('#listLabel').val().length > LISTNAME_MAX_LENGTH) {
-        alert(browser.i18n.getMessage('profileMessageToolonglistlabel', LISTNAME_MAX_LENGTH));
-        return;
-    }
-    if ($('#listDescription').val().length > LISTDESC_MAX_LENGTH) {
-        alert(browser.i18n.getMessage('profileMessageToolonglistdesc', LISTDESC_MAX_LENGTH));
-        return;
-    }
-
     const listinfo = {
         name        : $('#listLabel').val(),
         description : $('#listDescription').val(),
-        mode        : $('[name=listmode]:checked').val()
+        mode        : $('#listMode').val() ? 'private' : 'public'
     };
 
-    switch (type) {
+    switch ($('#addListContainer').attr('data-type')) {
     case 'add':
         await TwitSideModule.ManageColumns.getTimelineInfo(4, 'timeline', UI._win_type).createList(listinfo);
-        addListContainerToggle(false);
+        $('#addListContainer').modal('hide');
         loadNewer(4);
         break;
     case 'edit':
         listinfo.list_id = $('#addListContainer').attr('data-listid');
 
         await TwitSideModule.ManageColumns.getTimelineInfo(4, 'timeline', UI._win_type).updateList(listinfo);
-        addListContainerToggle(false);
+        $('#addListContainer').modal('hide');
         loadNewer(4);
         break;
     }
@@ -698,19 +614,22 @@ const resetAddListC = (listinfo) => {
             'data-listid' : ''
         });
 
-        $('#listLabel, #listDescription').val('');
-        $('#public').prop('checked', true);
+        $('#addListTitle').removeClass('d-none');
+        $('#editListTitle').addClass('d-none');
+        $('#listLabel, #listDescription').val('').trigger('keyup');
+        $('#listMode').prop('checked', false);
     }
     else {
         $('#addListContainer').attr({
             'data-type'   : 'edit',
             'data-listid' : listinfo.id
         });
-        $('#listLabel').val(listinfo.name);
+
+        $('#addListTitle').addClass('d-none');
+        $('#editListTitle').removeClass('d-none');
+        $('#listLabel').val(listinfo.name).trigger('keyup');
         $('#listDescription').val(listinfo.description);
-        listinfo.mode == 'private'
-            ? $('#public').prop('checked', true)
-            : $('#private').prop('checked', true);
+        $('#listMode').prop('checked', listinfo.mode == 'private');
     }
 };
 
@@ -719,6 +638,8 @@ const onClickShowMembers = (vbox) => {
     TwitSideModule.ManageWindows.openWindow('listmember', {
         userid   : userinfo.user_id,
         listid   : vbox.dataset.tweetid,
+        screenname : vbox.dataset.screenname,
+        listname : vbox.dataset.listname,
         tl_type  : TwitSideModule.TL_TYPE.TEMP_LISTMEMBER,
         own_list : $(vbox).children('.tweetContent').attr('data-mine') == 'true'
     }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
@@ -729,6 +650,8 @@ const onClickShowSubscribers = (vbox) => {
     TwitSideModule.ManageWindows.openWindow('listmember', {
         userid   : userinfo.user_id,
         listid   : vbox.dataset.tweetid,
+        screenname : vbox.dataset.screenname,
+        listname : vbox.dataset.listname,
         tl_type  : TwitSideModule.TL_TYPE.TEMP_LISTSUBSCRIBER,
         own_list : $(vbox).children('.tweetContent').attr('data-mine') == 'true'
     }, TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
@@ -771,6 +694,37 @@ const onClickAddList2Column = async (vbox) => {
     );
 
     UI.showMessage(TwitSideModule.Message.transMessage('columnAdded'));
+};
+
+// フォロー
+const onClickFollowUser = (tweetBox) => {
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''), // columnidを除去
+          sw    = !$(tweetBox).children('.tweetContent').attr('data-following');
+
+    UI.confirm(browser.i18n.getMessage(sw ? 'confirmFollow' : 'confirmUnfollow'),
+               () => {
+                   TwitSideModule.ManageColumns.getTimelineInfo(
+                       getColumnIndexFromBox(tweetBox),
+                       'timeline',
+                       UI._win_type
+                   ).follow(boxid, sw);
+               },
+               TwitSideModule.config.getPref('confirm_follow'));
+};
+
+// ブロック
+const onClickBlockUser = (tweetBox) => {
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
+
+    UI.confirm(browser.i18n.getMessage('confirmBlock'),
+               () => {
+                   TwitSideModule.ManageColumns.getTimelineInfo(
+                       getColumnIndexFromBox(tweetBox),
+                       'timeline',
+                       UI._win_type
+                   ).block(boxid);
+               },
+               TwitSideModule.config.getPref('confirm_block'));
 };
 
 

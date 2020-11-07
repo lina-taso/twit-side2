@@ -28,7 +28,7 @@ window.addEventListener('load', async () => {
     if (!TwitSideModule.ManageWindows.getOpenerId(SUFFIX)) browser.windows.remove(fg.id);
 
     localization();
-    buttonize(['.buttonItem', '.tweetMoreBox'], commandExec);
+    buttonize(['.ts-btn'], commandExec);
     vivify();
 
     // UI初期化
@@ -50,38 +50,35 @@ const vivify = () => {
     // カラムコンテナ
     $('#columnContainer')
         .keypress(keyeventChangeFocus)
-        .on('focus', '.column',
-            function(e) {
-                UI.setActiveColumn($(this));
-            })
-        .on('focus', '.timelineBox > .tweetBox',
-            function(e) {
-                e.stopPropagation();
-                UI.setActiveBox($(this));
-            });
+        .on('focus', '> .column', function() {
+            UI.setActiveColumn($(this));
+        })
+        .on('focus', '.timelineBox > .tweetBox', function(e) {
+            e.stopPropagation();
+            UI.setActiveBox($(this));
+        });
     // タイムライン
     $('#templateContainer .timelineBox')
         .on('scroll', function() {
-            // 影
-            $(this).siblings('.columnShadowBox')
-                .height(this.scrollTop < 10 ? this.scrollTop : 10);
-
             // オートページャ
             if (this.scrollHeight - this.clientHeight - 200 < this.scrollTop
-                && TwitSideModule.config.getPref('autopager')) {
+                && TwitSideModule.config.getPref('autopager'))
                 loadMore(this.lastChild);
-            }
         });
 };
 
 // event asignment
 const commandExec = (btn) => {
+    if (btn.classList.contains('disabled')) return false;
+
     // identify from id
     switch (btn.id) {
+    case 'profileOwnImage':
+        return TwitSideModule.ManageWindows.openWindow('profile', {
+            userid  : UI.$tweetUserSelection[0].selectedOptions[0].value,
+            keyword : UI.$tweetUserSelection[0].selectedOptions[0].textContent,
+        }, fg.id);
 
-    case 'closeButton':
-        window.close();
-        break;
 //    case '':
 //        break;
     }
@@ -90,18 +87,14 @@ const commandExec = (btn) => {
     switch (true) {
 
     case btn.classList.contains('toTopButton'): // columnMenuBox
-        timelineMove('top');
-        break;
+        return timelineMove('top');
     case btn.classList.contains('toBottomButton'):
-        timelineMove('bottom');
-        break;
-    case btn.classList.contains('updateButton'):
-        loadNewer(getColumnIndexFromBox(btn));
-        break;
+        return timelineMove('bottom');
+    case btn.classList.contains('columnUpdateButton'):
+        return loadNewer(getColumnIndexFromBox(btn));
 
     case btn.classList.contains('tweetMoreBox'): // tweetBox
-        loadMore(btn);
-        break;
+        return loadMore(btn);
 //    case btn.classList.contains(''):
 //        break;
     }
@@ -118,10 +111,12 @@ const initialize = () => {
     // タイトル
     switch (searchParams.tl_type) {
     case TwitSideModule.TL_TYPE.TEMP_LISTMEMBER:
-        document.title = browser.i18n.getMessage('windowListmemberTitle');
+        document.title = browser.i18n.getMessage('windowListmemberTitle',
+                                                 [searchParams.screenname, searchParams.listname]);
         break;
     case TwitSideModule.TL_TYPE.TEMP_LISTSUBSCRIBER:
-        document.title = browser.i18n.getMessage('windowListsubscriberTitle');
+        document.title = browser.i18n.getMessage('windowListsubscriberTitle',
+                                                 [searchParams.screenname, searchParams.listname]);
         break;
     }
     userinfo = TwitSideModule.ManageUsers.getUserInfo(searchParams.userid);
@@ -145,6 +140,21 @@ const showListMembers = async() => {
     );
 
     loadNewer(0);
+};
+
+// ユーザ削除（ミュート、ブロック、リツイート非表示）
+const onClickDestroyUser = (tweetBox) => {
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
+
+    UI.confirm(browser.i18n.getMessage('confirmRemoveUser'),
+               () => {
+                   TwitSideModule.ManageColumns.getTimelineInfo(
+                       0,
+                       'timeline',
+                       UI._win_type
+                   ).destroy(boxid);
+               },
+               TwitSideModule.config.getPref('confirm_delete'));
 };
 
 

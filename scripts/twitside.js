@@ -148,3 +148,11 @@ TwitSideModule.hash = {
         return 'OAuth ' + param.join(", ");
     }
 };
+
+TwitSideModule.timer = (time, func) => {
+    let timeout;
+    new Promise(() => {
+        timeout = setTimeout(func, time);
+    });
+    return stop = () => { clearTimeout(timeout); };
+};

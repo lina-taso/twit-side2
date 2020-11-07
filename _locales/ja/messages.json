@@ -18,58 +18,76 @@
     },
 
     "retweet_success" : {
-        "message" : "リツイートに成功"
+        "message" : "リツイート：成功"
     },
     "retweet_failed" : {
-        "message" : "リツイートに失敗"
+        "message" : "リツイート：失敗"
     },
     "favorite_success" : {
-        "message" : "お気に入りに追加成功"
+        "message" : "お気に入り追加：成功"
     },
     "favorite_failed" : {
-        "message" : "お気に入りに追加失敗"
+        "message" : "お気に入り追加：失敗"
     },
     "unfavorite_success" : {
-        "message" : "お気に入りの削除成功"
+        "message" : "お気に入り削除：成功"
     },
     "unfavorite_failed" : {
-        "message" : "お気に入りの削除失敗"
+        "message" : "お気に入り削除：失敗"
     },
     "destroy_success" : {
-        "message" : "ツイートの削除成功"
+        "message" : "削除：成功"
     },
     "destroy_failed" : {
-        "message" : "削除失敗"
+        "message" : "削除：失敗"
     },
     "destroyList_success" : {
-        "message" : "リストの削除成功"
+        "message" : "リスト削除：成功"
     },
     "destroyUser_success" : {
-        "message" : "ユーザの削除成功"
+        "message" : "ユーザ削除：成功"
     },
     "subscribeList_success" : {
-        "message" : "リストの購読成功"
+        "message" : "リスト購読：成功"
     },
     "subscribeList_failed" : {
-        "message" : "リストの購読失敗"
+        "message" : "リスト購読：失敗"
     },
     "unsubscribeList_success" : {
-        "message" : "リストの購読解除成功"
+        "message" : "リスト購読解除：成功"
     },
     "unsubscribeList_failed" : {
-        "message" : "リストの購読解除失敗"
+        "message" : "リスト購読解除：失敗"
     },
     "createList_success" : {
-        "message" : "リストの追加成功"
+        "message" : "リストの追加：成功"
     },
     "createList_failed" : {
-        "message" : "リストの追加失敗"
+        "message" : "リストの追加：失敗"
     },
     "updateList_success" : {
-        "message" : "リストの更新成功"
+        "message" : "リストの更新：成功"
     },
     "updateList_failed" : {
-        "message" : "リストの更新失敗"
+        "message" : "リストの更新：失敗"
+    },
+    "follow_success" : {
+        "message" : "フォロー：成功"
+    },
+    "follow_failed" : {
+        "message" : "フォロー：失敗"
+    },
+    "unfollow_success" : {
+        "message" : "アンフォロー：成功"
+    },
+    "unfollow_failed" : {
+        "message" : "アンフォロー：失敗"
+    },
+    "block_success" : {
+        "message" : "ブロック：成功"
+    },
+    "block_failed" : {
+        "message" : "ブロック：失敗"
     },
 
     "tweetSent" : {
@@ -78,12 +96,35 @@
     "dmSent" : {
         "message" : "ダイレクトメッセージを送信しました。"
     },
+
     "columnAdded" : {
         "message" : "カラムを追加しました。"
+    },
+    "columnDeleted" : {
+        "message" : "カラムを削除しました。"
+    },
+    "columnEdited" : {
+        "message" : "カラムを変更しました。"
+    },
+
+    "muteKeywordAdded" : {
+        "message" : "ミュートキーワードを追加しました。"
+    },
+    "muteUserAdded" : {
+        "message" : "ミュートユーザを追加しました。"
+    },
+    "muteKeywordDeleted" : {
+        "message" : "ミュートキーワードを削除しました。"
+    },
+    "muteUserDeleted" : {
+        "message" : "ミュートユーザを削除しました。"
     },
 
     "commonError" : {
         "message" : "内部エラーです。"
+    },
+    "networkError" : {
+        "message" : "ネットワークエラーです。"
     },
     "authError" : {
         "message" : "認証サーバと通信ができませんでした。\nしばらく時間を空けてから再試行して下さい。\n念のためPCの時刻が正確か確認して下さい。"
@@ -122,8 +163,14 @@
     "code44" : {
         "message" : "ツイートに添付できないURLです。（400）"
     },
-    "code64" : {
+    "code50" : {
+        "message" : "ユーザは存在しません。（404）"
+    },
+    "code63" : {
         "message" : "アカウントが凍結されています。（403）"
+    },
+    "code64" : {
+        "message" : "あなたは凍結されています。（403）"
     },
     "code88" : {
         "message" : "API制限の最大値に到達しました。\nしばらく時間を空けてから再試行して下さい。"
@@ -139,6 +186,9 @@
     },
     "code135" : {
         "message" : "認証サーバの時刻が不正です。\n開発者にご連絡下さい。"
+    },
+    "code144" : {
+        "message" : "ツイートは存在しません。（404）"
     },
     "code179" : {
         "message" : "プロテクトされたユーザです。"
@@ -238,33 +288,6 @@
             }
         }
     },
-    "newFavorited" : {
-        "message" : "$USER$ がお気に入りに追加",
-        "placeholders" : {
-            "user" : {
-                "content" : "$1",
-                "example" : "@screenname"
-            }
-        }
-    },
-    "newUnFavorited" : {
-        "message" : "$USER$ がお気に入りから削除",
-        "placeholders" : {
-            "user" : {
-                "content" : "$1",
-                "example" : "@screenname"
-            }
-        }
-    },
-    "newFollowed" : {
-        "message" : "$USER$ があなたをフォロー",
-        "placeholders" : {
-            "user" : {
-                "content" : "$1",
-                "example" : "@screenname"
-            }
-        }
-    },
     "newSearched" : {
         "message" : "$USER$件の新着検索結果",
         "placeholders" : {
@@ -347,9 +370,6 @@
     },
     "confirmLogout" : {
         "message" : "全アカウントをログアウトしますか？"
-    },
-    "confirmAniGif" : {
-        "message" : "選択したGIF画像はアニメーションGIFですか？"
     },
     "messageUploadType" : {
         "message" : "画像（4枚まで）、アニメーションGIF（1枚まで）または動画（1本まで）のうち1種類のみアップロードできます"
@@ -466,9 +486,6 @@
     "column_listtimeline" : {
         "message" : "リスト"
     },
-    "column_autoreload" : {
-        "message" : "自動更新"
-    },
 
     "column_follow" : {
         "message" : "フォロー"
@@ -487,25 +504,19 @@
     },
 
 
+    "authAdduser" : {
+        "message" : "新しいアカウント"
+    },
     "authRequest" : {
-        "message" : "(1) アプリケーションを認証"
+        "message" : "アプリケーションを認証"
     },
     "authPin" : {
-        "message" : "(2) PINを入力"
+        "message" : "PINを入力"
     },
     "authAccess" : {
-        "message" : "(3) アプリケーションを許可"
+        "message" : "アプリケーションを許可"
     },
 
-    "topUploadimage" : {
-        "message" : "画像を投稿します"
-    },
-    "topUploadvideo" : {
-        "message" : "動画を投稿します"
-    },
-    "topUploadanigif" : {
-        "message" : "アニメーションGIFを投稿します"
-    },
     "topSharepicture" : {
         "message" : "画像や動画を共有する"
     },
@@ -531,9 +542,6 @@
     "topSearch" : {
         "message" : "検索"
     },
-    "topAdduser" : {
-        "message" : "アカウントを追加"
-    },
     "topManagecolumns" : {
         "message" : "カラム管理"
     },
@@ -545,6 +553,9 @@
     },
     "topHelp" : {
         "message" : "ヘルプ"
+    },
+    "topAdduser" : {
+        "message" : "アカウントを追加"
     },
     "topLogout" : {
         "message" : "全てログアウト"
@@ -558,13 +569,6 @@
     },
     "tweetMore" : {
         "message" : "続きを読み込む"
-    },
-
-    "tweetClear_replies" : {
-        "message" : "会話を全て閉じる"
-    },
-    "tweetReplyto" : {
-        "message" : "返信先: "
     },
     "tweetReplies" : {
         "message" : "会話: "
@@ -639,10 +643,53 @@
     },
 
     "tweetDestroyuser" : {
-        "message" : "ユーザを削除"
+        "message" : "ユーザを除外する"
+    },
+    "tweetFollowuser" : {
+        "message" : "ユーザをフォローする"
+    },
+    "tweetUnfollowuser" : {
+        "message" : "ユーザをアンフォローする"
+    },
+    "tweetUnmuteuser" : {
+        "message" : "ユーザをアンミュートする"
+    },
+    "tweetBlockuser" : {
+        "message" : "ユーザをブロックする"
+    },
+    "tweetUnblockuser" : {
+        "message" : "ユーザをアンブロックする"
+    },
+    "tweetWantretweetuser" : {
+        "message" : "ユーザをリツイートを表示する"
+    },
+
+    "columnmenuClearreplies" : {
+        "message" : "全ての会話を閉じる"
+    },
+    "columnmenuNewdm" : {
+        "message" : "新しいDM"
+    },
+    "columnmenuNewlist" : {
+        "message" : "新しいリスト"
+    },
+    "columnmenuAddcolumn" : {
+        "message" : "カラムに追加"
+    },
+    "columnmenuTop" : {
+        "message" : "一番上へ"
+    },
+    "columnmenuButtom" : {
+        "message" : "一番下へ"
+    },
+    "columnmenuUpdate" : {
+        "message" : "更新"
     },
 
 
+    "profileFollowed" : {
+        "message" : "フォローされている"
+    },
     "profileTweet" : {
         "message" : "ツイート"
     },
@@ -670,31 +717,22 @@
     "profileRelation1requesting" : {
         "message" : "フォローリクエスト中"
     },
-    "profileRelation2followed" : {
-        "message" : "フォローされている"
-    },
-    "profileRelation2notfollowed" : {
-        "message" : "フォローされていない"
-    },
-    "profileRelation2blocked" : {
-        "message" : "ブロックされている"
-    },
-    "profileRelation3muting" : {
+    "profileRelation2muting" : {
         "message" : "ミュート中"
     },
-    "profileRelation3mute" : {
+    "profileRelation2mute" : {
         "message" : "ミュートする"
     },
-    "profileRelation4blocking" : {
+    "profileRelation3blocking" : {
         "message" : "ブロック中"
     },
-    "profileRelation4block" : {
+    "profileRelation3block" : {
         "message" : "ブロックする"
     },
-    "profileRelation5noretweeting" : {
+    "profileRelation4noretweeting" : {
         "message" : "リツイート非表示中"
     },
-    "profileRelation5noretweet" : {
+    "profileRelation4noretweet" : {
         "message" : "リツイートを非表示"
     },
     "profileAddlist" : {
@@ -712,34 +750,9 @@
     "profileListmode" : {
         "message" : "公開/非公開"
     },
-    "profilePublic" : {
-        "message" : "公開"
-    },
     "profilePrivate" : {
         "message" : "非公開"
     },
-    "profileMessageEnterlistlabel" : {
-        "message" : "リストラベルを入力してください"
-    },
-    "profileMessageToolonglistlabel" : {
-        "message" : "リストラベルは$LENGTH$文字以下で入力してください",
-        "placeholders" : {
-            "length" : {
-                "content" : "$1",
-                "example" : "10"
-            }
-        }
-    },
-    "profileMessageToolonglistdesc" : {
-        "message" : "説明は$LENGTH$文字以下で入力してください",
-        "placeholders" : {
-            "length" : {
-                "content" : "$1",
-                "example" : "10"
-            }
-        }
-    },
-
 
 
     "searchAutoreload" : {
@@ -767,11 +780,14 @@
     "columnsType" : {
         "message" : "種別"
     },
+    "columnsOptions" : {
+        "message" : "オプション"
+    },
     "columnsNotif" : {
         "message" : "通知"
     },
     "columnsOnstart" : {
-        "message" : "起動時に開始"
+        "message" : "自動開始"
     },
     "columnsAutoreload" : {
         "message" : "自動更新"
@@ -791,9 +807,6 @@
     "columnsEdit" : {
         "message" : "カラム編集"
     },
-    "columnsMessageEntercolumnlabel" : {
-        "message" : "カラムラベルを入力してください"
-    },
 
 
     "tsMutesDescription" : {
@@ -805,14 +818,14 @@
     "tsMutesTabUsers" : {
         "message" : "ユーザ一覧"
     },
-    "tsMutesKeyword" : {
-        "message" : "キーワード"
-    },
     "tsMutesType" : {
         "message" : "種別"
     },
-    "tsMutesTypeText" : {
-        "message" : "テキスト"
+    "tsMutesKeyword" : {
+        "message" : "キーワード"
+    },
+    "tsMutesKeywordType" : {
+        "message" : "キーワード種別"
     },
     "tsMutesTypeRegexp" : {
         "message" : "正規表現"
@@ -886,14 +899,23 @@
     },
 
 
-    "apiApi" : {
-        "message" : "API"
-    },
     "apiRemaining" : {
         "message" : "残り [回]"
     },
     "apiLimit" : {
         "message" : "制限 [回]"
+    },
+    "apiReset_until" : {
+        "message" : "リセットまで"
+    },
+    "apiReset_timeleft" : {
+        "message" : "あと $REMAIN$ 秒",
+        "placeholders" : {
+            "remain" : {
+                "content" : "$1",
+                "example" : "10"
+            }
+        }
     },
     "apiReset_time" : {
         "message" : "リセット日時"
@@ -982,11 +1004,17 @@
     "prefLabelStyleRestart_required" : {
         "message" : "既に読み込んだツイートに反映するには、Firefoxを再起動する必要があります"
     },
-    "prefLabelStyleDesign" : {
-        "message" : "デザイン"
+    "prefLabelStyleAppearance" : {
+        "message" : "見た目"
     },
     "prefTheme" : {
         "message" : "テーマ"
+    },
+    "prefShachiku" : {
+        "message" : "社畜モード"
+    },
+    "prefShachiku_button" : {
+        "message" : "ユーザアイコンとサムネイル画像を非表示にし、設定を保存します。"
     },
     "prefColor_retweets" : {
         "message" : "リツイートの背景色を変える"
@@ -996,6 +1024,9 @@
     },
     "prefCircle_icon" : {
         "message" : "ユーザアイコンを丸くする"
+    },
+    "prefShow_icon" : {
+        "message" : "ユーザアイコンを表示する"
     },
     "prefLabelStyleTimestamp" : {
         "message" : "タイムスタンプ"
@@ -1048,6 +1079,9 @@
     "prefViewthumbnail" : {
         "message" : "サムネイル画像を表示する"
     },
+    "prefMovethumbnail" : {
+        "message" : "サムネイル画像を動かす"
+    },
     "prefPopup_photo" : {
         "message" : "画像を別ダイアログで表示する（チェックを外すと画像URLをタブで開きます）"
     },
@@ -1059,9 +1093,6 @@
     },
     "prefLinefeed" : {
         "message" : "改行を反映する"
-    },
-    "prefAnimation" : {
-        "message" : "アニメーションを有効にする"
     },
     "prefLabelScale" : {
         "message" : "スケール"
@@ -1086,9 +1117,6 @@
     },
     "prefIcon_size" : {
         "message" : "アイコンサイズ"
-    },
-    "prefButton_size" : {
-        "message" : "ボタンサイズ"
     },
     "prefLabelNotification" : {
         "message" : "通知"
