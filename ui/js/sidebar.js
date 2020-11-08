@@ -32,6 +32,10 @@ window.addEventListener('load', async () => {
     // if this is not normal window (such as panel)
     if (fg.type != 'normal') return;
 
+    window.addEventListener('unload', () => {
+        TwitSideModule.windows.removeReceiver(fg.id);
+    });
+
     // waiting for loading background script
     if (!bg.initialized) {
         await (new Promise((resolve, reject) => {
@@ -72,10 +76,6 @@ window.addEventListener('load', async () => {
         TwitSideModule.config.getPref('newtweet_pinned'),
         TwitSideModule.config.getPref('newtweet_pinned')
     );
-
-    window.addEventListener('unload', () => {
-        TwitSideModule.windows.removeReceiver(fg.id);
-    });
 });
 
 // add other event listener

@@ -38,9 +38,6 @@ window.addEventListener('load', async () => {
     changePhoto(parseInt(searchParams.index));
 });
 
-window.addEventListener('beforeunload', () => {
-});
-
 // add other event listener
 const vivify = () => {
     $('body')

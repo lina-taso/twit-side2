@@ -27,6 +27,12 @@ window.addEventListener('load', async () => {
     // session restore
     if (!bg.initialized) browser.windows.remove(fg.id);
 
+    window.addEventListener('unload', () => {
+        TwitSideModule.windows.removeReceiver(fg.id);
+        // カラムリセット
+        TwitSideModule.ManageColumns.reset(UI._win_type);
+    });
+
     TwitSideModule = bg.TwitSideModule;
     // session restore
     if (!TwitSideModule.ManageWindows.getOpenerId(SUFFIX)) browser.windows.remove(fg.id);
@@ -41,12 +47,6 @@ window.addEventListener('load', async () => {
     // profile
     initialize();
     if (searchParams.keyword) showUser();
-
-    window.addEventListener('beforeunload', () => {
-        TwitSideModule.windows.removeReceiver(fg.id);
-        // カラムリセット
-        TwitSideModule.ManageColumns.reset(UI._win_type);
-    });
 });
 
 // add other event listener
