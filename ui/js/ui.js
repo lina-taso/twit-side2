@@ -1789,7 +1789,8 @@ const showTweetRef = async (tweetBox, type, tweetinfo) => {
     // 操作を制限
     $(tweetBox).children('.tweetContent').eq(0).clone()
         .appendTo($('#refTweetContainer').empty())
-        .children().remove(':not(.tweetMainContent)');
+        .children().remove(':not(.tweetMainContent)')
+        .find('.tweetThumbnail').remove();
 
     // quote
     if (type == 'inline') {
