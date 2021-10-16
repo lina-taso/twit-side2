@@ -382,11 +382,10 @@ const countNewTweet = (e) => {
         $newTweetCount.addClass('badge-success').removeClass('badge-warning badge-danger');
         $tweetButton.removeClass('disabled');
     }
+    // 文字数0
     else {
         $newTweetCount.addClass('badge-success').removeClass('badge-warning badge-danger');
-        if ($newTweet.attr('data-reply-id') == ''
-            && $newTweet.attr('data-attachment-url') == ''
-            && $('#pictureThumbnails').children().length == 0)
+        if ($('#pictureThumbnails').children().length == 0)
             $tweetButton.addClass('disabled');
         else
             $tweetButton.removeClass('disabled');
@@ -469,7 +468,7 @@ const sendTweet = async () => {
         optionsHash.attachment_url = $newTweet.attr('data-attachment-url');
     }
     // 画像
-    else if ($('#pictureThumbnails').attr('data-mode')) {
+    if ($('#pictureThumbnails').attr('data-mode')) {
         $('#pictureThumbnails').children().each(function() {
             files.push(this.file);
         });
