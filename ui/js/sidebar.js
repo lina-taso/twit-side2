@@ -122,7 +122,8 @@ const vivify = () => {
     // 入力ボックス
     $('#newTweet')
         .on('keyup focus', countNewTweet)
-        .on('keydown', keypressNewTweet);
+        .on('paste', pasteImage)
+        .on('keydown', keypressNewTweet),
     $('#suggestContainer')
         .on('click', 'option', function() {
             suggestOnSelect(null, $('#newTweet'), $('#suggestContainer'));
@@ -679,6 +680,26 @@ const cancelAllFile = () => {
 
     countNewTweet();
 };
+
+const pasteImage = (e) => {
+    // 画像貼り付けられない状態
+    if ($('#sharePicture').hasClass('disabled')) return;
+
+    // 画像貼り付けのみ
+    const idx = e.originalEvent.clipboardData.types.indexOf('Files');
+    if (idx < 0) return;
+
+    const file = e.originalEvent.clipboardData.items[idx].getAsFile();
+    switch (file.type) {
+    case 'image/png':
+    case 'image/jpeg':
+    case 'image/gif':
+        pickedFile({ files : [ file ] });
+        break;
+    default:
+        return;
+    }
+}
 
 const sharePage = () => {
     const $newTweet = $('#newTweet');
