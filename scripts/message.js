@@ -119,7 +119,7 @@ TwitSideModule.Message = {
         data.datetime = data.datetime || TwitSideModule.text.getUnixTime();
         data.content  = TwitSideModule.text.unescapeHTML(data.content)
             .replace(/\n/g, TwitSideModule.config.getPref('linefeed') ? '\n' : ' ');
-        data.icon     = data.icon || browser.extension.getURL('images/logo.svg');
+        data.icon     = data.icon || browser.runtime.getURL('images/logo.svg');
         data.boxid    = data.boxid || '';
 
         // ポップアップ

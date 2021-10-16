@@ -1743,7 +1743,7 @@ class DmTimeline extends Timeline {
             // twitter (for DM picture)
             urls.provider = 'twitter';
             urls.loading  = true;
-            urls.thumburl = url.replace(re, browser.extension.getURL('images/loading.svg')
+            urls.thumburl = url.replace(re, browser.runtime.getURL('images/loading.svg')
                                         + '?' + urls.provider + '#' + urls.id);
             urls.rawurl   = '';
             urls.id       = RegExp.$1;

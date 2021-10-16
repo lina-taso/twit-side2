@@ -222,7 +222,7 @@ TwitSideModule.ManageUsers = {
                 oauth_token_secret : '',
                 user_id            : -1,
                 screen_name        : 'from Twit Side',
-                profile_image_url  : browser.extension.getURL('images/logo-32.png')
+                profile_image_url  : browser.runtime.getURL('images/logo-32.png')
             };
             if (!key) return ts_user;
             if (ts_user[key] === undefined) throw new Error('KEY_IS_NOT_DEFINED');

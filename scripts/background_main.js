@@ -6,7 +6,7 @@
  */
 
 const firstrun_url = 'https://www2.filewo.net/wordpress/category/products/twit-side-addon/',
-      sidebar_url  = browser.extension.getURL('/ui/sidebar.xhtml');
+      sidebar_url  = browser.runtime.getURL('/ui/sidebar.xhtml');
 
 this.initialized = false;
 
