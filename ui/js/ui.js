@@ -1974,7 +1974,7 @@ const onClickReply = async (tweetBox, tweetinfo, userid) => {
         if (userid) changeTweetUser(userid);
         $('#newTweet').attr({
             'data-attachment-url' : '',
-            'data-reply-id'       : origid
+            'data-reply-id'       : origid.replace(/^0+/, '')
         });
 
         showTweetRef(tweetBox, 'reply', tweetinfo);
@@ -2010,7 +2010,7 @@ const onClickReplyall = (tweetBox, tweetinfo, userid) => {
         if (userid) changeTweetUser(userid);
         $('#newTweet').attr({
             'data-attachment-url' : '',
-            'data-reply-id'       : origid
+            'data-reply-id'       : origid.replace(/^0+/, '')
         });
 
         // 返信ツイート表示
