@@ -984,6 +984,52 @@ textarea#newTweet {
     width: 100%;
     height: 100%;
     background-color: black; }
+[data-window-type="photo"] video.photo {
+  transition: transform .2s;
+  cursor: grab; }
+[data-window-type="photo"] video.photo.dragging {
+  transition: none;
+  cursor: grabbing; }
+[data-window-type="photo"] #zoomoutPhoto,
+[data-window-type="photo"] #zoominPhoto,
+[data-window-type="photo"] #rotatePhoto,
+[data-window-type="photo"] #resetPhoto {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  position: absolute;
+  bottom: 6rem;
+  font-size: 1.2rem;
+  opacity: .3; }
+  [data-window-type="photo"] #zoomoutPhoto:hover, [data-window-type="photo"] #zoomoutPhoto:focus,
+  [data-window-type="photo"] #zoominPhoto:hover,
+  [data-window-type="photo"] #zoominPhoto:focus,
+  [data-window-type="photo"] #rotatePhoto:hover,
+  [data-window-type="photo"] #rotatePhoto:focus,
+  [data-window-type="photo"] #resetPhoto:hover,
+  [data-window-type="photo"] #resetPhoto:focus {
+    opacity: .8; }
+  [data-window-type="photo"] #zoomoutPhoto.disabled, [data-window-type="photo"] #zoomoutPhoto.disabled:hover, [data-window-type="photo"] #zoomoutPhoto.disabled:focus,
+  [data-window-type="photo"] #zoominPhoto.disabled,
+  [data-window-type="photo"] #zoominPhoto.disabled:hover,
+  [data-window-type="photo"] #zoominPhoto.disabled:focus,
+  [data-window-type="photo"] #rotatePhoto.disabled,
+  [data-window-type="photo"] #rotatePhoto.disabled:hover,
+  [data-window-type="photo"] #rotatePhoto.disabled:focus,
+  [data-window-type="photo"] #resetPhoto.disabled,
+  [data-window-type="photo"] #resetPhoto.disabled:hover,
+  [data-window-type="photo"] #resetPhoto.disabled:focus {
+    visibility: hidden; }
+[data-window-type="photo"] #zoomoutPhoto {
+  left: calc( 50vw - 5rem ); }
+[data-window-type="photo"] #zoominPhoto {
+  left: calc( 50vw - 3rem ); }
+[data-window-type="photo"] #rotatePhoto {
+  left: calc( 50vw - 1rem ); }
+[data-window-type="photo"] #resetPhoto {
+  left: calc( 50vw + 2rem ); }
 [data-window-type="photo"] #fullscreenPhoto {
   display: flex;
   justify-content: center;

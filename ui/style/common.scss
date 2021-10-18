@@ -953,6 +953,39 @@ textarea#newTweet { resize: none; }
             background-color: black;
         }
     }
+    video.photo {
+        transition: transform .2s;
+        cursor: grab;
+    }
+    video.photo.dragging {
+        transition: none;
+        cursor: grabbing;
+    }
+
+    #zoomoutPhoto,
+    #zoominPhoto,
+    #rotatePhoto,
+    #resetPhoto {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 2rem; height: 2rem;
+        position: absolute;
+        bottom: 6rem;
+        font-size: 1.2rem;
+        opacity: .3;
+
+        &:hover, &:focus { opacity: .8; }
+
+        // 無効時
+        &.disabled, &.disabled:hover, &.disabled:focus {
+            visibility: hidden;
+        }
+    }
+    #zoomoutPhoto { left: calc( 50vw - 5rem ); }
+    #zoominPhoto { left: calc( 50vw - 3rem ); }
+    #rotatePhoto { left: calc( 50vw - 1rem ); }
+    #resetPhoto { left: calc( 50vw + 2rem ); }
 
     #fullscreenPhoto {
         display: flex;
