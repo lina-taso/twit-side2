@@ -229,6 +229,9 @@
     "http429" : {
         "message" : "Too Many Requests (HTTP429)"
     },
+    "http433" : {
+        "message" : "Tweet author restricted who can reply to this Tweet. (HTTP433)"
+    },
     "http500" : {
         "message" : "Internal Server Error (HTTP500)"
     },
