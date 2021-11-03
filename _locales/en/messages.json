@@ -387,6 +387,9 @@
         "message" : "Uploadable file size is up to 512MB per video"
     },
 
+    "newTweetPlaceholder" : {
+        "message" : "Ctrl+Alt+K to focus here\r\nPaste an image here to attach"
+    },
 
     "windowProfileDefaulttitle" : {
         "message" : "Profile"

@@ -387,6 +387,9 @@
         "message" : "動画は512MBまでアップロードできます"
     },
 
+    "newTweetPlaceholder" : {
+        "message" : "Ctrl+Alt+Kでここにフォーカス\r\n画像をコピーして画像を添付"
+    },
 
     "windowProfileDefaulttitle" : {
         "message" : "プロフィール"
