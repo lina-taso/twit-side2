@@ -623,6 +623,17 @@ class Tweet {
         });
     }
 
+    // Twitter API V2
+    async V2usersTweets(user_id, optionsHash) {
+        return await this._sendRequest('SIGNATURE', {
+            api     : 'API2',
+            method  : 'GET',
+            options : optionsHash,
+            baseurl : TwitSideModule.urls.twit.api2Base,
+            url     : TwitSideModule.urls.twit.urlUsersTweets.replace(':id', user_id)
+        });
+    }
+
     // リクエストの振り分け
     // cb, errorはストリーム用
     async _sendRequest(type, data_hash, cb, error) {
@@ -983,6 +994,8 @@ class Tweet {
             switch (type) {
             case 'REQUEST':
                 delete form.oauth_token;
+                // callback
+                form.oauth_callback = 'oob';
                 param = TwitSideModule.hash.hash2sortedForm(form);
                 xhr.open('GET', data_hash.baseurl + data_hash.url + param);
                 xhr.onload = returnRequest;

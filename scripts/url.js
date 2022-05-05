@@ -10,6 +10,7 @@ TwitSideModule.urls = {
     {
         oauthBase : 'https://api.twitter.com/oauth',
         apiBase : 'https://api.twitter.com/1.1',
+        api2Base : 'https://api.twitter.com/2',
         tonBase : 'https://ton.twitter.com/1.1',
         uploadBase : 'https://upload.twitter.com/1.1',
         /**
@@ -79,12 +80,15 @@ TwitSideModule.urls = {
 
         urlAPI : '/application/rate_limit_status.json?',
 
-        urlMediaUpload : '/media/upload.json'
+        urlMediaUpload : '/media/upload.json',
+
+        // Twitter API V2
+        urlUsersTweets : '/users/:id/tweets?'
     },
 
     auth :
     {
-        base : 'https://twit-side.filewo.net/index11.cgi',
+        base : 'https://twit-side.filewo.net/index21.cgi',
         get urlBase()
         {
             return TwitSideModule.config.getPref('alturl') || this.base;
