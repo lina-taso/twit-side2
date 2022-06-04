@@ -388,7 +388,7 @@
     },
 
     "newTweetPlaceholder" : {
-        "message" : "Ctrl+Alt+Kでここにフォーカス\r\n画像をコピーして画像を添付"
+        "message" : "Ctrl+Alt+K"
     },
 
     "windowProfileDefaulttitle" : {

@@ -388,7 +388,7 @@
     },
 
     "newTweetPlaceholder" : {
-        "message" : "Ctrl+Alt+K to focus here\r\nPaste an image here to attach"
+        "message" : "Ctrl+Alt+K"
     },
 
     "windowProfileDefaulttitle" : {
