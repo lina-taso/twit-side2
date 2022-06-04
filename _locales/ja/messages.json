@@ -535,6 +535,15 @@
     "topTweet" : {
         "message" : "ツイート"
     },
+    "topReplyTargetNone" : {
+        "message" : "全員返信可能"
+    },
+    "topReplyTargetComm" : {
+        "message" : "フォロワーのみ返信可能"
+    },
+    "topReplyTargetInvi" : {
+        "message" : "メンションした人のみ返信可能"
+    },
     "topReplytweet" : {
         "message" : "以下のツイートに返信"
     },

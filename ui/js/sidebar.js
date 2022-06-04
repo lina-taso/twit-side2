@@ -140,6 +140,9 @@ const vivify = () => {
     $('#replyUsersSelection')
         .on('click', '.replyUser:gt(0)', function() { $(this).toggleClass('disabled'); });
 
+    // 返信できるユーザ
+    $('[name=tweetReplyTarget]').on('focus', () => { $('#newTweet').focus(); });
+
     // カラムコンテナ
     $('#columnContainer')
         .on('mousedown', function(e) {
@@ -462,6 +465,10 @@ const sendTweet = async () => {
             noreply.push(this.dataset.userid);
         });
         optionsHash.exclude_reply_user_ids = noreply.join(',');
+    }
+    // 返信できるユーザ
+    else if ($('[name="tweetReplyTarget"]:checked').val()) {
+        optionsHash.conversation_control = $('[name="tweetReplyTarget"]:checked').val();
     }
     // 引用
     if ($newTweet.attr('data-attachment-url')) {

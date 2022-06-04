@@ -135,10 +135,24 @@
           </div>
           <!-- 4th row -->
           <div class="row">
-            <button id="tweetButton" class="btn ts-btn btn-outline-primary disabled" tabindex="1">
+            <button id="tweetButton" class="btn ts-btn btn-outline-primary d-inine-block disabled mr-1" tabindex="1">
               <span data-string="topTweet" />
               <span id="newTweetCount" class="badge badge-success">280/280</span>
             </button>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+              <button class="btn btn-outline-secondary px-1 active" title="" data-string-title="topReplyTargetNone" tabindex="1">
+                <input type="radio" name="tweetReplyTarget" value="" checked="checked" />
+                <i class="fas fa-fw fa-globe" />
+              </button>
+              <button class="btn btn-outline-secondary px-1" title="" data-string-title="topReplyTargetComm" tabindex="1">
+                <input type="radio" name="tweetReplyTarget" value="community" />
+                <i class="fas fa-fw fa-user-check" />
+              </button>
+              <button class="btn btn-outline-secondary px-1" title="" data-string-title="topReplyTargetInvi" tabindex="1">
+                <input type="radio" name="tweetReplyTarget" value="by_invitation" />
+                <i class="fas fa-fw fa-at" />
+              </button>
+            </div>
             <div class="input-group ml-auto w-auto">
               <div class="input-group-prepend">
                 <button id="profileOwnImage" class="btn ts-btn btn-outline-secondary" tabindex="1" />

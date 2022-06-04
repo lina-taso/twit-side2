@@ -535,6 +535,15 @@
     "topTweet" : {
         "message" : "Tweet"
     },
+    "topReplyTargetNone" : {
+        "message" : "Everyone can reply"
+    },
+    "topReplyTargetComm" : {
+        "message" : "Only follower can reply"
+    },
+    "topReplyTargetInvi" : {
+        "message" : "Only people you mention can reply"
+    },
     "topReplytweet" : {
         "message" : "Reply to"
     },
