@@ -1846,17 +1846,31 @@ const showTweetRef = async (tweetBox, type, tweetinfo) => {
 
 // 公式リツイート
 const onClickRetweet = (tweetBox) => {
-    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''); // columnidを除去
+    const boxid = tweetBox.id.replace(/^[a-zA-Z]{5}_/, ''), // columnidを除去
+          sw    = !$(tweetBox).children('.tweetContent').attr('data-retweeted');
 
-    UI.confirm(browser.i18n.getMessage('confirmRetweet'),
-               () => {
-                   TwitSideModule.ManageColumns.getTimelineInfo(
-                       getColumnIndexFromBox(tweetBox),
-                       'timeline',
-                       UI._win_type
-                   ).retweet(boxid);
-               },
-               TwitSideModule.config.getPref('confirm_retweet'));
+    if (sw) {
+        UI.confirm(browser.i18n.getMessage('confirmRetweet'),
+                   () => {
+                       TwitSideModule.ManageColumns.getTimelineInfo(
+                           getColumnIndexFromBox(tweetBox),
+                           'timeline',
+                           UI._win_type
+                       ).retweet(boxid);
+                   },
+                   TwitSideModule.config.getPref('confirm_retweet'));
+    }
+    else {
+        UI.confirm(browser.i18n.getMessage('confirmRemoveRetweet'),
+                   () => {
+                       TwitSideModule.ManageColumns.getTimelineInfo(
+                           getColumnIndexFromBox(tweetBox),
+                           'timeline',
+                           UI._win_type
+                       ).destroyRetweet(boxid);
+                   },
+                   TwitSideModule.config.getPref('confirm_delete'));
+    }
 };
 
 // [MAIN] コメントつきリツイート
