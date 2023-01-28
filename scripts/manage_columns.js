@@ -127,12 +127,8 @@ TwitSideModule.ManageColumns = {
         switch (columninfo.tl_type) {
         case TwitSideModule.TL_TYPE.FAVORITE:
             // TEMPじゃないお気に入りはユーザ指定なし
-            timeline.getNewerHash = {
-                count : TwitSideModule.config.getPref('favorite_count')
-            };
-            timeline.getOlderHash = {
-                count : TwitSideModule.config.getPref('autopager_count')+1
-            };
+            timeline.getNewerHash = { count : TwitSideModule.config.getPref('favorite_count') };
+            timeline.getOlderHash = { count : TwitSideModule.config.getPref('autopager_count')+1 };
             break;
         case TwitSideModule.TL_TYPE.TEMP_FOLLOW:
         case TwitSideModule.TL_TYPE.TEMP_FOLLOWER:
@@ -156,12 +152,8 @@ TwitSideModule.ManageColumns = {
             break;
         case TwitSideModule.TL_TYPE.DIRECTMESSAGE:
         case TwitSideModule.TL_TYPE.TEMP_DIRECTMESSAGE:
-            timeline.getNewerHash = {
-                count : TwitSideModule.config.getPref('dm_count')
-            };
-            timeline.getOlderHash = {
-                count : TwitSideModule.config.getPref('dm_count')
-            };
+            timeline.getNewerHash = { count : TwitSideModule.config.getPref('dm_count') };
+            timeline.getOlderHash = { count : TwitSideModule.config.getPref('dm_count') };
             break;
         case TwitSideModule.TL_TYPE.SEARCH:
         case TwitSideModule.TL_TYPE.TEMP_SEARCH:
@@ -181,7 +173,7 @@ TwitSideModule.ManageColumns = {
             break;
         case TwitSideModule.TL_TYPE.LISTTIMELINE:
             // リストタイムラインはmute, noretweet有効
-            columninfo.options.mute = true;
+            columninfo.options.mute      = true;
             columninfo.options.noretweet = true;
 
             timeline.getNewerHash = {
@@ -210,13 +202,8 @@ TwitSideModule.ManageColumns = {
             columninfo.options.mute      = true;
             columninfo.options.noretweet = true;
         default:
-            timeline.getNewerHash = {
-                count : TwitSideModule.config.getPref(
-                    TwitSideModule.getTimelineName(columninfo.tl_type)+'_count')
-            };
-            timeline.getOlderHash = {
-                count : TwitSideModule.config.getPref('autopager_count')+1
-            };
+            timeline.getNewerHash   = { count : TwitSideModule.config.getPref(TwitSideModule.getTimelineName(columninfo.tl_type)+'_count') };
+            timeline.getOlderHash   = { count : TwitSideModule.config.getPref('autopager_count')+10 };
         }
 
         // オプション再読込
