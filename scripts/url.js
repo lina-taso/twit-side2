@@ -83,7 +83,7 @@ TwitSideModule.urls = {
         urlMediaUpload : '/media/upload.json',
 
         // Twitter API V2
-        urlUsersTweets : '/users/:id/tweets?'
+        urlV2UsersIdTweets : '/users/:id/tweets?',
     },
 
     auth :

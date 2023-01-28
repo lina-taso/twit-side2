@@ -623,14 +623,14 @@ class Tweet {
         });
     }
 
-    // Twitter API V2
+    // V2 ユーザータイムライン
     async V2usersTweets(user_id, optionsHash) {
         return await this._sendRequest('SIGNATURE', {
             api     : 'API2',
             method  : 'GET',
             options : optionsHash,
             baseurl : TwitSideModule.urls.twit.api2Base,
-            url     : TwitSideModule.urls.twit.urlUsersTweets.replace(':id', user_id)
+            url     : TwitSideModule.urls.twit.urlV2UsersIdTweets.replace(':id', user_id)
         });
     }
 
