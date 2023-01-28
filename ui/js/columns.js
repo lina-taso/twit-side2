@@ -210,7 +210,7 @@ const resetAddColumnC = (columninfo) => {
         $('#editColumnTitle').addClass('d-none');
         $('#columnLabel').val('');
         $('#screenname').removeAttr('disabled')[0].selectedIndex = 0;
-        $('#tlType > .tlTypeOption:gt(4)').addClass('d-none');
+        $('#tlType > .tlTypeOption.tlTypeOptionHidden').addClass('d-none');
         $('#tlType').removeAttr('disabled')[0].selectedIndex = 0;
         $('#notif, #onstart, #autoreload, #veil').prop('checked', false);
         $('#parameter').val('').closest('.form-group').addClass('d-none');
