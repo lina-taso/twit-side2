@@ -336,7 +336,10 @@
         "message" : "Add to favorites?"
     },
     "confirmRemoveTweet" : {
-        "message" : "Delete your (re)tweet?"
+        "message" : "Delete your tweet?"
+    },
+    "confirmRemoveReTweet" : {
+        "message" : "Undo retweet?"
     },
     "confirmRemoveList" : {
         "message" : "Delete the list?"
@@ -481,23 +484,23 @@
         "message" : "Retweeted"
     },
     "column_favorite" : {
-        "message" : "Favorite"
+        "message" : "Favorites"
     },
     "column_search" : {
         "message" : "Search"
     },
     "column_directmessage" : {
-        "message" : "Direct Message"
+        "message" : "Direct Messages"
     },
     "column_listtimeline" : {
-        "message" : "List"
+        "message" : "Lists"
     },
 
     "column_follow" : {
-        "message" : "Follow"
+        "message" : "Follows"
     },
     "column_follower" : {
-        "message" : "Follower"
+        "message" : "Followers"
     },
     "column_ownershiplists" : {
         "message" : "Own lists"
@@ -591,6 +594,9 @@
 
     "tweetRetweet" : {
         "message" : "Retweet"
+    },
+    "tweetUndoRetweet" : {
+        "message" : "Undo retweet"
     },
     "tweetQuote" : {
         "message" : "Retweet w/your comment"

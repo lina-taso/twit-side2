@@ -336,7 +336,10 @@
         "message" : "お気に入りに追加しますか？"
     },
     "confirmRemoveTweet" : {
-        "message" : "ツイート/リツイートを削除しますか？"
+        "message" : "ツイートを削除しますか？"
+    },
+    "confirmRemoveReTweet" : {
+        "message" : "リツイートを取り消しますか？"
     },
     "confirmRemoveList" : {
         "message" : "リストを削除しますか？"
@@ -591,6 +594,9 @@
 
     "tweetRetweet" : {
         "message" : "リツイート"
+    },
+    "tweetUndoRetweet" : {
+        "message" : "リツイート取り消し"
     },
     "tweetQuote" : {
         "message" : "引用リツイート"
