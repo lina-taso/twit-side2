@@ -203,7 +203,7 @@ TwitSideModule.ManageColumns = {
             columninfo.options.noretweet = true;
         default:
             timeline.getNewerHash   = { count : TwitSideModule.config.getPref(TwitSideModule.getTimelineName(columninfo.tl_type)+'_count') };
-            timeline.getOlderHash   = { count : TwitSideModule.config.getPref('autopager_count')+10 };
+            timeline.getOlderHash   = { count : TwitSideModule.config.getPref('autopager_count')+1 };
         }
 
         // オプション再読込
