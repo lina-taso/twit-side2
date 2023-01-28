@@ -388,6 +388,10 @@ textarea#newTweet {
   .column[data-more="true"] .tweetBox.tweetMoreBox .spinner-grow {
     display: inline-block; }
 
+.tweetBoxLazy {
+  height: 6rem;
+  justify-content: center; }
+
 /*********************
   // #columnContainer
 **********************/

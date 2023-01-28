@@ -329,13 +329,13 @@ const showUser = async () => {
     }
 
     const timelines = [
-        { tl_type : TwitSideModule.TL_TYPE.TEMP_USERTIMELINE,
+        { tl_type : TwitSideModule.TL_TYPE.TEMP_USERTIMELINE_V2,
           options : { onstart : false, autoreload : false, notif : false, veil : false }},
         { tl_type : TwitSideModule.TL_TYPE.TEMP_FOLLOW,
           options : { onstart : false, autoreload : false, notif : false, veil : false }},
         { tl_type : TwitSideModule.TL_TYPE.TEMP_FOLLOWER,
           options : { onstart : false, autoreload : false, notif : false, veil : false }},
-        { tl_type : TwitSideModule.TL_TYPE.TEMP_FAVORITE,
+        { tl_type : TwitSideModule.TL_TYPE.TEMP_FAVORITE_V2,
           options : { onstart : false, autoreload : false, notif : false, veil : false }},
         { tl_type : TwitSideModule.TL_TYPE.TEMP_OWNERSHIPLISTS,
           options : { onstart : false, autoreload : false, notif : false, veil : false }},

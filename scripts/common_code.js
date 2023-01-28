@@ -40,6 +40,9 @@ TwitSideModule.TL_STATE = {
 
 // columns, addcolumnsと連携
 TwitSideModule.TL_TYPE = {
+    TIMELINE_V2 :   101,
+    CONNECT_V2 :    102,
+    FAVORITE_V2 :   104,
     TIMELINE :      1,
     CONNECT :       2,
     RETWEETED :     3,
@@ -47,6 +50,8 @@ TwitSideModule.TL_TYPE = {
     DIRECTMESSAGE : 5,
     SEARCH :        6,
     LISTTIMELINE :  7,
+    TEMP_USERTIMELINE_V2 :   111,
+    TEMP_FAVORITE_V2 :       114,
     TEMP_USERTIMELINE :      11,
     TEMP_FOLLOW :            12,
     TEMP_FOLLOWER :          13,
@@ -65,6 +70,9 @@ TwitSideModule.TL_TYPE = {
 
 TwitSideModule.getTimelineName = (tl_type) => {
     const tlNameMap = new Map([
+        [101,'timeline_v2'],
+        [102,'connect_v2'],
+        [104,'favorite_v2'],
         [1,  'timeline'],
         [2,  'connect'],
         [3,  'retweeted'],
@@ -72,6 +80,8 @@ TwitSideModule.getTimelineName = (tl_type) => {
         [5,  'directmessage'],
         [6,  'search'],
         [7,  'listtimeline'],
+        [111,'usertimeline_v2'],
+        [114,'favorite_v2'],
         [11, 'usertimeline'],
         [12, 'follow'],
         [13, 'follower'],

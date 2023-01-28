@@ -351,6 +351,11 @@ textarea#newTweet { resize: none; }
         .column[data-more="true"] & .spinner-grow { display: inline-block; }
     }
 }
+.tweetBoxLazy {
+    height: 6rem;
+    justify-content: center;
+}
+
 /*********************
   // #columnContainer
 **********************/

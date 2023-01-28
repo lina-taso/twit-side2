@@ -96,6 +96,25 @@ TwitSideModule.ManageColumns = {
                 win_type
             );
             break;
+        case TwitSideModule.TL_TYPE.TIMELINE_V2:
+            tl = new TimelineV2(
+                columninfo.tl_type,
+                domid,
+                userinfo,
+                win_type
+            );
+            break;
+        case TwitSideModule.TL_TYPE.CONNECT_V2:
+        case TwitSideModule.TL_TYPE.FAVORITE_V2:
+        case TwitSideModule.TL_TYPE.TEMP_USERTIMELINE_V2:
+        case TwitSideModule.TL_TYPE.TEMP_FAVORITE_V2:
+            tl = new TimelineV2(
+                columninfo.tl_type,
+                domid,
+                userinfo,
+                win_type
+            );
+            break;
         default:
             tl = new Timeline(
                 columninfo.tl_type,
@@ -201,6 +220,63 @@ TwitSideModule.ManageColumns = {
             // ホームタイムラインはmute, noretweet有効
             columninfo.options.mute      = true;
             columninfo.options.noretweet = true;
+            timeline.getNewerHash = { count : TwitSideModule.config.getPref(TwitSideModule.getTimelineName(columninfo.tl_type)+'_count') };
+            timeline.getOlderHash = { count : TwitSideModule.config.getPref('autopager_count')+1 };
+            break;
+
+
+        case TwitSideModule.TL_TYPE.TEMP_USERTIMELINE_V2:
+            // TEMPはユーザ指定あり
+            // TODO v2のユーザ指定
+            timeline.getNewerHashV2 = { max_results : TwitSideModule.config.getPref('profile_count') };
+            timeline.target_userid  = columninfo.parameters.user_id;
+            timeline.getNewerHash   = {
+                count   : TwitSideModule.config.getPref('profile_count')+10,
+                user_id : columninfo.parameters.user_id
+            };
+            timeline.getOlderHashV2 = { max_results : TwitSideModule.config.getPref('autopager_count') };
+            timeline.target_userid  = columninfo.parameters.user_id;
+            timeline.getOlderHash   = {
+                count   : TwitSideModule.config.getPref('autopager_count')+10,
+                user_id : columninfo.parameters.user_id
+            };
+            break;
+        case TwitSideModule.TL_TYPE.TEMP_FAVORITE_V2:
+            // TEMPはユーザ指定あり
+            // TODO v2のユーザ指定
+            timeline.getNewerHashV2 = { max_results : TwitSideModule.config.getPref('favorite_count') };
+            timeline.target_userid  = columninfo.parameters.user_id;
+            timeline.getNewerHash   = {
+                count   : TwitSideModule.config.getPref('favorite_count')+10,
+                user_id : columninfo.parameters.user_id
+            };
+            timeline.getOlderHashV2 = { max_results : TwitSideModule.config.getPref('autopager_count') };
+            timeline.target_userid  = columninfo.parameters.user_id;
+            timeline.getOlderHash   = {
+                count   : TwitSideModule.config.getPref('autopager_count')+10,
+                user_id : columninfo.parameters.user_id
+            };
+            break;
+        case TwitSideModule.TL_TYPE.TIMELINE_V2:
+            // ホームタイムラインはmute, noretweet有効
+            columninfo.options.mute      = true;
+            columninfo.options.noretweet = true;
+            // TODO timeline_v2_count
+            timeline.getNewerHashV2 = { max_results : TwitSideModule.config.getPref('timeline_count') };
+            // TODO timeline_v2_count
+            timeline.getNewerHash   = { count : TwitSideModule.config.getPref('timeline_count')+10 };
+            timeline.getOlderHashV2 = { max_results : TwitSideModule.config.getPref('autopager_count') };
+            timeline.getOlderHash   = { count : TwitSideModule.config.getPref('autopager_count')+10 };
+            break;
+        case TwitSideModule.TL_TYPE.CONNECT_V2:
+        case TwitSideModule.TL_TYPE.FAVORITE_V2:
+            // TODO v2_count
+            timeline.getNewerHashV2 = { max_results : 50 };
+            // TODO v2_count
+            timeline.getNewerHash   = { count : 50 };
+            timeline.getOlderHashV2 = { max_results : TwitSideModule.config.getPref('autopager_count') };
+            timeline.getOlderHash   = { count : TwitSideModule.config.getPref('autopager_count')+10 };
+            break;
         default:
             timeline.getNewerHash   = { count : TwitSideModule.config.getPref(TwitSideModule.getTimelineName(columninfo.tl_type)+'_count') };
             timeline.getOlderHash   = { count : TwitSideModule.config.getPref('autopager_count')+10 };

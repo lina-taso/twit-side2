@@ -83,7 +83,26 @@ TwitSideModule.urls = {
         urlMediaUpload : '/media/upload.json',
 
         // Twitter API V2
+<<<<<<< Updated upstream
         urlV2UsersIdTweets : '/users/:id/tweets?',
+=======
+<<<<<<< Updated upstream
+        urlUsersTweets : '/users/:id/tweets?'
+=======
+        urlV2UsersIdTimelinesReverseChronological : '/users/:id/timelines/reverse_chronological?',
+        urlV2UsersIdTweets : '/users/:id/tweets?',
+        urlV2UsersIdMentions : '/users/:id/mentions?',
+        urlV2UsersIdLikedTweets : '/users/:id/liked_tweets?',
+
+        // DELETE
+        urlV2UsersIdRetweetsSourceTweetId : 'users/:id/retweets/:source_tweet_id',
+
+        urlV2Tweets : '/tweets?',
+        urlV2TweetsId : '/tweets/:id?',
+        urlV2TweetsIdRetweetedBy : '/tweets/:id/retweeted_by?'
+
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     },
 
     auth :

@@ -76,6 +76,7 @@ const UI = {
 
         // 共通テンプレート
         this.$tweetBoxTemplate       = $('#templateContainer > .tweetBox');
+        this.$tweetBoxLazyTemplate   = $('#templateContainer > .tweetBoxLazy');
         this.$tweetMoreBoxTemplate   = $('#templateContainer > .tweetMoreBox');
         this.$columnTemplate         = $('#templateContainer > .column');
         // 共通コンテナ
@@ -412,6 +413,17 @@ const UI = {
                 timelineBox.insertBefore(
                     this._createListTweetBox(
                         type, datum.tweetinfo, columnid
+                    ), nextbox
+                );
+                break;
+            case TwitSideModule.TL_TYPE.TIMELINE_V2:
+            case TwitSideModule.TL_TYPE.CONNECT_V2:
+            case TwitSideModule.TL_TYPE.FAVORITE_V2:
+            case TwitSideModule.TL_TYPE.TEMP_USERTIMELINE_V2:
+            case TwitSideModule.TL_TYPE.TEMP_FAVORITE_V2:
+                timelineBox.insertBefore(
+                    UI._createTweetBoxV2(
+                        type, datum.tweetinfo, columnid, null
                     ), nextbox
                 );
                 break;
@@ -865,6 +877,383 @@ const UI = {
         return $tweetBox[0];
     },
 
+    // ツイート用 (V2)
+    // TODO type要らないかも
+    _createTweetBoxV2 : function(type, record, columnid, parentTweetid) {
+        // debug message
+        TwitSideModule.debug.log([record.raw.id_str, parentTweetid]);
+        // 投稿ソース認識
+        const analyzeSource = (source) => {
+            return $('<span>' + source.replace(/&/g, '&amp;') + '</span>').text();
+        };
+
+        const fullboxid = columnid+'_'+record.meta.boxid;
+
+        // more
+        if (/_more$/.test(fullboxid)) {
+            return this.$tweetMoreBoxTemplate.clone().attr({
+                    id            : fullboxid,
+                    'data-origid' : record.raw.id_str
+                })[0];
+        }
+
+        const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
+              $tweetContent = $tweetBox.children('.tweetContent').eq(0),
+              $tweetInline  = $tweetContent.children('.inlineTweetBox').eq(0);
+
+        // 属性設定
+        $tweetBox.attr({
+            'data-tweetid'  : record.raw.id_str,
+            'data-parentid' : parentTweetid || ''
+        });
+        $tweetContent.attr({
+            'data-mine'      : record.meta.isMine || '',
+            'data-forme'     : record.meta.isForMe || '',
+            'data-retweeted' : record.raw._legacy.retweeted || ''
+        });
+
+        /**
+         * リツイートされた・されてないツイート共通
+         */
+        const r = record.raw._retweeted_status_idx === null ? record
+              : record.raw.referenced_tweets[record.raw._retweeted_status_idx]._tweet;
+
+        // ツイートの情報
+        $tweetBox.attr({
+            'data-origid'     : r.raw.id_str,
+            'data-rawcontent' : r.raw.text,
+            'data-screenname' : '@' + r.raw._userinfo.username
+        });
+        // ユーザ情報
+        $tweetContent.find('.tweetUserImage')
+            .attr('src', r.raw._userinfo.profile_image_url.replace('_normal.', '_bigger.'));
+        $tweetContent.find('.tweetUserName').attr({
+            'data-screenname' : '@' + r.raw._userinfo.username,
+            'data-username'   : r.raw._userinfo.name
+        });
+        // place
+        if (r.raw._place) {
+            const $place = $tweetContent.find('.tweetStatusPlace');
+            $place.attr({
+                'title'       : r.raw._place.full_name,
+                'data-mapurl' : 'http://maps.google.com/?q=' + TwitSideModule.text.encodeURI(r.raw._place.full_name)
+            }).on('click', () => { openURL($place.attr('data-mapurl')); });
+        }
+        // protected
+        if (r.raw._userinfo.protected)
+            $tweetContent.attr('data-protected', 'true');
+        // verified
+        if (r.raw._userinfo.verified)
+            $tweetContent.attr('data-verified', 'true');
+        // replyto, 本文
+        if (r.meta.start) {
+            $tweetContent.find('.tweetUserReplyto')
+                .text(r.meta.text.slice(0, r.meta.start));
+            $tweetContent.find('.tweetText')
+                .text(TwitSideModule.text.unescapeHTML(
+                    r.meta.text.slice(r.meta.start)));
+        }
+        else {
+            $tweetContent.find('.tweetText')
+                .text(TwitSideModule.text.unescapeHTML(r.meta.text));
+        }
+        // 投稿ソース
+        $tweetContent.find('.tweetSource')
+            .text('from ' + analyzeSource(r.raw._legacy.source));
+        // タイムスタンプ
+        $tweetContent.find('.tweetTime')
+            .text(TwitSideModule.text.convertTimeStamp(
+                TwitSideModule.text.analyzeTimestamp(r.raw.created_at),
+                TwitSideModule.config.getPref('time_locale'),
+                TwitSideModule.text.createTimeformat()
+            ));
+        // public_metrics
+        $tweetContent.find('.tweetMenuButton[data-func=retweet] > span.count').text(TwitSideModule.text.formatSIprefix(r.raw.public_metrics.retweet_count));
+        $tweetContent.find('.tweetMenuButton[data-func=quote] > span.count').text(TwitSideModule.text.formatSIprefix(r.raw.public_metrics.quote_count));
+        $tweetContent.find('.tweetMenuButton[data-func=favorite] > span.count').text(TwitSideModule.text.formatSIprefix(r.raw.public_metrics.like_count));
+
+        /**
+         * リツイートされたツイートのみ
+         */
+        if (record.raw._retweeted_status_idx !== null) {
+            $tweetContent.attr('data-retweet', 'true');
+
+            $tweetContent.find('.tweetRetweeter').removeClass('d-none');
+            $tweetContent.find('.tweetRetweeterImage')
+                .attr({ src   : record.raw._userinfo.profile_image_url,
+                        title : '@' + record.raw._userinfo.username });
+            $tweetContent.find('.tweetRetweeterName')
+                .attr({
+                    'data-screenname' : '@' + record.raw._userinfo.username,
+                    'data-username'   : record.raw._userinfo.name
+                });
+        }
+
+        /**
+         * 基本メニュー
+         */
+        const entities    = r.meta.entities || {},
+              contextMenu = {};
+
+        // 返信
+        {
+            contextMenu.reply = {
+                name    : browser.i18n.getMessage('tweetReply'),
+                icon    : 'fas fa-reply fa-fw',
+                visible : function() { return document.body.dataset.menuReply == 'true'; }
+            };
+            // TODO フォロワー限定 following
+            // TODO メンション限定 mentionedUsers
+        }
+        // 全員に返信
+        $tweetBox.attr('data-screennames', record.meta.screennames.join(' '));
+        if (record.meta.screennames.length > 1) {
+            contextMenu.replyall = {
+                name    : browser.i18n.getMessage('tweetReplyall'),
+                icon    : 'fas fa-reply-all fa-fw',
+                visible : function() { return document.body.dataset.menuReply == 'true'; }
+            };
+            // TODO フォロワー限定 following
+            // TODO メンション限定 mentionedUsers
+        }
+        // 公式RT
+        {
+            // リツイート済か自分のツイート
+            //if (record.raw._legacy.retweeted || record.raw._retweeted_status_idx !== null && record.meta.isMine) {
+            if (record.raw._legacy.retweeted) {
+                contextMenu.retweet = {
+                    name : browser.i18n.getMessage('tweetUndoRetweet'),
+                    icon : 'fas fa-retweet fa-fw'
+                };
+            }
+            // 通常のツイート
+            else {
+                contextMenu.retweet = {
+                    name : browser.i18n.getMessage('tweetRetweet'),
+                    icon : 'fas fa-retweet fa-fw'
+                };
+            }
+            // protected
+            if (record.raw._retweeted_status_idx === null && record.raw._userinfo.protected) {
+                contextMenu.retweet.disabled = true;
+            }
+        };
+        // 引用リツイート
+        contextMenu.quote = {
+            name : browser.i18n.getMessage('tweetQuote'),
+            icon : 'fas fa-quote-right fa-fw'
+        };
+        // 引用してRT
+        contextMenu.rt = {
+            name : browser.i18n.getMessage('tweetRt'),
+            icon : 'fas fa-angle-double-right fa-fw'
+        };
+        // お気に入り
+        if (record.raw._legacy.favorited) {
+            $tweetContent.attr('data-favorited', 'true');
+            // お気に入り解除
+            contextMenu.favorite = {
+                name    : browser.i18n.getMessage('tweetUnfavorite'),
+                icon    : 'far fa-heart fa-fw',
+                visible : function() { return document.body.dataset.menuFavorite == 'true'; }
+            };
+        }
+        else {
+            // お気に入り追加
+            contextMenu.favorite = {
+                name    : browser.i18n.getMessage('tweetFavorite'),
+                icon    : 'fas fa-heart fa-fw',
+                visible : function() { return document.body.dataset.menuFavorite == 'true'; }
+            };
+        }
+        // ツイートテキスト
+        contextMenu.showtext = {
+            name : browser.i18n.getMessage('tweetShowtext'),
+            icon : 'fas fa-clipboard fa-fw'
+        };
+        // ツイートを開く
+        contextMenu.opentweeturl = {
+            name : browser.i18n.getMessage('tweetOpentweeturl'),
+            icon : 'fas fa-external-link-alt fa-fw'
+        };
+        // 会話
+        // TODO リファレンスツイート
+        if (!/_reply_/.test(fullboxid) && record.raw._retweeted_status_idx !== null
+            ? record.raw.referenced_tweets[record.raw._retweeted_status_idx]._tweet.raw.in_reply_to_status_id_str
+            : record.raw.in_reply_to_status_id_str) {
+
+            $tweetContent.attr('data-inreply', 'true');
+            contextMenu.showreply = {
+                name    : browser.i18n.getMessage('tweetShowreply'),
+                icon    : 'fas fa-comments fa-fw',
+                visible : function() { return document.body.dataset.menuConversation == 'true'; }
+            };
+        }
+        // 削除
+        if (record.meta.isMine)
+            contextMenu.destroy = {
+                name : browser.i18n.getMessage('tweetDestroy'),
+                icon : 'fas fa-trash fa-fw'
+            };
+        // リツイートされたツイート
+        if (record.raw.public_metrics.retweet_count)
+            contextMenu.showretweetedusers = {
+                name : browser.i18n.getMessage('tweetShowretweetedusers'),
+                icon : 'fas fa-users fa-fw'
+            };
+        // 既にメタデータ取得済み
+        // TODO リツイートした人は別窓へ
+        if (record.meta.retweeters) {
+            let $tweetRetweeterList = $tweetContent.find('.tweetRetweeterList'),
+                $imageTemplate      = $tweetContent.find('.tweetRetweeterImage').clone().attr('src', '').addClass('my-1');
+
+            for (let rt of record.meta.retweeters)
+                $imageTemplate.clone().attr(rt).appendTo($tweetRetweeterList);
+        }
+        // スクリーンネーム
+        if (record.meta.screennames.length) {
+            contextMenu.users = {
+                name  : browser.i18n.getMessage('tweetUsers'),
+                icon  : 'fas fa-user-circle fa-fw',
+                items : {}
+            };
+            for (let sn of record.meta.screennames) {
+                contextMenu.users.items[sn] = {
+                    name : sn,
+                    icon : 'fas fa-at fa-fw',
+                    callback : (key, opt) => {
+                        TwitSideModule.ManageWindows.openWindow('profile', {
+                            userid  : this.getActiveColumn().attr('data-userid'),
+                            keyword : sn
+                        }, this._win_type === TwitSideModule.WINDOW_TYPE.MAIN ? fg.id : TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
+                    }
+                };
+            }
+        }
+        // ハッシュタグ
+        if (entities.hashtags && entities.hashtags.length) {
+            contextMenu.hashtags = {
+                name  : browser.i18n.getMessage('tweetHashtags'),
+                icon  : 'fas fa-tag fa-fw',
+                items : {}
+            };
+            for (let ht of entities.hashtags) {
+                contextMenu.hashtags.items['#'+ht.tag] = {
+                    name : '#'+ht.tag,
+                    icon : 'fas fa-hashtag fa-fw',
+                    callback : (key, opt) => {
+                        TwitSideModule.ManageWindows.openWindow('search', {
+                            userid  : this.getActiveColumn().attr('data-userid'),
+                            keyword : '#'+ht.tag
+                        }, this._win_type === TwitSideModule.WINDOW_TYPE.MAIN ? fg.id : TwitSideModule.ManageWindows.getOpenerId(SUFFIX));
+                    }
+                };
+            }
+        }
+        // URLの数だけメニュー化＆本文置換 (r.raw)
+        contextMenu.urls = {
+            name  : browser.i18n.getMessage('tweetUrls'),
+            icon  : 'fas fa-link fa-fw',
+            items : {},
+            visible : function() { return document.body.dataset.menuUrl == 'true'; }
+        };
+        if (entities.urls) {
+            const $tweetText      = $tweetContent.find('.tweetText'),
+                  $tweetThumbnail = $tweetContent.find('.tweetThumbnail'),
+                  $templateImg    = $('#templateContainer > .tweetThumbnailImage');
+            let index = 0;
+
+            for (let url of entities.urls) {
+                index++;
+                // 右クリックメニュー
+                contextMenu.urls.items['url'+index] = {
+                    name : url.display_url,
+                    icon : 'fas fa-external-link-alt fa-fw',
+                    callback : (key, opt) => { openURL(url.url); }
+                };
+
+                // URL置換先オブジェクト
+                const $span = $('<span class="text-link" />').text(
+                    TwitSideModule.config.getPref('exURL')
+                        ? (TwitSideModule.config.getPref('exURL_cut')
+                           ? url.display_url : url.expanded_url)
+                        : url.url)
+                      .attr({
+                          title          : url.expanded_url,
+                          'data-fullurl' : url.url
+                      })
+                      .on('click', () => { openURL(url.url); });
+                // URL置換
+                UI.insertNodeIntoText($tweetText[0], url.url, $span[0]);
+                // rawcontent置換
+                $tweetBox.attr('data-rawcontent',
+                               $tweetBox.attr('data-rawcontent').replace(url.url, url.expanded_url));
+            }
+
+            // サムネイル
+            if (record.raw.attachments && record.raw.attachments._media) {
+                for (let media of record.raw.attachments._media) {
+                    // TODO 後追い読み込み
+                    if (!media) {
+                        continue;
+                    }
+                    const $thumbimg = $templateImg.clone();
+                    switch (media.type) {
+                    case 'photo':
+                        $thumbimg.attr({
+                            src            : media.url + ':medium',
+                            'data-fullurl' : media.url
+                        }).appendTo($tweetThumbnail);
+                        break;
+                    case 'video':
+                        $thumbimg.attr({
+                            src            : media.preview_image_url,
+                            // TODO
+                            'data-fullurl' : ''
+                        }).appendTo($tweetThumbnail);
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+            delete contextMenu.urls;
+        }
+
+        // Quote (r.raw)
+        if (!parentTweetid) {
+            // ツイートが引用している場合
+            if (r.raw._quoted_status_idx !== null) {
+                // 引用ボックス作成
+                // リファレンスあり
+                const ref_retweet = r.raw.referenced_tweets[r.raw._quoted_status_idx];
+                if (ref_retweet && ref_retweet._tweet) {
+                    const result = this._createTweetBoxV2(type, r.raw.referenced_tweets[r.raw._quoted_status_idx]._tweet, columnid, record.raw.id_str);
+                    if (result)
+                        $tweetInline.append(result);
+                }
+                // リファレンスなし 遅延読み込み
+                else
+                    $tweetInline.append(this._createTweetBoxLazyV2(type, r.raw.referenced_tweets[r.raw._quoted_status_idx].id, columnid, record.raw.id_str));
+            }
+        }
+        // コンテクストメニューを登録
+        $tweetBox[0].contextMenuItems = contextMenu;
+
+        return $tweetBox[0];
+    },
+    // ツイート用 (V2)
+    _createTweetBoxLazyV2 : function(type, tweetid, columnid, parentTweetid) {
+        const $tweetBox = this.$tweetBoxLazyTemplate.clone();
+
+        // 属性設定
+        $tweetBox.attr({
+            'data-tweetid'  : tweetid,
+            'data-parentid' : parentTweetid || ''
+        });
+
+        return $tweetBox[0];
+    },
     // リスト用
     _createListTweetBox : function(type, record, columnid) {
         const fullboxid = columnid+'_'+record.meta.boxid;

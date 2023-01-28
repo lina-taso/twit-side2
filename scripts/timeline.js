@@ -837,17 +837,22 @@ class Timeline {
     async _sendQuery(optionsHash) {
         switch (this._tl_type) {
         case TwitSideModule.TL_TYPE.TIMELINE:
+        case TwitSideModule.TL_TYPE.TIMELINE_V2:
             return await this._tweet.timeline(optionsHash);
         case TwitSideModule.TL_TYPE.CONNECT:
+        case TwitSideModule.TL_TYPE.CONNECT_V2:
             return await this._tweet.connect(optionsHash);
         case TwitSideModule.TL_TYPE.RETWEETED:
             return await this._tweet.retweeted(optionsHash);
         case TwitSideModule.TL_TYPE.LISTTIMELINE:
             return await this._tweet.listTimeline(optionsHash);
         case TwitSideModule.TL_TYPE.TEMP_USERTIMELINE:
+        case TwitSideModule.TL_TYPE.TEMP_USERTIMELINE_V2:
             return await this._tweet.userTimeline(optionsHash);
         case TwitSideModule.TL_TYPE.FAVORITE:
+        case TwitSideModule.TL_TYPE.FAVORITE_V2:
         case TwitSideModule.TL_TYPE.TEMP_FAVORITE:
+        case TwitSideModule.TL_TYPE.TEMP_FAVORITE_V2:
             return await this._tweet.favoritelist(optionsHash);
         case TwitSideModule.TL_TYPE.SEARCH:
         case TwitSideModule.TL_TYPE.TEMP_SEARCH:
@@ -1376,6 +1381,899 @@ class Timeline {
             tl_type  : this._tl_type,
             columnid : this._columnid
         }, null, this._win_type);
+    }
+}
+
+
+
+
+/**************
+ * TimelineV2 *
+ **************/
+class TimelineV2 extends Timeline {
+
+    constructor(tl_type, columnid, userinfo_hash, win_type) {
+        super(tl_type, columnid, userinfo_hash, win_type);
+        this._defaultOptions = () => { return {
+            'expansions' : [
+                'attachments.poll_ids',
+                'attachments.media_keys',
+                'author_id',
+                'edit_history_tweet_ids',
+                'entities.mentions.username',
+                'geo.place_id',
+                'in_reply_to_user_id',
+                'referenced_tweets.id',
+                'referenced_tweets.id.author_id'
+            ].join(','),
+
+            'media.fields' : [
+                'duration_ms',
+                'height',
+                'media_key',
+                'preview_image_url',
+                'type',
+                'url',
+                'width',
+                'public_metrics',
+                //'non_public_metrics',
+                //'organic_metrics',
+                //'promoted_metrics',
+                'alt_text',
+                'variants'
+            ].join(','),
+
+            'place.fields' : [
+                'contained_within',
+                'country',
+                'country_code',
+                'full_name',
+                'geo',
+                'id',
+                'name',
+                'place_type'
+            ].join(','),
+
+            'poll.fields' : [
+                'duration_minutes',
+                'end_datetime',
+                'id',
+                'options',
+                'voting_status'
+            ].join(','),
+
+            'tweet.fields' : [
+                'attachments',
+                'author_id',
+                'context_annotations',
+                'conversation_id',
+                'created_at',
+                'edit_controls',
+                'entities',
+                'geo',
+                'id',
+                'in_reply_to_user_id',
+                'lang',
+                'public_metrics',
+                //'non_public_metrics',
+                //'organic_metrics',
+                //'promoted_metrics',
+                'possibly_sensitive',
+                'referenced_tweets',
+                'reply_settings',
+                'source',
+                'text',
+                'withheld'
+            ].join(','),
+
+            'user.fields' : [
+                'created_at',
+                'description',
+                'entities',
+                'id',
+                'location',
+                'name',
+                'pinned_tweet_id',
+                'profile_image_url',
+                'protected',
+                'public_metrics',
+                'url',
+                'username',
+                'verified',
+                'withheld'
+            ].join(',')
+        }}
+        this._target_userid = null;
+
+        TwitSideModule.debug.log('timeline.js: initialized columnid '+ JSON.stringify(columnid || {}) + ' (V2)');
+    }
+
+    // 読み込みパラメータ
+    set getNewerHashV2(options_hash) {
+        this._getNewerHashV2 = Object.assign(this._defaultOptions(), options_hash);
+    }
+    get getNewerHashV2() {
+        return Object.assign({}, this._getNewerHashV2);
+    }
+    set getOlderHashV2(options_hash) {
+        this._getOlderHashV2 = Object.assign(this._defaultOptions(), options_hash);
+    }
+    get getOlderHashV2() {
+        return Object.assign({}, this._getOlderHashV2);
+    }
+    // TEMP用
+    // target_userid
+    set target_userid(user_id) {
+        this._target_userid = user_id;
+    }
+    get target_userid() {
+        return this._target_userid;
+    }
+
+
+    /**
+     * V2 + V1 ツイート取得
+     * getNewer
+     */
+    async getNewer(notif) {
+        const error = (result) => {
+            // 状態遷移
+            this._state = TwitSideModule.TL_STATE.STOPPED;
+            TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.STATE_CHANGED,
+                columnid : this._columnid,
+                state    : this._state
+            }, null, this._win_type);
+
+            this._reportError(result);
+            return Promise.reject();
+        };
+
+        // 通知
+        notif = notif == null ? true : notif;
+
+        // Twitterに送信するオプション
+        const optionsHashV2 = this.getNewerHashV2;
+        const optionsHashV1 = this.getNewerHash;
+
+        // 重複読み込み禁止
+        if (this._state !== TwitSideModule.TL_STATE.STOPPED
+            && this._state !== TwitSideModule.TL_STATE.STARTED)
+            return;
+        // 自動再読込停止
+        this.stopAutoReload();
+
+        // 状態遷移
+        this._state = TwitSideModule.TL_STATE.STARTING;
+        TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.STATE_CHANGED,
+            columnid : this._columnid,
+            state    : this._state
+        }, null, this._win_type);
+
+        // 読み込み
+        const [resultV2, resultV1] = await Promise.all([this._sendQueryV2(optionsHashV2), this._sendQuery(optionsHashV1)]).catch(error);
+
+//        // フィルタ（読み込み済以外の件数）
+//        const filteredLength = resultV2.data.data.filter((el) => {
+//            return this.record.ids.indexOf((ZERO_FILL + el.id).slice(-ZERO_FILL_LEN)) < 0;
+//        }).length;
+//
+//        // more確認
+//        const more = this.record.ids.length
+//              ? (filteredLength > Math.ceil(optionsHashV2.max_result * 0.5))
+//              : (resultV2.data.data.length > 5);
+
+        // more確認 next_token
+        const more = resultV2.data.meta.next_token !== null;
+
+        // 受信データを登録
+        const tweets = await this._saveTweetsV2(resultV2.data, resultV1, more, notif);
+        await TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.TWEET_LOADED,
+            tweets   : tweets,
+            tl_type  : this._tl_type,
+            columnid : this._columnid,
+            keep_position : true
+        }, null, this._win_type);
+
+        // 状態遷移
+        this._state = TwitSideModule.TL_STATE.STOPPED;
+        TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.STATE_CHANGED,
+            columnid : this._columnid,
+            state    : this._state
+        }, null, this._win_type);
+
+        // 自動再読込開始
+        if (this._autoReloadEnabled) this.startAutoReload();
+    }
+    /**
+     * V2 + V1 ツイート取得
+     * getOlder
+     */
+    async getOlder() {
+        const error = (result) => {
+            // 状態遷移
+            this._state2 = TwitSideModule.TL_STATE.STOPPED;
+            TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.STATE_CHANGED,
+                columnid : this._columnid,
+                state    : TwitSideModule.TL_STATE.LOADED
+            }, null, this._win_type);
+
+            this._reportError(result);
+            return Promise.reject();
+        };
+
+        const moreid = this.record.ids[this.record.ids.length-1];
+        // moreidがmoreじゃないとき（読み込み完了時）
+        if (!/_more$/.test(moreid)) return;
+
+        // Twitterに送信するオプション
+        const optionsHashV2 = this.getOlderHashV2;
+        const optionsHashV1 = this.getOlderHash;
+
+        // 読み込み範囲（これより小さい＝古い）
+        if (this.record.data[moreid].meta.next_token)
+            optionsHashV2.pagination_token = this.record.data[moreid].meta.next_token;
+        else
+            optionsHashV2.until_id = this.record.data[moreid].meta.oldest_id;
+        optionsHashV1.max_id = this.record.data[moreid].meta.oldest_id;
+
+        // 重複読み込み禁止
+        if (this._state2 !== TwitSideModule.TL_STATE.STOPPED) return;
+
+        // 状態遷移
+        this._state2 = TwitSideModule.TL_STATE.LOADING;
+        TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.STATE_CHANGED,
+            columnid : this._columnid,
+            state    : this._state2
+        }, null, this._win_type);
+
+        // 読み込み
+        const [resultV2, resultV1] = await Promise.all([this._sendQueryV2(optionsHashV2), this._sendQuery(optionsHashV1)]).catch(error);
+
+//        // フィルタ（読み込み済のものは除去）
+//        result.data = result.data.filter((el) => {
+//            return this.record.ids.indexOf((ZERO_FILL + el.id_str).slice(-ZERO_FILL_LEN)) < 0;
+//        });
+//
+//        // more確認
+//        const more = this.record.ids.length
+//              ? (result.data.length > Math.ceil(optionsHash.count * 0.5))
+//              : (result.data.length > 5);
+
+        // more確認 next_token
+        const more = resultV2.data.meta.next_token !== null;
+
+        // 受信データを登録
+        const tweets = await this._saveTweetsV2(resultV2.data, resultV1, more);
+        await TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.TWEET_LOADED,
+            tweets   : tweets,
+            tl_type  : this._tl_type,
+            columnid : this._columnid
+        }, null, this._win_type);
+
+        await this._removeTweets([moreid]);
+
+        // 状態遷移
+        this._state2 = TwitSideModule.TL_STATE.STOPPED;
+        TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.STATE_CHANGED,
+            columnid : this._columnid,
+            state    : TwitSideModule.TL_STATE.LOADED
+        }, null, this._win_type);
+    }
+    /**
+     * V2 + V1 ツイート取得
+     * getMore
+     */
+    async getMore(moreid) {
+        const error = (result) => {
+            // 状態遷移
+            this._state2 = TwitSideModule.TL_STATE.STOPPED;
+            TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.STATE_CHANGED,
+                columnid : this._columnid,
+                state    : TwitSideModule.TL_STATE.LOADED
+            }, null, this._win_type);
+
+            this._reportError(result);
+            return Promise.reject();
+        };
+
+        // Twitterに送信するオプション
+        const optionsHashV2 = this.getOlderHashV2;
+        const optionsHashV1 = this.getOlderHash;
+
+        const minindex = this.record.ids.indexOf(moreid) + 1;
+        if (minindex >= this.record.ids.length) {
+            await this.getOlder();
+            return;
+        }
+
+        // 読み込み範囲（これより小さい＝古い）
+        if (this.record.data[moreid].meta.next_token)
+            optionsHashV2.pagination_token = this.record.data[moreid].meta.next_token;
+        else
+            optionsHashV2.until_id = this.record.data[moreid].meta.oldest_id;
+        optionsHashV1.max_id = this.record.data[moreid].meta.oldest_id;
+
+        // これ以降は読み込み済
+        const minid = this.record.data[this.record.ids[minindex]].raw.id;
+
+        // 重複読み込み禁止
+        if (this._state2 !== TwitSideModule.TL_STATE.STOPPED) return;
+
+        // 状態遷移
+        this._state2 = TwitSideModule.TL_STATE.LOADING;
+        TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.STATE_CHANGED,
+            columnid : this._columnid,
+            state    : this._state2
+        }, null, this._win_type);
+
+        // 読み込み
+        const [resultV2, resultV1] = await Promise.all([this._sendQueryV2(optionsHashV2), this._sendQuery(optionsHashV1)]).catch(error);
+
+//        // フィルタ（読み込み済のものは除去）
+//        result.data = result.data.filter((el) => {
+//            return this.record.ids.indexOf((ZERO_FILL + el.id_str).slice(-ZERO_FILL_LEN)) < 0;
+//        });
+//
+//        // more確認
+//        const more = this.record.ids.length
+//              ? (result.data.length > Math.ceil(optionsHash.count * 0.5))
+//              : (result.data.length > 5);
+
+        // more確認 next_token && minid
+        const more = resultV2.data.meta.next_token !== null
+              || resultV2.data.meta.oldest_id <= minid;
+
+        // 受信データを登録
+        const tweets = await this._saveTweetsV2(resultV2.data, resultV1, more);
+        await TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.TWEET_LOADED,
+            tweets   : tweets,
+            tl_type  : this._tl_type,
+            columnid : this._columnid
+        }, null, this._win_type);
+
+        // 状態遷移
+        await this._removeTweets([moreid]);
+        this._state2 = TwitSideModule.TL_STATE.STOPPED;
+        TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.STATE_CHANGED,
+            columnid : this._columnid,
+            state    : TwitSideModule.TL_STATE.LOADED
+        }, null, this._win_type);
+    }
+
+    /**
+     * V2 ツイート取得
+     * _sendQuery
+     */
+    async _sendQueryV2(optionsHash) {
+        // ユーザ指定必須
+        switch (this._tl_type) {
+        case TwitSideModule.TL_TYPE.TEMP_USERTIMELINE_V2:
+        case TwitSideModule.TL_TYPE.TEMP_FAVORITE_V2:
+            if (!this._target_userid) Promise.reject();
+        }
+
+        switch (this._tl_type) {
+        case TwitSideModule.TL_TYPE.TIMELINE_V2:
+            return await this._tweet.V2usersTimelineRev(this._own_userid, optionsHash);
+        case TwitSideModule.TL_TYPE.CONNECT_V2:
+            return await this._tweet.V2mentions(this._own_userid, optionsHash);
+        case TwitSideModule.TL_TYPE.FAVORITE_V2:
+            return await this._tweet.V2likedtweets(this._own_userid, optionsHash);
+        case TwitSideModule.TL_TYPE.TEMP_USERTIMELINE_V2:
+            return await this._tweet.V2usersTweets(this._target_userid, optionsHash);
+        case TwitSideModule.TL_TYPE.TEMP_FAVORITE_V2:
+            return await this._tweet.V2likedtweets(this._target_userid, optionsHash);
+        }
+        return Promise.reject();
+    }
+
+    /**
+     * V2 ツイートを保存して変更があったid一覧を返す
+     * _sendQuery
+     */
+    async _saveTweetsV2(dataV2, dataV1, more, notif) {
+        // 更新したツイートID
+        let lastidx = null, // 最新ツイートのインデックス
+            i = 0;
+        const tweets   = [],
+              notified = [];
+
+        const mutes = this._muteEnabled
+              ? TwitSideModule.Friends.getMutes(this._own_userid) || []
+              : [],
+              noretweets = this._noretweetEnabled
+              ? TwitSideModule.Friends.getNoretweets(this._own_userid) || []
+              : [];
+
+        if (!dataV2.data) return tweets;
+
+        // dataは新しいもの順
+        for (let datum of dataV2.data) {
+            // legacyツイートマージ
+            const legacy = dataV1.data.find(e => e.id_str === datum.id);
+            if (!legacy) continue;
+            else {
+                datum._legacy = {
+                    favorited : legacy.favorited,
+                    retweeted : legacy.retweeted,
+                    source    : legacy.source
+                };
+            }
+
+            // リファレンスの埋め込み
+            this._includeReferences(datum, dataV2, dataV1);
+            // retweetのlegacyツイートマージ
+            if (datum._retweeted_status_idx !== null) {
+                const ref_retweet = datum.referenced_tweets[datum._retweeted_status_idx];
+                ref_retweet._tweet.raw._legacy = {
+                    favorited : legacy.retweeted_status.favorited,
+                    retweeted : legacy.retweeted_status.retweeted,
+                    source    : legacy.retweeted_status.source
+                };
+                // retweetのquoteのlegacyツイートマージ
+                if (ref_retweet._tweet.raw._quoted_status_idx !== null) {
+                    if (ref_retweet._tweet.raw.referenced_tweets[ref_retweet._tweet.raw._quoted_status_idx]._tweet) {
+                        ref_retweet._tweet.raw.referenced_tweets[ref_retweet._tweet.raw._quoted_status_idx]._tweet.raw._legacy = {
+                            favorited : legacy.retweeted_status.quoted_status.favorited,
+                            retweeted : legacy.retweeted_status.quoted_status.retweeted,
+                            source    : legacy.retweeted_status.quoted_status.source
+                        };
+                    }
+                    else console.log(datum);
+                }
+
+            }
+            // quoteのlegacyツイートマージ
+            if (datum._quoted_status_idx !== null) {
+                datum.referenced_tweets[datum._quoted_status_idx]._tweet.raw._legacy = {
+                    favorited : legacy.quoted_status.favorited,
+                    retweeted : legacy.quoted_status.retweeted,
+                    source    : legacy.quoted_status.source
+                };
+            }
+
+            // ID正規化
+            const target_id = this._zeroFillIdV2(datum);
+            if (!target_id) continue;
+
+            // muteの時は破棄
+            if (mutes.length) {
+                // ツイート
+                if (mutes.indexOf(datum.author_id) >= 0) {
+                    await this._removeTweets([target_id]);
+                    continue;
+                }
+                // リツイート
+                if (datum.referenced_tweets) {
+                    let ref_retweet = datum.referenced_tweets.find(e => e.type === 'retweeted');
+                    if (ref_retweet && mutes.indexOf(ref_retweet._tweet.raw.author_id) >= 0) {
+                        await this._removeTweets([target_id]);
+                        continue;
+                    }
+                }
+            }
+
+            // noretweetの時は破棄
+            if (noretweets.length && datum.referenced_tweets) {
+                let ref_retweet = datum.referenced_tweets.find(e => e.type === 'retweeted');
+                if (ref_retweet && noretweets.indexOf(ref_retweet._tweet.raw.author_id) >= 0) {
+                    await this._removeTweets([target_id]);
+                    continue;
+                }
+            }
+
+            // TwitSideミュート
+            if (this._muteEnabled && TwitSideModule.config.getPref('mute_ts')) {
+                // リツイート
+                if (datum.referenced_tweets) {
+                    let ref_retweet = datum.referenced_tweets.find(e => e.type === 'retweeted');
+                    // 投稿者
+                    if (ref_retweet && TwitSideModule.Mutes.checkMuteUsers([ref_retweet._tweet.raw.author_id])) {
+                        await this._removeTweets([target_id]);
+                        continue;
+                    }
+                    // テキスト
+                    if (ref_retweet && TwitSideModule.Mutes.checkMuteKeywords(ref_retweet._tweet.meta.text)) {
+                        await this._removeTweets([target_id]);
+                        continue;
+                    }
+                }
+                // 投稿者
+                if (TwitSideModule.Mutes.checkMuteUsers([datum.author_id])) {
+                    await this._removeTweets([target_id]);
+                    continue;
+                }
+                // テキスト
+                if (TwitSideModule.Mutes.checkMuteKeywords(datum.text)) {
+                    await this._removeTweets([target_id]);
+                    continue;
+                }
+            }
+
+            // メタデータ確認
+            const meta = this._getMetadataV2(datum, target_id);
+            this.record.data[target_id] = {
+                meta : meta,
+                raw  : structuredClone(datum)
+            };
+
+            // 新規ID
+            const exidx = this.record.ids.indexOf(target_id);
+            if (exidx < 0) {
+                // ID一覧更新
+                const len = this.record.ids.length;
+
+                // 挿入ソート（前から、新しいものから）
+                for (i; i<=len; i++) {
+                    // 末尾
+                    if (i == len) {
+                        this.record.ids.push(target_id);
+                        lastidx = i+1;
+                        break;
+                    }
+                    if (this.record.ids[i] < target_id) {
+                        this.record.ids.splice(i, 0, target_id);
+                        lastidx = i+1;
+                        break;
+                    }
+                }
+            }
+            // 既存ID
+            else lastidx = exidx + 1;
+
+            // 通知チェック
+            if (this._notifEnabled
+                && this._tl_type === TwitSideModule.TL_TYPE.TIMELINE_V2
+                && target_id > TwitSideModule.ManageColumns.getLastNotifyId(this._columnid)) {
+                // 自分宛
+                if (meta.isForMe && typeof datum._retweeted_status_idx === null
+                    && TwitSideModule.config.getPref('notif_forme')) {
+
+                    // 最終通知
+                    notified.push(target_id);
+
+                    notif && TwitSideModule.Message.showNotification({
+                        userid  : this._own_userid,
+                        title   : browser.i18n.getMessage('newMention', ['@' + datum._userinfo.username]),
+                        icon    : datum._userinfo.profile_image_url.replace('_normal.', '.'),
+                        content : meta.text
+                    });
+                }
+                // 自分宛リツイート
+                else if (meta.isForMe && typeof datum._retweeted_status_idx !== null
+                         && TwitSideModule.config.getPref('notif_forme_retweeted')) {
+                    // 最終通知
+                    notified.push(target_id);
+
+                    notif && TwitSideModule.Message.showNotification({
+                        userid  : this._own_userid,
+                        title   : browser.i18n.getMessage('newRetweet', ['@' + datum._userinfo.username]),
+                        icon    : datum._userinfo.profile_image_url.replace('_normal.', '.'),
+                        content : meta.text
+                    });
+                }
+            }
+
+            // 更新データ（新しいもの順のはず）
+            tweets.push(target_id);
+        }
+        // 更新データ（改めて新しいもの順）
+        tweets.sort().reverse();
+
+        // 通知チェック
+        // すべてのツイート（1つのみ表示）
+        if (notif && this._notifEnabled
+            && this._tl_type === TwitSideModule.TL_TYPE.TIMELINE_V2
+            && TwitSideModule.config.getPref('notif_all')
+            && tweets.length) {
+
+            // 最新ツイートIDが既存のIDより新しい
+            if (tweets[0] > this.record.ids[0]) {
+                const target_user = tweets[0]._userinfo.username;
+                const target_user_icon = tweets[0]._userinfo.profile_image_url.replace('_normal.', '.');
+                TwitSideModule.Message.showNotification({
+                    userid  : this._own_userid,
+                    title   : browser.i18n.getMessage('newTweet', ['@' + target_user]),
+                    icon    : target_user_icon,
+                    content : tweets[0].text
+                }, true);
+            }
+        }
+//        // 検索
+//        if (this._notifEnabled
+//            && this._tl_type === TwitSideModule.TL_TYPE.SEARCH
+//            && tweets[0] > TwitSideModule.ManageColumns.getLastNotifyId(this._columnid)) {
+//
+//            // 最新ツイートIDが既存のIDより新しい
+//            const filteredTweets = tweets.filter(id => id > TwitSideModule.ManageColumns.getLastNotifyId(this._columnid));
+//
+//            if (filteredTweets.length) {
+//                // 最終通知
+//                notified.push(filteredTweets[0]);
+//
+//                notif && TwitSideModule.Message.showNotification({
+//                    userid  : this._own_userid,
+//                    title   : browser.i18n.getMessage('newSearched', [filteredTweets.length]),
+//                    content : browser.i18n.getMessage('newSearchQuery') + this._getNewerHash.q
+//                }, true);
+//
+//            }
+//        }
+
+        // 最終通知ID更新
+        if (notified.length)
+            await TwitSideModule.ManageColumns.setLastNotifyId(this._columnid, notified[0]);
+
+        // more格納
+        if (more && dataV2.data.length) {
+            // 連続するmoreを防止
+            if (/_more$/.test(this.record.ids[lastidx]))
+                await this._removeTweets([this.record.ids[lastidx]]);
+
+            const oldestid = dataV2.data[dataV2.data.length-1].id;
+            const moreid = (ZERO_FILL + oldestid).slice(-ZERO_FILL_LEN) + '_more';
+            this.record.data[moreid] = {
+                meta : { boxid      : moreid,
+                         oldest_id  : oldestid,
+                         next_token : dataV2.meta.next_token },
+                raw  : { id         : moreid,
+                         id_str     : moreid }
+            };
+            this.record.ids.splice(lastidx, 0, moreid);
+            tweets.push(moreid);
+        }
+        return tweets;
+    }
+
+    /**
+     * V2 IDゼロフィル
+     * _zeroFillIdV2
+     */
+    _zeroFillIdV2(datum) {
+        if (datum.id)
+            datum.id_str = (ZERO_FILL + datum.id).slice(-ZERO_FILL_LEN);
+        else return null; // 不正なデータ
+        return datum.id_str;
+    }
+
+    /**
+     * V2 メタデータの作成
+     * _getMetadataV2
+     */
+    _getMetadataV2(datum, boxid) {
+        if (!datum._includedReferences) return;
+
+        const meta = {
+            V2      : true,
+            boxid   : boxid,
+            isMine  : datum.author_id === this._own_userid,
+            isForMe : false
+        };
+
+        if (datum._retweeted_status_idx !== null) {
+            let ref_retweet = datum.referenced_tweets[datum._retweeted_status_idx]._tweet;
+            if (ref_retweet) ref_retweet.meta = this._getMetadataV2(ref_retweet.raw, boxid+'_inline_'+ref_retweet.raw.id);
+        }
+        else if (datum._quoted_status_idx !== null) {
+            let ref_retweet = datum.referenced_tweets[datum._quoted_status_idx]._tweet;
+            if (ref_retweet) ref_retweet.meta = this._getMetadataV2(ref_retweet.raw, boxid+'_inline_'+ref_retweet.raw.id);
+        }
+
+        meta.entities = datum.entities;
+        meta.text = datum.text;
+        // display_text_range
+        meta.start = 0;
+        if (datum.entities && datum.entities.mentions) {
+            datum.entities.mentions.forEach((ref, i) => {
+                if (i === 0 && ref.start === 0) meta.start = ref.end + 1;
+                else if (ref.start === meta.start) meta.start = ref.end + 1;
+            });
+        }
+        // ユーザ一覧
+        meta.screennames = ['@' + datum._userinfo.username];
+        meta.userids = [datum._userinfo.id];
+        // 最近のスクリーンネーム更新
+        TwitSideModule.Friends.updateLatestFriends(datum._userinfo);
+
+        // メンション
+        if (meta.entities && meta.entities.mentions) {
+            for (let mention of meta.entities.mentions) {
+                meta.screennames.push('@' + mention.username);
+                if (mention.id === this._own_userid)
+                    // 自分宛
+                    meta.isForMe = true;
+            }
+        }
+        // 自分宛
+        if (datum.in_reply_to_user_id && datum.in_reply_to_user_id === this._own_userid)
+            meta.isForMe = true;
+
+        meta.screennames = meta.screennames.filter((x, i, self) => self.indexOf(x) === i); // 重複削除
+        meta.userids = meta.userids;
+
+        return meta;
+    }
+
+    // リファレンスツイート埋め込み (V2)
+    _includeReferences(datum, data) {
+        datum._retweeted_status_idx = null;
+        datum._quoted_status_idx = null;
+        // tweet
+        if (datum.referenced_tweets) {
+            datum.referenced_tweets.forEach((ref, i) => {
+                const raw = structuredClone(data.includes.tweets.find(e => e.id === ref.id));
+                if (raw) {
+                    // ID正規化
+                    this._zeroFillIdV2(raw);
+                    ref._tweet = {
+                        meta : {},
+                        raw  : raw
+                    };
+                    // リファレンスのリファレンス
+                    this._includeReferences(ref._tweet.raw, data);
+                }
+                if (ref.type === 'retweeted') datum._retweeted_status_idx = i;
+                if (ref.type === 'quoted')    datum._quoted_status_idx = i;
+            });
+        }
+        if (data.includes) {
+            // mention
+            if (datum.entities && datum.entities.mentions && data.includes.users) {
+                datum.entities.mentions.forEach((ref, i) => {
+                    ref._userinfo = structuredClone(data.includes.users.find(e => e.id === ref.id));
+                    if (ref._userinfo) ref._userinfo.id_str = ref._userinfo.id;
+                });
+            }
+            // media (attachments._media)
+            if (datum.attachments && datum.attachments.media_keys && data.includes.media) {
+                datum.attachments._media = [];
+                datum.attachments.media_keys.forEach((key, i) => {
+                    datum.attachments._media[i] = structuredClone(data.includes.media.find(e => e.media_key === key));
+                });
+            }
+            // poll (attachments._polls)
+            if (datum.attachments && datum.attachments.poll_ids && data.includes.polls) {
+                datum.attachments._polls = [];
+                datum.attachments.poll_ids.forEach((id, i) => {
+                    datum.attachments._polls[i] = structuredClone(data.includes.polls.find(e => e.id === id));
+                });
+            }
+            // place (_place)
+            if (datum.geo && data.includes.places)
+                datum._place = structuredClone(data.includes.places.find(e => e.id === datum.geo.place_id));
+
+            // userinfo (_userinfo)
+            if (datum.author_id && data.includes.users) {
+                datum._userinfo = structuredClone(data.includes.users.find(e => e.id === datum.author_id));
+                if (datum._userinfo) datum._userinfo.id_str = datum._userinfo.id;
+            }
+        }
+
+        datum._includedReferences = true;
+        return;
+    }
+
+    /**
+     * V2 メンテナンス系 過去ツイートの削除
+     * _clearOlder
+     */
+    async _clearOlder() {
+        const count = this.getNewerHashV2.max_results + this.getOlderHashV2.max_results;
+
+         // 削除不要
+        if (!this.record.ids.length) return;
+        if (this.record.ids.length <= count + 1) return;
+
+        // 過去ツイートの削除
+        // 削除後の末尾がmoreの場合は、追加で削除
+        if (/_more$/.test(this.record.ids[count*2]))
+            await this._removeTweets(this.record.ids.slice(count));
+        else
+            await this._removeTweets(this.record.ids.slice(count + 1));
+
+        // more追加
+        const lastid = this.record.ids[this.record.ids.length - 1];
+        if (!/_more$/.test(lastid)) {
+            // レコードの最終IDから
+            const moreid   = lastid + '_more',
+                  oldestid = this.record.data[lastid].raw.id;
+            this.record.data[moreid] = {
+                meta : { boxid     : moreid,
+                         oldest_id : oldestid },
+                raw  : { id        : moreid,
+                         id_str    : moreid }
+            };
+            this.record.ids.push(moreid);
+
+            await TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.TWEET_LOADED,
+                tweets   : [moreid],
+                tl_type  : this._tl_type,
+                columnid : this._columnid
+            }, null, this._win_type);
+        }
+    }
+    /**
+     * V2 リツイート
+     * retweet
+     */
+    async retweet(boxid) {
+        const error = (result) => {
+            TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
+                action   : 'retweet',
+                result   : 'failed',
+                boxid    : boxid,
+                columnid : this._columnid,
+                message  : TwitSideModule.Message.transMessage(result)
+            }, null, this._win_type);
+
+            return Promise.reject();
+        };
+
+        // 回数制限
+        const limitHistory = JSON.parse(TwitSideModule.config.getPref('limit_retweet'));
+        if (!TwitSideModule.config.debug
+            && limitHistory.length >= LIMIT_RETWEET_CNT
+            && TwitSideModule.text.getUnixTime() - (limitHistory[0] || 0) < LIMIT_RETWEET_TERM) {
+            this._reportError('retweetLimit');
+            return;
+        }
+
+        const idPath   = boxid.split('_'),
+              //isQuote  = /_inline_/.test(boxid),
+              parentId = idPath[0].replace(/^0+/, ''),
+              targetId = idPath.pop().replace(/^0+/, '');
+
+        const result = await this._tweet.retweet({}, targetId).catch(error);
+
+        // アクション完了
+        TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
+            action   : 'retweet',
+            result   : 'success',
+            boxid    : boxid,
+            columnid : this._columnid
+        }, null, this._win_type);
+
+        // 回数制限
+        while (limitHistory.length >= LIMIT_RETWEET_CNT) limitHistory.shift();
+        limitHistory.push(TwitSideModule.text.getUnixTime());
+        await TwitSideModule.config.setPref('limit_retweet', JSON.stringify(limitHistory));
+
+        // ツイート再読込
+        const [resultV2_show, resultV1_show] = await Promise.all([this._tweet.V2tweet(parentId, this._defaultOptions()), this._tweet.show({ id : parentId })]).catch(error);
+        // 配列化
+        resultV2_show.data.data = [resultV2_show.data.data];
+        resultV1_show.data = [resultV1_show.data];
+
+        // 受信データを登録
+        const tweets = await this._saveTweetsV2(resultV2_show.data, resultV1_show);
+        await TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.REPLACE_LOADED,
+            tweets   : tweets,
+            tl_type  : this._tl_type,
+            columnid : this._columnid
+        }, null, this._win_type);
+    }
+// TODO
+    /**
+     * V2 リツイート取り消し
+     * destroyRetweet
+     */
+    async destroyRetweet(boxid) {
     }
 }
 

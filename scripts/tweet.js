@@ -623,7 +623,26 @@ class Tweet {
         });
     }
 
+<<<<<<< Updated upstream
     // V2 ユーザータイムライン
+=======
+<<<<<<< Updated upstream
+    // Twitter API V2
+=======
+    // V2 ホームタイムライン
+    async V2usersTimelineRev(user_id, optionsHash) {
+        return await this._sendRequest('SIGNATURE', {
+            api     : 'API2',
+            method  : 'GET',
+            options : optionsHash,
+            baseurl : TwitSideModule.urls.twit.api2Base,
+            url     : TwitSideModule.urls.twit.urlV2UsersIdTimelinesReverseChronological.replace(':id', user_id)
+        });
+    }
+
+    // V2 ユーザータイムライン
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     async V2usersTweets(user_id, optionsHash) {
         return await this._sendRequest('SIGNATURE', {
             api     : 'API2',
@@ -631,6 +650,72 @@ class Tweet {
             options : optionsHash,
             baseurl : TwitSideModule.urls.twit.api2Base,
             url     : TwitSideModule.urls.twit.urlV2UsersIdTweets.replace(':id', user_id)
+        });
+    }
+
+    // V2 つながり
+    async V2mentions(user_id, optionsHash) {
+        return await this._sendRequest('SIGNATURE', {
+            api     : 'API2',
+            method  : 'GET',
+            options : optionsHash,
+            baseurl : TwitSideModule.urls.twit.api2Base,
+            url     : TwitSideModule.urls.twit.urlV2UsersIdMentions.replace(':id', user_id)
+        });
+    }
+
+    // V2 指定IDのツイート複数
+    async V2tweets(optionsHash) {
+        return await this._sendRequest('SIGNATURE', {
+            api     : 'API2',
+            method  : 'GET',
+            options : optionsHash,
+            baseurl : TwitSideModule.urls.twit.api2Base,
+            url     : TwitSideModule.urls.twit.urlV2Tweets
+        });
+    }
+
+    // V2 指定IDのツイート単数
+    async V2tweet(tweet_id, optionsHash) {
+        return await this._sendRequest('SIGNATURE', {
+            api     : 'API2',
+            method  : 'GET',
+            options : optionsHash,
+            baseurl : TwitSideModule.urls.twit.api2Base,
+            url     : TwitSideModule.urls.twit.urlV2TweetsId.replace(':id', tweet_id)
+        });
+    }
+
+    // V2 指定のIDのリツイートユーザ一覧
+    async V2retweeters(tweet_id, optionsHash) {
+        return await this._sendRequest('SIGNATURE', {
+            api     : 'API2',
+            method  : 'GET',
+            options : optionsHash,
+            baseurl : TwitSideModule.urls.twit.api2Base,
+            url     : TwitSideModule.urls.twit.urlV2TweetsIdRetweetedBy.replace(':id', tweet_id)
+        });
+    }
+
+    // V2 リツイート取り消し
+    async V2destroyRetweet(user_id, tweet_id, optionsHash) {
+        return await this._sendRequest('SIGNATURE', {
+            api     : 'API2',
+            method  : 'DELETE',
+            options : optionsHash,
+            baseurl : TwitSideModule.urls.twit.api2Base,
+            url     : TwitSideModule.urls.twit.urlV2TweetsIdRetweetedBy.replace(':id', user_id).replace(':source_tweet_id', tweet_id)
+        });
+    }
+
+    // V2 ファボ一覧
+    async V2likedtweets(user_id, optionsHash) {
+        return await this._sendRequest('SIGNATURE', {
+            api     : 'API2',
+            method  : 'GET',
+            options : optionsHash,
+            baseurl : TwitSideModule.urls.twit.api2Base,
+            url     : TwitSideModule.urls.twit.urlV2UsersIdLikedTweets.replace(':id', user_id)
         });
     }
 
