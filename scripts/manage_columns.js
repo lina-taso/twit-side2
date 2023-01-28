@@ -201,9 +201,12 @@ TwitSideModule.ManageColumns = {
             // ホームタイムラインはmute, noretweet有効
             columninfo.options.mute      = true;
             columninfo.options.noretweet = true;
+            timeline.getNewerHash = { count : TwitSideModule.config.getPref('timeline_count') };
+            timeline.getOlderHash = { count : TwitSideModule.config.getPref('autopager_count')+1 };
+            break;
         default:
-            timeline.getNewerHash   = { count : TwitSideModule.config.getPref(TwitSideModule.getTimelineName(columninfo.tl_type)+'_count') };
-            timeline.getOlderHash   = { count : TwitSideModule.config.getPref('autopager_count')+1 };
+            timeline.getNewerHash = { count : TwitSideModule.config.getPref(TwitSideModule.getTimelineName(columninfo.tl_type)+'_count') };
+            timeline.getOlderHash = { count : TwitSideModule.config.getPref('autopager_count')+1 };
         }
 
         // オプション再読込
