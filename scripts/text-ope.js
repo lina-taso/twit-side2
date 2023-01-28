@@ -103,5 +103,15 @@ TwitSideModule.text = {
             : new Date(Date.parse(date));
     },
 
-    getUnixTime : () => ~~(Date.now() / 1000)
+    getUnixTime : () => ~~(Date.now() / 1000),
+
+    formatSIprefix : (c) => {
+        if (c < 1000) return c;
+        if (c < 1000*10) return parseInt(c/100)/10 + 'K';
+        if (c < 1000*1000) return parseInt(c/1000) + 'K';
+        if (c < 1000*1000*10) return parseInt(c/1000/100)/10 + 'M';
+        if (c < 1000*1000*1000) return parseInt(c/1000/1000) + 'M';
+        if (c < 1000*1000*1000*10) return parseInt(c/1000/1000/100)/10 + 'G';
+        return parseInt(c/1000/1000/1000) + 'G';
+    }
 };
