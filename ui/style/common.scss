@@ -377,6 +377,7 @@ textarea#newTweet { resize: none; }
     width: 16px; height: 16px;
     margin: .25rem 0;
 
+    // TODO 削除予定
     &.tweetStatusRetweeted {
         color: green;
         .tweetContent &                                    { display: flex; }
@@ -511,14 +512,19 @@ textarea#newTweet { resize: none; }
     display: none;
 }
 .tweetMenuButtonBox {
-    opacity: .2;
-    &:hover { opacity: 1; }
     > .tweetMenuButton {
         display: none;
         flex-wrap: nowrap;
-        flex-grow: 1;
+        flex: 1;
         justify-content: center;
+        align-items: center;
+
+        > * { opacity: 0.2; }
+        > .count {
+            font-size: 0.8rem;
+        }
     }
+    &:hover > .tweetMenuButton > * { opacity: 1; }
 
     .column[data-column-type="follow"] &,
     .column[data-column-type="follower"] &,
@@ -529,20 +535,22 @@ textarea#newTweet { resize: none; }
     }
     // リツイート不可
     @at-root
-    .tweetContent[data-mine="true"][data-retweet="true"] > & > .tweetMenuButton[data-func="retweet"],
-    .tweetContent[data-protected="true"] > & > .tweetMenuButton[data-func="retweet"],
-    .tweetContent[data-retweeted="true"] > & > .tweetMenuButton[data-func="retweet"] {
+//    .tweetContent[data-mine="true"][data-retweet="true"] > & > .tweetMenuButton[data-func="retweet"],
+//    .tweetContent[data-retweeted="true"] > & > .tweetMenuButton[data-func="retweet"],
+    .tweetContent[data-protected="true"] > & > .tweetMenuButton[data-func="retweet"] {
         visibility: hidden;
     }
+    // リツイート済
+    @at-root
+    .tweetContent[data-retweeted="true"] > & > .tweetMenuButton[data-func="retweet"] > .fas { color: green; opacity: 1; }
     // お気に入り
     @at-root
     .tweetContent[data-favorited=""] > & > .tweetMenuButton[data-func="favorite"] > .fas { display: none; }
     // お気に入り済
     @at-root
-    .tweetContent[data-favorited="true"] > & > .tweetMenuButton[data-func="favorite"] {
-        color: deeppink;
-        > .far { display: none; }
-    }
+    .tweetContent[data-favorited="true"] > & > .tweetMenuButton[data-func="favorite"] > .fas { color: deeppink; opacity: 1; }
+    .tweetContent[data-favorited="true"] > & > .tweetMenuButton[data-func="favorite"] > .far { display: none; }
+
     // 会話内は会話ボタン非表示
     @at-root
     .tweetContent[data-inreply=""] > & > .tweetMenuButton[data-func="showreply"] { visibility: hidden; }

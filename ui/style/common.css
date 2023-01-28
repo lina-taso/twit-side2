@@ -548,31 +548,38 @@ textarea#newTweet {
 .replyTweetBox[data-open="false"] {
   display: none; }
 
-.tweetMenuButtonBox {
-  opacity: .2; }
-  .tweetMenuButtonBox:hover {
-    opacity: 1; }
-  .tweetMenuButtonBox > .tweetMenuButton {
-    display: none;
-    flex-wrap: nowrap;
-    flex-grow: 1;
-    justify-content: center; }
-  .column[data-column-type="follow"] .tweetMenuButtonBox, .column[data-column-type="follower"] .tweetMenuButtonBox, .column[data-column-type="ownershiplists"] .tweetMenuButtonBox, .column[data-column-type="subscriptionlists"] .tweetMenuButtonBox, .column[data-column-type="membershiplists"] .tweetMenuButtonBox {
-    display: none; }
-  .tweetContent[data-mine="true"][data-retweet="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"], .tweetContent[data-protected="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"], .tweetContent[data-retweeted="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"] {
-    visibility: hidden; }
-  .tweetContent[data-favorited=""] > .tweetMenuButtonBox > .tweetMenuButton[data-func="favorite"] > .fas {
-    display: none; }
-  .tweetContent[data-favorited="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="favorite"] {
-    color: deeppink; }
-    .tweetContent[data-favorited="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="favorite"] > .far {
-      display: none; }
-  .tweetContent[data-inreply=""] > .tweetMenuButtonBox > .tweetMenuButton[data-func="showreply"] {
-    visibility: hidden; }
-  [data-column-type="directmessage"] .tweetMenuButtonBox > .tweetMenuButton:not([data-func="replydm"]) {
-    display: none; }
-  [data-column-type="directmessage"] .tweetMenuButtonBox > .tweetMenuButton[data-func="replydm"] {
-    display: flex; }
+.tweetMenuButtonBox > .tweetMenuButton {
+  display: none;
+  flex-wrap: nowrap;
+  flex: 1;
+  justify-content: center;
+  align-items: center; }
+  .tweetMenuButtonBox > .tweetMenuButton > * {
+    opacity: 0.2; }
+  .tweetMenuButtonBox > .tweetMenuButton > .count {
+    font-size: 0.8rem; }
+.tweetMenuButtonBox:hover > .tweetMenuButton > * {
+  opacity: 1; }
+.column[data-column-type="follow"] .tweetMenuButtonBox, .column[data-column-type="follower"] .tweetMenuButtonBox, .column[data-column-type="ownershiplists"] .tweetMenuButtonBox, .column[data-column-type="subscriptionlists"] .tweetMenuButtonBox, .column[data-column-type="membershiplists"] .tweetMenuButtonBox {
+  display: none; }
+.tweetContent[data-protected="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"] {
+  visibility: hidden; }
+.tweetContent[data-retweeted="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"] > .fas {
+  color: green;
+  opacity: 1; }
+.tweetContent[data-favorited=""] > .tweetMenuButtonBox > .tweetMenuButton[data-func="favorite"] > .fas {
+  display: none; }
+.tweetContent[data-favorited="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="favorite"] > .fas {
+  color: deeppink;
+  opacity: 1; }
+.tweetContent[data-favorited="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="favorite"] > .far {
+  display: none; }
+.tweetContent[data-inreply=""] > .tweetMenuButtonBox > .tweetMenuButton[data-func="showreply"] {
+  visibility: hidden; }
+[data-column-type="directmessage"] .tweetMenuButtonBox > .tweetMenuButton:not([data-func="replydm"]) {
+  display: none; }
+[data-column-type="directmessage"] .tweetMenuButtonBox > .tweetMenuButton[data-func="replydm"] {
+  display: flex; }
 
 /**************
   // .tweetBox
