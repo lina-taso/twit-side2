@@ -102,14 +102,14 @@ class Timeline {
     get isDirectMessage() { return false; }
     // 読み込みパラメータ
     set getNewerHash(options_hash) {
-        this._getNewerHash = options_hash || {};
+        this._getNewerHash = Object.assign({}, options_hash);
     }
     get getNewerHash() {
         return Object.assign({}, this._getNewerHash);
     }
     // 読み込みパラメータ
     set getOlderHash(options_hash) {
-        this._getOlderHash = options_hash || {};
+        this._getOlderHash = Object.assign({}, options_hash);
     }
     get getOlderHash() {
         return Object.assign({}, this._getOlderHash);
@@ -323,7 +323,7 @@ class Timeline {
         }, null, this._win_type);
 
         // 読み込み
-        const result = await this._sendQuery(optionsHash);
+        const result = await this._sendQuery(optionsHash).catch(error);
 
         // フィルタ（読み込み済のものは除去）
         result.data = result.data.filter((el) => {
@@ -1505,14 +1505,14 @@ class DmTimeline extends Timeline {
         }, null, this._win_type);
 
         // 読み込み
-        let result = await this._sendQuery(optionsHash);
+        let result = await this._sendQuery(optionsHash).catch(error);
 
         // more確認
         let more = result.more;
 
         // DMの読み込み件数が0件の場合
         while (result.data.length == 0 && more) {
-            result = await this._sendQuery(optionsHash);
+            result = await this._sendQuery(optionsHash).catch(error);
             more   = result.more;
         }
 
@@ -1918,7 +1918,7 @@ class ListTimeline extends Timeline {
         }, null, this._win_type);
 
         // 読み込み
-        const result = await this._sendQuery(optionsHash);
+        const result = await this._sendQuery(optionsHash).catch(error);
 
         // more確認
         const more = result.more;
@@ -2342,7 +2342,7 @@ class FriendTimeline extends Timeline {
         }, null, this._win_type);
 
         // 読み込み
-        const result = await this._sendQuery(optionsHash);
+        const result = await this._sendQuery(optionsHash).catch(error);
 
         // more確認
         const more = result.more;
