@@ -843,7 +843,10 @@ class Timeline {
               ? this.record.data[parentId].quoted
               : this.record.data[parentId];
 
-        const result = await this._tweet.destroy({ }, targetId).catch(error);
+        if (targetTweet.raw.retweeted_status)
+            await this._tweet.destroy({ }, targetTweet.raw.retweeted_status.id_str).catch(error);
+        else
+            await this._tweet.destroy({ }, targetId).catch(error);
 
         // アクション完了
         TwitSideModule.windows.sendMessage({
@@ -867,8 +870,10 @@ class Timeline {
                 columnid : this._columnid
             }, null, this._win_type);
         }
+        // 削除
+        if (targetTweet.raw.retweeted_status)
+            await this._removeTweets([targetTweet.raw.retweeted_status.id_str, targetId]);
         else
-            // 削除
             await this._removeTweets([targetId]);
     }
     /*
