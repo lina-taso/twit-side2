@@ -1869,7 +1869,7 @@ const onClickRetweet = (tweetBox) => {
                            getColumnIndexFromBox(tweetBox),
                            'timeline',
                            UI._win_type
-                       ).destroyRetweet(boxid);
+                       ).unretweet(boxid);
                    },
                    TwitSideModule.config.getPref('confirm_delete'));
     }
