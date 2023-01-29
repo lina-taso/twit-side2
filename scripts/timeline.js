@@ -16,6 +16,9 @@ const networkWait        = 250,
       NINE_FILL          = '9999999999999999999999999',
       ZERO_FILL_LEN      = 25;
 
+/*
+ * Timeline V1
+ */
 class Timeline {
 
     constructor(tl_type, columnid, userinfo_hash, win_type) {
@@ -63,7 +66,10 @@ class Timeline {
         TwitSideModule.debug.log('timeline.js: initialized columnid '+ JSON.stringify(columnid || {}));
     }
 
-    // オブジェクト削除前のお掃除
+    /*
+     * オブジェクト削除前のお掃除
+     * beforeDestroy
+     */
     beforeDestroy() {
         this.stopAutoReload();
         this.stopAutoClear();
@@ -118,7 +124,10 @@ class Timeline {
     get allTweets() {
         return this.record.ids.slice();
     }
-    // 1ツイート取得
+    /*
+     * 1ツイート取得
+     * tweetinfo
+     */
     tweetInfo(boxid) {
         const idPath  = boxid.split('_'),
               isMore  = /_more$/.test(boxid),
@@ -178,7 +187,10 @@ class Timeline {
             }
         }
     }
-    // タイムラインオプション
+    /*
+     * タイムラインオプション
+     * updateOptions
+     */
     updateOptions(options) {
         // 通知
         this._notifEnabled = options.notif || false;
@@ -199,7 +211,10 @@ class Timeline {
         // 自動再読込だけ開始
         if (!options.onstart && options.autoreload) this.startAutoReload();
     }
-    // タイムラインステータスの再通知
+    /*
+     * タイムラインステータスの再通知
+     * renotifystatus
+     */
     renotifyStatus(winid) {
         TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.STATE_CHANGED,
@@ -207,7 +222,10 @@ class Timeline {
             state    : this._state
         }, winid, this._win_type);
     }
-    // エラー処理
+    /*
+     * エラー処理
+     * _reportError
+     */
     _reportError(message) {
         TwitSideModule.windows.sendMessage({
             reason   : TwitSideModule.UPDATE.ERROR,
@@ -216,8 +234,9 @@ class Timeline {
         }, null, this._win_type);
     }
 
-    /**
-     * 取得系
+    /*
+     * V1 取得系
+     * getNewer
      */
     async getNewer(notif) {
         const error = (result) => {
@@ -287,6 +306,10 @@ class Timeline {
         // 自動再読込開始
         if (this._autoReloadEnabled) this.startAutoReload();
     }
+    /*
+     * V1 取得系
+     * getOlder
+     */
     async getOlder() {
         const error = (result) => {
             // 状態遷移
@@ -354,6 +377,10 @@ class Timeline {
             state    : TwitSideModule.TL_STATE.LOADED
         }, null, this._win_type);
     }
+    /*
+     * V1 取得系
+     * getMore
+     */
     async getMore(moreid) {
         const error = (result) => {
             // 状態遷移
@@ -426,8 +453,9 @@ class Timeline {
         }, null, this._win_type);
     }
 
-    /**
+    /*
      * 自動読み込み
+     * startAutoReload
      */
     startAutoReload() {
         // 重複読み込み禁止
@@ -456,6 +484,10 @@ class Timeline {
             // インターバルに1.3倍までのゆらぎ
         }, interval * (Math.floor(Math.random()*3)/10+1));
     }
+    /*
+     * 自動読み込み停止
+     * stopAutoReload
+     */
     stopAutoReload() {
         if (this._autoReloadTimer != null) clearTimeout(this._autoReloadTimer);
         this._autoReloadTimer = null;
@@ -469,8 +501,9 @@ class Timeline {
         }, null, this._win_type);
     }
 
-    /**
+    /*
      * 自動クリア
+     * startAutoClear
      */
     startAutoClear() {
         // MAIN以外はは対象外
@@ -488,13 +521,18 @@ class Timeline {
             if (!result.includes(false)) this._clearOlder();
         }, autoClearWait);
     }
+    /*
+     * 自動クリア停止
+     * stopAutoClear
+     */
     stopAutoClear() {
         if (this._autoClearTimer != null) clearInterval(this._autoClearTimer);
         this._autoClearTimer = null;
     }
 
-    /**
-     * ツイート操作系
+    /*
+     * V1 操作系
+     * retweet
      */
     async retweet(boxid) {
         const error = (result) => {
@@ -552,6 +590,10 @@ class Timeline {
             columnid : this._columnid
         }, null, this._win_type);
     }
+    /*
+     * V1 操作系
+     * favorite
+     */
     async favorite(boxid, sw) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -601,6 +643,10 @@ class Timeline {
             }, null, this._win_type);
         }
     }
+    /*
+     * V1 操作系
+     * replies
+     */
     async replies(boxid, replyid) {
         const error = (result) => {
             this._reportError(result);
@@ -654,6 +700,10 @@ class Timeline {
         if (result.data.in_reply_to_status_id_str)
             await this.replies(boxid, result.data.in_reply_to_status_id_str);
     }
+    /*
+     * V1 操作系
+     * destroy
+     */
     async destroy(boxid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -795,6 +845,10 @@ class Timeline {
                 }).catch(error));
         }
     }
+    /*
+     * V1 操作系
+     * retweeters
+     */
     async retweeters(boxid) {
         const error = (result) => {
             this._reportError(result);
@@ -831,8 +885,9 @@ class Timeline {
         }, null, this._win_type);
     }
 
-    /**
-     * ツイート取得
+    /*
+     * 取得系振り分け
+     * _sendQuery
      */
     async _sendQuery(optionsHash) {
         switch (this._tl_type) {
@@ -860,7 +915,10 @@ class Timeline {
         return Promise.reject();
     }
 
-    // ツイートを保存して変更があったid一覧を返す
+    /*
+     * ツイートを保存して変更があったid一覧を返す
+     * _saveTweets
+     */
     async _saveTweets(data, more, notif) {
         // 更新したツイートID
         let lastidx = null, // 最新ツイートのインデックス
@@ -1081,7 +1139,10 @@ class Timeline {
         }
         return tweets;
     }
-    // IDゼロフィル
+    /*
+     * IDゼロフィル
+     * _zeroFillId
+     */
     _zeroFillId(datum) {
         if (datum.id_str)
             datum.id_str = (ZERO_FILL + datum.id_str).slice(-ZERO_FILL_LEN);
@@ -1099,7 +1160,10 @@ class Timeline {
             .slice(-ZERO_FILL_LEN);
         return datum.id_str;
     }
-    // メタデータの作成
+    /*
+     * メタデータの作成
+     * _getMetadata
+     */
     _getMetadata(datum, boxid) {
         const meta = {
             boxid   : boxid,
@@ -1124,8 +1188,8 @@ class Timeline {
         }
 
         // サードパーティ画像URLの処理
-        for (let url of meta.entities.urls)
-            this._analyzePicURL(url.expanded_url, meta);
+        //for (let url of meta.entities.urls)
+        //    this._analyzePicURL(url.expanded_url, meta);
 
         // pic.twitterの処理
         for (let media of meta.entities.media || [])
@@ -1180,116 +1244,119 @@ class Timeline {
 
         return meta;
     }
-    // サードパーティ画像URL認識
-    _analyzePicURL(url, meta) {
-        const urls = {};
-        let re;
-
-        const analyzePicApi = async (index) => {
-            switch (urls.provider) {
-            default:
-                return Promise.reject();
-            }
-
-            delete urls.loading;
-
-            // 更新通知
-            await TwitSideModule.windows.sendMessage({
-                reason   : TwitSideModule.UPDATE.IMAGE_LOADED,
-                boxid    : meta.boxid,
-                index    : index,
-                columnid : this._columnid
-            }, null, this._win_type);
-        };
-
-        urls.fullurl = url;
-        switch (true) {
-        case (re = RegExp('^https?://twitpic[.]com/(\\w+)([?].*)?$')).test(url):
-            urls.provider = 'twitpic';
-            urls.thumburl = url.replace(re, 'http://twitpic.com/show/thumb/$1');
-            urls.rawurl   = url.replace(re, 'http://twitpic.com/show/full/$1');
-            urls.id       = RegExp.$1;
-            break;
-
-        case (re = RegExp('^https?://p[.]twipple[.]jp/(\\w+)([?].*)?$')).test(url):
-            urls.provider = 'twipple';
-            urls.thumburl = url.replace(re, 'http://p.twipple.jp/show/large/$1');
-            urls.rawurl   = url.replace(re, 'http://p.twipple.jp/show/orig/$1');
-            urls.id       = RegExp.$1;
-            break;
-
-        // case (re = RegExp('^https?://instagr[.]am/p/([\\w-_]+)/([?].*)?([?].*)?$')).test(url):
-        //     urls.provider = 'instagram';
-        //     urls.thumburl = url.replace(re, 'http://instagr.am/p/$1/media/?size=l');
-        //     urls.rawurl   = url.replace(re, 'http://instagr.am/p/$1/media/?size=l');
-        //     urls.id       = RegExp.$1;
-        //     break;
-
-        // case (re = RegExp('^https?://(www[.])?instagram.com/p/([\\w-_]+)/([?].*)?$')).test(url):
-        //     urls.provider = 'instagram';
-        //     urls.thumburl = url.replace(re, 'http://instagr.am/p/$2/media/?size=l');
-        //     urls.rawurl   = url.replace(re, 'http://instagr.am/p/$2/media/?size=l');
-        //     urls.id       = RegExp.$2;
-        //     break;
-
-        case (re = RegExp('^https?://movapic[.]com/pic/(\\w+)([?].*)?$')).test(url):
-            urls.provider = 'movapic';
-            urls.thumburl = url.replace(re, 'http://image.movapic.com/pic/s_$1.jpeg');
-            urls.rawurl   = url.replace(re, 'http://image.movapic.com/pic/m_$1.jpeg');
-            urls.id       = RegExp.$1;
-            break;
-
-        case (re = RegExp('^https?://ow[.]ly/i/(\\w+)([?].*)?$')).test(url):
-            urls.provider = 'owly';
-            urls.thumburl = url.replace(re, 'http://static.ow.ly/photos/thumb/$1.jpg');
-            urls.rawurl   = url.replace(re, 'http://static.ow.ly/photos/thumb/$1.jpg');
-            urls.id       = RegExp.$1;
-            break;
-
-        case (re = RegExp('^https?://photozou[.]jp/photo/show/(\\d+)/(\\d+)([?].*)?$')).test(url):
-            urls.provider = 'photozou';
-            urls.thumburl = url.replace(re, 'http://photozou.jp/p/img/$2');
-            urls.rawurl   = url.replace(re, 'http://photozou.jp/bin/photo/$2/org.bin');
-            urls.id       = RegExp.$2;
-            break;
-
-        case (re = RegExp('^https?://youtu[.]be/([\\w-]+)([?].*)?$')).test(url):
-            urls.provider = 'youtube';
-            urls.thumburl = url.replace(re, 'https://i.ytimg.com/vi/$1/mqdefault.jpg');
-            urls.rawurl   = url.replace(re, 'https://i.ytimg.com/vi/$1/maxresdefault.jpg');
-            urls.embedurl = url.replace(re, 'https://youtube.com/embed/$1');
-            urls.id       = RegExp.$1;
-            break;
-
-        case (re = RegExp('^https?://www[.]youtube[.]com/watch\?.*v=([\\w-]+)([?].*)?$')).test(url):
-            urls.provider = 'youtube';
-            urls.thumburl = url.replace(re, 'https://i.ytimg.com/vi/$1/mqdefault.jpg');
-            urls.rawurl   = url.replace(re, 'https://i.ytimg.com/vi/$1/maxresdefault.jpg');
-            urls.embedurl = url.replace(re, 'https://youtube.com/embed/$1');
-            urls.id       = RegExp.$1;
-            break;
-
-        case (re = RegExp('^https?://moby[.]to/(\\w+)')).test(url):
-            urls.provider = 'moby';
-            urls.thumburl = url.replace(re, 'http://moby.to/$1:medium');
-            urls.rawurl   = url.replace(re, 'http://moby.to/$1:full');
-            urls.id       = RegExp.$1;
-            break;
-
-        case (re = RegExp('^https?://www[.]pixiv[.]net/member_illust.php[?]([\\w]+=[\\w]+&)*illust_id=([\\d]+)([&].*)?$')).test(url):
-            urls.provider = 'pixiv';
-            urls.thumburl = url.replace(re, 'http://embed.pixiv.net/decorate.php?illust_id=$2');
-            urls.rawurl   = url.replace(re, 'http://embed.pixiv.net/decorate.php?illust_id=$2');
-            urls.id       = RegExp.$2;
-            break;
-
-        default:
-            return null;
-        };
-
-        meta.pics.push(urls);
-    }
-    // pic.twitter画像URL処理
+//    // サードパーティ画像URL認識
+//    _analyzePicURL(url, meta) {
+//        const urls = {};
+//        let re;
+//
+//        const analyzePicApi = async (index) => {
+//            switch (urls.provider) {
+//            default:
+//                return Promise.reject();
+//            }
+//
+//            delete urls.loading;
+//
+//            // 更新通知
+//            await TwitSideModule.windows.sendMessage({
+//                reason   : TwitSideModule.UPDATE.IMAGE_LOADED,
+//                boxid    : meta.boxid,
+//                index    : index,
+//                columnid : this._columnid
+//            }, null, this._win_type);
+//        };
+//
+//        urls.fullurl = url;
+//        switch (true) {
+//        case (re = RegExp('^https?://twitpic[.]com/(\\w+)([?].*)?$')).test(url):
+//            urls.provider = 'twitpic';
+//            urls.thumburl = url.replace(re, 'http://twitpic.com/show/thumb/$1');
+//            urls.rawurl   = url.replace(re, 'http://twitpic.com/show/full/$1');
+//            urls.id       = RegExp.$1;
+//            break;
+//
+//        case (re = RegExp('^https?://p[.]twipple[.]jp/(\\w+)([?].*)?$')).test(url):
+//            urls.provider = 'twipple';
+//            urls.thumburl = url.replace(re, 'http://p.twipple.jp/show/large/$1');
+//            urls.rawurl   = url.replace(re, 'http://p.twipple.jp/show/orig/$1');
+//            urls.id       = RegExp.$1;
+//            break;
+//
+//        // case (re = RegExp('^https?://instagr[.]am/p/([\\w-_]+)/([?].*)?([?].*)?$')).test(url):
+//        //     urls.provider = 'instagram';
+//        //     urls.thumburl = url.replace(re, 'http://instagr.am/p/$1/media/?size=l');
+//        //     urls.rawurl   = url.replace(re, 'http://instagr.am/p/$1/media/?size=l');
+//        //     urls.id       = RegExp.$1;
+//        //     break;
+//
+//        // case (re = RegExp('^https?://(www[.])?instagram.com/p/([\\w-_]+)/([?].*)?$')).test(url):
+//        //     urls.provider = 'instagram';
+//        //     urls.thumburl = url.replace(re, 'http://instagr.am/p/$2/media/?size=l');
+//        //     urls.rawurl   = url.replace(re, 'http://instagr.am/p/$2/media/?size=l');
+//        //     urls.id       = RegExp.$2;
+//        //     break;
+//
+//        case (re = RegExp('^https?://movapic[.]com/pic/(\\w+)([?].*)?$')).test(url):
+//            urls.provider = 'movapic';
+//            urls.thumburl = url.replace(re, 'http://image.movapic.com/pic/s_$1.jpeg');
+//            urls.rawurl   = url.replace(re, 'http://image.movapic.com/pic/m_$1.jpeg');
+//            urls.id       = RegExp.$1;
+//            break;
+//
+//        case (re = RegExp('^https?://ow[.]ly/i/(\\w+)([?].*)?$')).test(url):
+//            urls.provider = 'owly';
+//            urls.thumburl = url.replace(re, 'http://static.ow.ly/photos/thumb/$1.jpg');
+//            urls.rawurl   = url.replace(re, 'http://static.ow.ly/photos/thumb/$1.jpg');
+//            urls.id       = RegExp.$1;
+//            break;
+//
+//        case (re = RegExp('^https?://photozou[.]jp/photo/show/(\\d+)/(\\d+)([?].*)?$')).test(url):
+//            urls.provider = 'photozou';
+//            urls.thumburl = url.replace(re, 'http://photozou.jp/p/img/$2');
+//            urls.rawurl   = url.replace(re, 'http://photozou.jp/bin/photo/$2/org.bin');
+//            urls.id       = RegExp.$2;
+//            break;
+//
+//        case (re = RegExp('^https?://youtu[.]be/([\\w-]+)([?].*)?$')).test(url):
+//            urls.provider = 'youtube';
+//            urls.thumburl = url.replace(re, 'https://i.ytimg.com/vi/$1/mqdefault.jpg');
+//            urls.rawurl   = url.replace(re, 'https://i.ytimg.com/vi/$1/maxresdefault.jpg');
+//            urls.embedurl = url.replace(re, 'https://youtube.com/embed/$1');
+//            urls.id       = RegExp.$1;
+//            break;
+//
+//        case (re = RegExp('^https?://www[.]youtube[.]com/watch\?.*v=([\\w-]+)([?].*)?$')).test(url):
+//            urls.provider = 'youtube';
+//            urls.thumburl = url.replace(re, 'https://i.ytimg.com/vi/$1/mqdefault.jpg');
+//            urls.rawurl   = url.replace(re, 'https://i.ytimg.com/vi/$1/maxresdefault.jpg');
+//            urls.embedurl = url.replace(re, 'https://youtube.com/embed/$1');
+//            urls.id       = RegExp.$1;
+//            break;
+//
+//        case (re = RegExp('^https?://moby[.]to/(\\w+)')).test(url):
+//            urls.provider = 'moby';
+//            urls.thumburl = url.replace(re, 'http://moby.to/$1:medium');
+//            urls.rawurl   = url.replace(re, 'http://moby.to/$1:full');
+//            urls.id       = RegExp.$1;
+//            break;
+//
+//        case (re = RegExp('^https?://www[.]pixiv[.]net/member_illust.php[?]([\\w]+=[\\w]+&)*illust_id=([\\d]+)([&].*)?$')).test(url):
+//            urls.provider = 'pixiv';
+//            urls.thumburl = url.replace(re, 'http://embed.pixiv.net/decorate.php?illust_id=$2');
+//            urls.rawurl   = url.replace(re, 'http://embed.pixiv.net/decorate.php?illust_id=$2');
+//            urls.id       = RegExp.$2;
+//            break;
+//
+//        default:
+//            return null;
+//        };
+//
+//        meta.pics.push(urls);
+//    }
+    /*
+     * pic.twitter画像URL処理
+     * _procPicTwtrURL
+     */
     _procPicTwtrURL(media, meta) {
         const urls = {
             provider : 'twitter',
@@ -1306,7 +1373,10 @@ class Timeline {
     /**
      * メンテナンス系
      */
-    // 過去ツイートの削除
+    /*
+     * 過去ツイートの削除
+     * _clearOlder
+     */
     async _clearOlder() {
         const count = this._getNewerHash.count + this._getOlderHash.count;
 
@@ -1340,7 +1410,10 @@ class Timeline {
         }
     }
 
-    // 指定したIDのツイートを除去
+    /*
+     * 指定したIDのツイートを除去
+     * _removeTweets
+     */
     async _removeTweets(ids) {
         if (!Array.isArray(ids) || ids.length == 0) return;
         const deleted = [];
@@ -1361,7 +1434,10 @@ class Timeline {
         }, null, this._win_type);
     }
 
-    // ツイートを全除去
+    /*
+     * ツイートを全消去
+     * _removeAllTweets
+     */
     async _removeAllTweets() {
         if (!this.record.ids.length) return;
 
@@ -1382,9 +1458,9 @@ class Timeline {
 
 
 
-/**************
- * DmTimeline *
- **************/
+/*
+ * DmTimeline V1
+ */
 class DmTimeline extends Timeline {
 
     constructor(tl_type, columnid, userinfo_hash, win_type) {
@@ -1394,6 +1470,10 @@ class DmTimeline extends Timeline {
         this._dm = new DM(this._tweet, this._tl_type);
     }
 
+    /*
+     * DmTimeline V1 オブジェクト削除前のお掃除
+     * beforeDestroy
+     */
     beforeDestroy() {
         delete this._dm;
         super.beforeDestroy();
@@ -1405,6 +1485,10 @@ class DmTimeline extends Timeline {
         return false;
     }
 
+    /*
+     * DmTimeline V1 取得系
+     * getNewer
+     */
     async getNewer(notif) {
         const error = (result) => {
             // 状態遷移
@@ -1471,6 +1555,10 @@ class DmTimeline extends Timeline {
         // 自動再読込開始
         if (this._autoReloadEnabled) this.startAutoReload();
     }
+    /*
+     * DmTimeline V1 取得系
+     * getOlder
+     */
     async getOlder() {
         const error = (result) => {
             // 状態遷移
@@ -1533,10 +1621,19 @@ class DmTimeline extends Timeline {
             state    : TwitSideModule.TL_STATE.LOADED
         }, null, this._win_type);
     }
+    /*
+     * DmTimeline V1 取得系
+     * getMore
+     */
     async getMore() {
         await this.getOlder();
         return;
     }
+
+    /*
+     * DmTimeline V1 操作系
+     * destroy
+     */
     async destroy(boxid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -1568,11 +1665,19 @@ class DmTimeline extends Timeline {
 
         callback_mine(await this._tweet.destroyDm2({ id : boxid }).catch(error));
     }
+
+    /*
+     * DmTimeline V1 取得系振り分け
+     * _sendQuery
+     */
     async _sendQuery(optionsHash) {
         return await this._dm.getDm(optionsHash);
     }
 
-    // ツイートを保存して変更があったid一覧を返す
+    /*
+     * DmTimeline V1 ツイートを保存して変更があったid一覧を返す
+     * _saveTweets
+     */
     async _saveTweets(data, more, notif) {
         const tweets     = [],
               notified   = [];
@@ -1634,14 +1739,21 @@ class DmTimeline extends Timeline {
         }
         return tweets;
     }
-    // IDゼロフィル
+
+    /*
+     * DmTimeline V1 IDゼロフィル
+     * _zeroFillId
+     */
     _zeroFillId(datum) {
         if (datum.id) // DM向け
             datum.id_str = (ZERO_FILL + datum.id).slice(-ZERO_FILL_LEN);
         else return null; // 不正なデータ
         return datum.id_str;
     }
-    // メタデータの作成（DM）
+    /*
+     * DmTimeline V1 メタデータの作成（DM）
+     * _getDmMetadata
+     */
     async _getDmMetadata(datum, boxid) {
         const error = (result) => {
             this._reportError(result);
@@ -1703,7 +1815,10 @@ class DmTimeline extends Timeline {
         }
         return meta;
     }
-    // pic.twitter画像URL処理
+    /*
+     * DmTimeline V1 pic.twitter画像URL処理
+     * _procPicTwtrURL
+     */
     _procPicTwtrURL(media, meta) {
         const analyzePicApi = async (index) => {
             switch (urls.provider) {
@@ -1780,9 +1895,9 @@ class DmTimeline extends Timeline {
 } //DmTimeline
 
 
-/****************
- * ListTimeline *
- ****************/
+/*
+ * ListTimeline V1
+ */
 class ListTimeline extends Timeline {
 
     constructor(tl_type, columnid, userinfo_hash, win_type, targetid) {
@@ -1792,6 +1907,10 @@ class ListTimeline extends Timeline {
         this._lists = new Lists(this._tweet, this._tl_type, targetid);
     }
 
+    /*
+     * ListTimeline V1 オブジェクト削除前のお掃除
+     * beforeDestroy
+     */
     beforeDestroy() {
         delete this._lists;
         super.beforeDestroy();
@@ -1809,6 +1928,10 @@ class ListTimeline extends Timeline {
         return false;
     }
 
+    /*
+     * ListTimeline V1 取得系
+     * getNewer
+     */
     async getNewer(notif) {
         const error = (result) => {
             // 状態遷移
@@ -1885,6 +2008,10 @@ class ListTimeline extends Timeline {
         // 自動再読込開始
         if (this._autoReloadEnabled) this.startAutoReload();
     }
+    /*
+     * ListTimeline V1 取得系
+     * getOlder
+     */
     async getOlder() {
         const error = (result) => {
             // 状態遷移
@@ -1940,10 +2067,19 @@ class ListTimeline extends Timeline {
             state    : TwitSideModule.TL_STATE.LOADED
         }, null, this._win_type);
     }
+    /*
+     * ListTimeline V1 取得系
+     * getMore
+     */
     async getMore() {
         await this.getOlder();
         return;
     }
+
+    /*
+     * ListTimeline V1 操作系
+     * destroy
+     */
     async destroy(boxid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -1975,10 +2111,10 @@ class ListTimeline extends Timeline {
         callback_list(await this._tweet.destroyList({ list_id : boxid }).catch(error));
     }
 
-    /**
-     * リスト系
+    /*
+     * ListTimeline V1 リスト系
+     * createList
      */
-    // リスト作成
     async createList(listinfo) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -2004,7 +2140,10 @@ class ListTimeline extends Timeline {
             columnid : this._columnid
         }, null, this._win_type);
     }
-
+    /*
+     * ListTimeline V1 リスト系
+     * updateList
+     */
     async updateList(listinfo) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -2030,8 +2169,10 @@ class ListTimeline extends Timeline {
             columnid : this._columnid
         }, null, this._win_type);
     }
-
-    // リストの購読
+    /*
+     * ListTimeline V1 リスト系
+     * subscribeList
+     */
     async subscribeList(listid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -2057,7 +2198,10 @@ class ListTimeline extends Timeline {
             columnid : this._columnid
         }, null, this._win_type);
     }
-    // リストの購読解除
+    /*
+     * ListTimeline V1 リスト系
+     * unsubscribeList
+     */
     async unsubscribeList(listid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -2085,6 +2229,10 @@ class ListTimeline extends Timeline {
 
         await this._removeTweets([listid]);
     }
+    /*
+     * ListTimeline V1 取得系振り分け
+     * _sendQuery
+     */
     async _sendQuery(optionsHash) {
         switch (this._tl_type) {
         case TwitSideModule.TL_TYPE.TEMP_OWNERSHIPLISTS:
@@ -2098,7 +2246,10 @@ class ListTimeline extends Timeline {
         return Promise.reject();
     }
 
-    // ツイートを保存して変更があったid一覧を返す
+    /*
+     * ListTimeline V1 ツイートを保存して変更があったid一覧を返す
+     * _saveTweets
+     */
     async _saveTweets(data, more, notif) {
         // 更新したツイートID
         const tweets = [];
@@ -2139,7 +2290,10 @@ class ListTimeline extends Timeline {
         return tweets;
     }
 
-    // メタデータの作成（リスト）
+    /*
+     * ListTimeline V1 メタデータの作成（リスト）
+     * _getListMetadata
+     */
     _getListMetadata(datum, boxid) {
         const meta = { boxid : boxid };
 
@@ -2169,7 +2323,10 @@ class ListTimeline extends Timeline {
         return meta;
     }
 
-    // メタデータの作成（リスト）
+    /*
+     * ListTimeline V1 メタデータの作成（リストメンバー）
+     * _getListMemberMetadata
+     */
     _getListMemberMetadata(datum, boxid) {
         const meta = { boxid : boxid };
         return meta;
@@ -2178,9 +2335,9 @@ class ListTimeline extends Timeline {
 } //ListTimeline
 
 
-/******************
- * FriendTimeline *
- ******************/
+/*
+ * FriendTimeline V1
+ */
 class FriendTimeline extends Timeline {
 
     constructor(tl_type, columnid, userinfo_hash, win_type, targetid) {
@@ -2189,6 +2346,10 @@ class FriendTimeline extends Timeline {
         this._index    = 0;
     }
 
+    /*
+     * FriendTimeline V1 オブジェクト削除前のお掃除
+     * beforeDestroy
+     */
     beforeDestroy() {
         if (this._own_userid != this._targetid)
             switch(this._tl_type) {
@@ -2215,6 +2376,10 @@ class FriendTimeline extends Timeline {
         return false;
     }
 
+    /*
+     * FriendTimeline V1 取得系
+     * getNewer
+     */
     async getNewer(notif) {
         const error = (result) => {
             // 状態遷移
@@ -2309,6 +2474,10 @@ class FriendTimeline extends Timeline {
         // 自動再読込開始
         if (this._autoReloadEnabled) this.startAutoReload();
     }
+    /*
+     * FriendTimeline V1 取得系
+     * getOlder
+     */
     async getOlder() {
         const error = (result) => {
             // 状態遷移
@@ -2364,10 +2533,19 @@ class FriendTimeline extends Timeline {
             state    : TwitSideModule.TL_STATE.LOADED
         }, null, this._win_type);
     }
+    /*
+     * FriendTimeline V1 取得系
+     * getMore
+     */
     async getMore() {
         await this.getOlder();
         return;
     }
+
+    /*
+     * FriendTimeline V1 操作系
+     * destroy
+     */
     async destroy(boxid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -2423,6 +2601,10 @@ class FriendTimeline extends Timeline {
                 this._tweet
             ).catch(error));
     }
+    /*
+     * FriendTimeline V1 操作系
+     * follow
+     */
     async follow(boxid, sw) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -2476,6 +2658,10 @@ class FriendTimeline extends Timeline {
             }, null, this._win_type);
         }
     }
+    /*
+     * FriendTimeline V1 操作系
+     * block
+     */
     async block(boxid) {
         const error = (result) => {
             TwitSideModule.windows.sendMessage({
@@ -2512,10 +2698,18 @@ class FriendTimeline extends Timeline {
         // ブロックしたらフォロー・フォロワーが外れる
         await this._removeTweets([boxid]);
     }
+
+    /*
+     * FriendTimeline V1 取得系振り分け
+     * _sendQuery
+     */
     async _sendQuery(optionsHash) {
         return await this._getFriends(optionsHash);
     }
-    // フォロー、フォロワー向け（tweetの代わり）
+    /*
+     * FriendTimeline V1 フォロー、フォロワー向け（tweetの代わり）
+     * _getFriends
+     */
     async _getFriends(optionsHash) {
         switch (this._tl_type) {
         case TwitSideModule.TL_TYPE.TEMP_FOLLOW:
@@ -2750,7 +2944,10 @@ class FriendTimeline extends Timeline {
         }
     }
 
-    // ツイートを保存して変更があったid一覧を返す
+    /*
+     * FriendTimeline V1 ツイートを保存して変更があったid一覧を返す
+     * _saveTweets
+     */
     async _saveTweets(data, more, notif) {
         // 更新したツイートID
         const tweets = [];
@@ -2789,7 +2986,10 @@ class FriendTimeline extends Timeline {
         return tweets;
     }
 
-    // メタデータの作成（リスト）
+    /*
+     * FriendTimeline V1 メタデータの作成（リスト）
+     * _getFriendMetadata
+     */
     _getFriendMetadata(datum, boxid) {
         const meta = { boxid : boxid };
         return meta;
