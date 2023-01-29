@@ -136,52 +136,80 @@ class Timeline {
 
         // morebox
         if (isMore) {
+            // unavailable
+            if (!this.record.data[boxid]) return {};
+
             const idx    = this.record.ids.indexOf(boxid),
                   nextid = this.record.ids[idx+1] != null
                   ? this.record.ids[idx+1] : null;
+
+            // result
             return {
-                tweetinfo : JSON.parse(JSON.stringify(this.record.data[boxid])),
+                tweetinfo : structuredClone(this.record.data[boxid]),
                 nextid    : nextid
             };
         }
         else if (isQuote) {
             // reply of quoted tweet
             if (isReply) {
+                // unavailable
+                if (!this.record.data[idPath[0]]) return {};
+
                 const idx    = this.record.data[idPath[0]].quoted.replies.findIndex(reply => reply.meta.boxid === boxid),
                       nextid = this.record.data[idPath[0]].quoted.replies[idx+1] != null
                       ? this.record.data[idPath[0]].quoted.replies[idx+1]
                       : null;
+
+                // unavailable
+                if (idx == -1) return {};
+                // result
                 return {
-                    tweetinfo : JSON.parse(JSON.stringify(this.record.data[idPath[0]].quoted.replies[idx])),
+                    tweetinfo : structuredClone(this.record.data[idPath[0]].quoted.replies[idx]),
                     nextid    : nextid
                 };
             }
             // quoted tweet
-            else
+            else {
+                // unavailable
+                if (!this.record.data[idPath[0]]) return {};
+                // result
                 return {
-                    tweetinfo : JSON.parse(JSON.stringify(this.record.data[idPath[0]].quoted)),
+                    tweetinfo : structuredClone(this.record.data[idPath[0]].quoted),
                     nextid    : null
                 };
+            }
         }
         else {
             // reply
             if (isReply) {
+                // unavailable
+                if (!this.record.data[idPath[0]]) return {};
+
                 const idx    = this.record.data[idPath[0]].replies.findIndex(reply => reply.meta.boxid === boxid),
                       nextid = this.record.data[idPath[0]].replies[idx+1] != null
                       ? this.record.data[idPath[0]].replies[idx+1]
                       : null;
+
+                // unavailable
+                if (idx == -1) return {};
+                // result
                 return {
-                    tweetinfo : JSON.parse(JSON.stringify(this.record.data[idPath[0]].replies[idx])),
+                    tweetinfo : structuredClone(this.record.data[idPath[0]].replies[idx]),
                     nextid    : nextid
                 };
             }
             // tweet
             else {
+                // unavailable
+                if (!this.record.data[boxid]) return {};
+
                 const idx    = this.record.ids.indexOf(boxid),
                       nextid = this.record.ids[idx+1] != null
                       ? this.record.ids[idx+1] : null;
+
+                // result
                 return {
-                    tweetinfo : JSON.parse(JSON.stringify(this.record.data[boxid])),
+                    tweetinfo : structuredClone(this.record.data[boxid]),
                     nextid    : nextid
                 };
             }
