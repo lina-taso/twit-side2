@@ -657,8 +657,7 @@ class Timeline {
         }, null, this._win_type);
 
         // quoteの場合は親を、自分のツイートの元ツイート場合は元ツイートを再読み込み
-        if (isQuote
-            || targetTweet.meta.isMine && !targetTweet.raw.retweeted_status) {
+        if (isQuote) {
             // ツイート再読込
             const result_show = await this._tweet.show({ id : parentId }).catch(error);
 
@@ -673,24 +672,22 @@ class Timeline {
         }
         // それ以外は削除
         else {
-            // ただしリツイート元がタイムラインにある場合は再読み込み
-            if (this.tweetInfo(targetTweet.raw.retweeted_status.id_str)) {
-                // ツイート再読込
-                const result_show = await this._tweet.show({ id : targetTweet.raw.retweeted_status.id_str }).catch(error);
-
-                // 受信データを登録
-                const tweets = await this._saveTweets([result_show.data]);
-                await TwitSideModule.windows.sendMessage({
-                    reason   : TwitSideModule.UPDATE.REPLACE_LOADED,
-                    tweets   : tweets,
-                    tl_type  : this._tl_type,
-                    columnid : this._columnid
-                }, null, this._win_type);
-            }
-            // 削除
             await this._removeTweets([targetId]);
         }
+        // 元ツイートがタイムラインに存在する場合
+        if (this.tweetInfo((ZERO_FILL + result.data.id_str).slice(-ZERO_FILL_LEN))) {
+            // ツイート再読込
+            const result_show = await this._tweet.show({ id : result.data.id_str });
 
+            // 受信データを登録
+            const tweets = await this._saveTweets([result_show.data]);
+            await TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.REPLACE_LOADED,
+                tweets   : tweets,
+                tl_type  : this._tl_type,
+                columnid : this._columnid
+            }, null, this._win_type);
+        }
     }
     /*
      * V1 操作系
