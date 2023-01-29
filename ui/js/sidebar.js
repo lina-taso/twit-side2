@@ -166,7 +166,7 @@ const vivify = () => {
             if (dx > 50) {
                 // カーソルリセット
                 cursor.x = e.originalEvent.clientX;
-                scrollColumns(getColumnIndex().pop()+1);
+                scrollColumns(getColumnIndex().shift()+1);
             }
             // 左移動
             else if (dx < -50) {
