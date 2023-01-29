@@ -4653,4 +4653,9 @@ a.text-dark:hover, a.text-dark:focus {
   background-color: unset;
   background-image: linear-gradient(135deg, #005000 2rem, rgba(255, 255, 255, 0) 4rem); }
 
+.tweetContent[data-retweeted="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"]:not(:hover) > .fas {
+  color: wheat; }
+.tweetContent[data-retweeted="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"]:hover > .fas {
+  color: gold; }
+
 /*# sourceMappingURL=theme-orange.css.map */

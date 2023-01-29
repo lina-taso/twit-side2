@@ -377,15 +377,6 @@ textarea#newTweet { resize: none; }
     width: 16px; height: 16px;
     margin: .25rem 0;
 
-    // TODO 削除予定
-    &.tweetStatusRetweeted {
-        color: green;
-        .tweetContent &                                    { display: flex; }
-        .tweetContent[data-retweeted=""] &                 { display: none; }
-        .inlineTweetBox .tweetContent &                    { display: flex; }
-        .inlineTweetBox .tweetContent[data-retweeted=""] & { display: none; }
-    }
-
     &.tweetStatusPlace {
         cursor: pointer;
         &[data-mapurl=""] { display: none; }
@@ -481,11 +472,7 @@ textarea#newTweet { resize: none; }
         &[data-screenname=""] { display: none; }
     }
 }
-.tweetRetweeterCount {
-    &::before        { content: attr( data-count ); }
-    &[data-count=""] { display: none; }
-}
-
+// TODO 削除予定
 .tweetRetweeterList {
     display: flex;
     flex-wrap: wrap;
@@ -535,14 +522,12 @@ textarea#newTweet { resize: none; }
     }
     // リツイート不可
     @at-root
-//    .tweetContent[data-mine="true"][data-retweet="true"] > & > .tweetMenuButton[data-func="retweet"],
-//    .tweetContent[data-retweeted="true"] > & > .tweetMenuButton[data-func="retweet"],
     .tweetContent[data-protected="true"] > & > .tweetMenuButton[data-func="retweet"] {
         visibility: hidden;
     }
-    // リツイート済
+    // リツイート済（カラーはthemeで設定）
     @at-root
-    .tweetContent[data-retweeted="true"] > & > .tweetMenuButton[data-func="retweet"] > .fas { color: green; opacity: 1; }
+    .tweetContent[data-retweeted="true"] > & > .tweetMenuButton[data-func="retweet"] > .fas { opacity: 1; }
     // お気に入り
     @at-root
     .tweetContent[data-favorited=""] > & > .tweetMenuButton[data-func="favorite"] > .fas { display: none; }

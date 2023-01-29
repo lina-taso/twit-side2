@@ -591,6 +591,13 @@ const UI = {
                     TwitSideModule.config.getPref('time_locale'),
                     TwitSideModule.text.createTimeformat()
                 ));
+            // metrics
+            $tweetContent.find('.tweetMenuButton[data-func=retweet] > span.count')
+                .text(TwitSideModule.text.formatSIprefix(r.retweet_count))
+                .attr('title', r.retweet_count);
+            $tweetContent.find('.tweetMenuButton[data-func=favorite] > span.count')
+                .text(TwitSideModule.text.formatSIprefix(r.favorite_count))
+                .attr('title', r.favorite_count);
         }
 
         /**

@@ -582,9 +582,6 @@
     "tweetRetweets" : {
         "message" : "がリツイート"
     },
-    "tweetRtcount" : {
-        "message" : "人がリツイート"
-    },
     "tweetMore" : {
         "message" : "続きを読み込む"
     },

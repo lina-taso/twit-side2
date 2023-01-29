@@ -582,9 +582,6 @@
     "tweetRetweets" : {
         "message" : "retweeted"
     },
-    "tweetRtcount" : {
-        "message" : "retweets"
-    },
     "tweetMore" : {
         "message" : "Load more tweets"
     },

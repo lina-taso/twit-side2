@@ -4650,4 +4650,9 @@ a.text-dark:hover, a.text-dark:focus {
 .tweetContent[data-forme="true"] {
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.05) 75%, transparent 75%, transparent); }
 
+.tweetContent[data-retweeted="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"]:not(:hover) > .fas {
+  color: limegreen; }
+.tweetContent[data-retweeted="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"]:hover > .fas {
+  color: green; }
+
 /*# sourceMappingURL=theme-dark.css.map */
