@@ -713,7 +713,8 @@ const UI = {
             };
         }
         // 削除
-        if (record.meta.isMine)
+        if (record.meta.isMine && !record.raw.retweeted_status
+            || record.meta.isMine && record.raw.retweeted_status && record.raw.user.id_str == record.raw.retweeted_status.user.id_str)
             contextMenu.destroy = {
                 name : browser.i18n.getMessage('tweetDestroy'),
                 icon : 'fas fa-trash fa-fw'

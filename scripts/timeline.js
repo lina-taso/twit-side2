@@ -843,123 +843,33 @@ class Timeline {
               ? this.record.data[parentId].quoted
               : this.record.data[parentId];
 
-        // ツイート取得
-        const callback_show = async (result) => {
-            // リツイートしたことが確認出来た
-            if (result.data.current_user_retweet) {
-                const result_destroy = await this._tweet.destroy({ }, result.data.current_user_retweet.id_str).catch(error);
-                // アクション完了
-                TwitSideModule.windows.sendMessage({
-                    reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
-                    action   : 'destroy',
-                    result   : 'success',
-                    boxid    : boxid,
-                    columnid : this._columnid
-                }, null, this._win_type);
+        const result = await this._tweet.destroy({ }, targetId).catch(error);
 
-                // リツイートされたツイートの再読込
-                const result_show = await this._tweet.show({ id : parentId }).catch(error);
+        // アクション完了
+        TwitSideModule.windows.sendMessage({
+            reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
+            action   : 'destroy',
+            result   : 'success',
+            boxid    : boxid,
+            columnid : this._columnid
+        }, null, this._win_type);
 
-                // 受信データを登録
-                const tweets = await this._saveTweets([result_show.data]);
-                await TwitSideModule.windows.sendMessage({
-                    reason   : TwitSideModule.UPDATE.REPLACE_LOADED,
-                    tweets   : tweets,
-                    tl_type  : this._tl_type,
-                    columnid : this._columnid
-                }, null, this._win_type);
-            }
-        };
-        // ツイート取得
-        const callback_show_mine = async (result) => {
-            // リツイートしたことが確認出来た
-            if (result.data.current_user_retweet) {
-                const result_destroy = await this._tweet.destroy({ }, result.data.current_user_retweet.id_str).catch(error);
-                // アクション完了
-                TwitSideModule.windows.sendMessage({
-                    reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
-                    action   : 'destroy',
-                    result   : 'success',
-                    boxid    : boxid,
-                    columnid : this._columnid
-                }, null, this._win_type);
+        if (isQuote) {
+            // 引用元ツイートの再読込
+            const result_show = await this._tweet.show({ id : parentId }).catch(error);
 
-                if (isQuote) {
-                    // 引用元ツイートの再読込
-                    const result_show = await this._tweet.show({ id : parentId }).catch(error);
-
-                    // 受信データを登録
-                    const tweets = await this._saveTweets([result_show.data]);
-                    await TwitSideModule.windows.sendMessage({
-                        reason   : TwitSideModule.UPDATE.REPLACE_LOADED,
-                        tweets   : tweets,
-                        tl_type  : this._tl_type,
-                        columnid : this._columnid
-                    }, null, this._win_type);
-                }
-                else
-                    // 削除
-                    await this._removeTweets([targetId]);
-            }
-        };
-        // 自分のツイートを削除
-        const callback_mine = async (result) => {
-            // アクション完了
-            TwitSideModule.windows.sendMessage({
-                reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
-                action   : 'destroy',
-                result   : 'success',
-                boxid    : boxid,
+            // 受信データを登録
+            const tweets = await this._saveTweets([result_show.data]);
+            await TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.REPLACE_LOADED,
+                tweets   : tweets,
+                tl_type  : this._tl_type,
                 columnid : this._columnid
             }, null, this._win_type);
-
-            if (isQuote) {
-                // 引用元ツイートの再読込
-                const result_show = await this._tweet.show({ id : parentId }).catch(error);
-
-                // 受信データを登録
-                const tweets = await this._saveTweets([result_show.data]);
-                await TwitSideModule.windows.sendMessage({
-                    reason   : TwitSideModule.UPDATE.REPLACE_LOADED,
-                    tweets   : tweets,
-                    tl_type  : this._tl_type,
-                    columnid : this._columnid
-                }, null, this._win_type);
-            }
-            else
-                // 削除
-                await this._removeTweets([targetId]);
-        };
-
-        if (targetTweet.meta.isMine) {
-            // リツイート
-            if (targetTweet.raw.retweeted
-                && targetTweet.raw.retweeted_status)
-                callback_show_mine(await this._tweet.show({
-                    id : targetTweet.raw.retweeted_status.id_str,
-                    include_my_retweet : 'true'
-                }).catch(error));
-            else if (targetTweet.raw.retweeted
-                     && !targetTweet.raw.retweeted_status)
-                callback_show(await this._tweet.show({
-                    id : targetId,
-                    include_my_retweet : 'true'
-                }).catch(error));
-            // 自分のツイートはそのまま削除
-            else
-                callback_mine(await this._tweet.destroy({ }, targetId))
-                .catch(error);
         }
-        else {
-            // リツイート
-            if (targetTweet.raw.retweeted)
-                callback_show(await this._tweet.show({
-                    id : targetTweet.raw.retweeted_status
-                        ? targetTweet.raw.retweeted_status.id_str
-                        : targetId,
-                    include_my_retweet : 'true'
-                }).catch(error));
-        }
+        else
+            // 削除
+            await this._removeTweets([targetId]);
     }
     /*
      * V1 操作系
