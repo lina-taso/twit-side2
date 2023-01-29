@@ -656,7 +656,7 @@ class Timeline {
             columnid : this._columnid
         }, null, this._win_type);
 
-        // quoteの場合は親をツイートを再読み込み
+        // quoteの場合は親ツイートを再読み込み
         if (isQuote) {
             // ツイート再読込
             const result_show = await this._tweet.show({ id : parentId }).catch(error);
