@@ -509,9 +509,9 @@ const UI = {
         // more
         if (/_more$/.test(fullboxid)) {
             return this.$tweetMoreBoxTemplate.clone().attr({
-                    id            : fullboxid,
-                    'data-origid' : record.raw.id_str
-                })[0];
+                id            : fullboxid,
+                'data-origid' : record.raw.id_str
+            })[0];
         }
 
         const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
@@ -533,41 +533,44 @@ const UI = {
          * リツイートされた・されてないツイート共通
          */
         {
-            const recordStatus = record.raw.retweeted_status
+            const r = record.raw.retweeted_status
                   ? record.raw.retweeted_status
                   : record.raw;
 
             // ツイートの情報
             $tweetBox.attr({
-                'data-origid'     : recordStatus.id_str,
+                'data-origid'     : r.id_str,
                 'data-rawcontent' : record.meta.text,
-                'data-screenname' : '@' + recordStatus.user.screen_name
+                'data-screenname' : '@' + r.user.screen_name
             });
             // ユーザ情報
             $tweetContent.find('.tweetUserImage')
-                .attr('src', recordStatus.user.profile_image_url_https.replace('_normal.', '_bigger.'));
+                .attr('src', r.user.profile_image_url_https.replace('_normal.', '_bigger.'));
             $tweetContent.find('.tweetUserName').attr({
-                'data-screenname' : '@' + recordStatus.user.screen_name,
-                'data-username'   : recordStatus.user.name
+                'data-screenname' : '@' + r.user.screen_name,
+                'data-username'   : r.user.name
             });
             // place
-            if (recordStatus.geo && recordStatus.place) {
+            if (r.geo && r.place) {
                 const $place = $tweetContent.find('.tweetStatusPlace'),
-                      ll     = recordStatus.geo.coordinates.join(',');
+                      ll     = r.geo.coordinates.join(',');
                 $place.attr({
-                    'title'       : recordStatus.place.full_name,
+                    'title'       : r.place.full_name,
                     'data-mapurl' : 'http://maps.google.com/?q=' + ll
                 }).on('click', () => { openURL('http://maps.google.com/?q=' + ll); });
             }
-            else if (recordStatus.place) {
+            else if (r.place) {
                 let $place = $tweetContent.find('.tweetStatusPlace');
                 $place.attr({
-                    'title'       : recordStatus.place.full_name,
-                    'data-mapurl' : 'http://maps.google.com/?q=' + recordStatus.place.full_name
-                }).on('click', () => { openURL('http://maps.google.com/?q=' + recordStatus.place.full_name); });
+                    'title'       : r.place.full_name,
+                    'data-mapurl' : 'http://maps.google.com/?q=' + r.place.full_name
+                }).on('click', () => { openURL('http://maps.google.com/?q=' + r.place.full_name); });
             }
+            // protected
+            if (r.user.protected)
+                $tweetContent.attr('data-protected', 'true');
             // verified
-            if (recordStatus.user.verified)
+            if (r.user.verified)
                 $tweetContent.attr('data-verified', 'true');
             // replyto, 本文
             if (record.meta.display_text_range[0]) {
@@ -583,11 +586,11 @@ const UI = {
             }
             // 投稿ソース
             $tweetContent.find('.tweetSource')
-                .text('from ' + analyzeSource(recordStatus.source));
+                .text('from ' + analyzeSource(r.source));
             // タイムスタンプ
             $tweetContent.find('.tweetTime')
                 .text(TwitSideModule.text.convertTimeStamp(
-                    TwitSideModule.text.analyzeTimestamp(recordStatus.created_at),
+                    TwitSideModule.text.analyzeTimestamp(r.created_at),
                     TwitSideModule.config.getPref('time_locale'),
                     TwitSideModule.text.createTimeformat()
                 ));
@@ -601,7 +604,7 @@ const UI = {
         }
 
         /**
-         * リツイートされたツイート
+         * リツイートされたツイートのみ
          */
         if (record.raw.retweeted_status) {
             $tweetContent.attr('data-retweet', 'true');
@@ -615,22 +618,6 @@ const UI = {
                     'data-screenname' : '@' + record.raw.user.screen_name,
                     'data-username'   : record.raw.user.name
                 });
-            $tweetContent.find('.tweetRetweeterCount')
-                .attr('data-count', record.raw.retweeted_status.retweet_count);
-        }
-        /**
-         * リツイートされていないツイート
-         */
-        else {
-            // リツイートされた自分のツイート
-            if (type == TwitSideModule.TL_TYPE.RETWEETED
-                || record.raw.retweet_count) {
-                $tweetContent.find('.tweetRetweeterCount')
-                    .attr('data-count', record.raw.retweet_count);
-            }
-            // protected
-            if (record.raw.user.protected)
-                $tweetContent.attr('data-protected', 'true');
         }
 
         /**
@@ -655,14 +642,24 @@ const UI = {
             };
         // 公式RT
         {
-            contextMenu.retweet = {
-                name : browser.i18n.getMessage('tweetRetweet'),
-                icon : 'fas fa-retweet fa-fw'
-            };
-            if ( record.raw.retweeted
-                 || (record.raw.retweeted_status && record.meta.isMine)
-                 || (!record.raw.retweeted_status && record.raw.user.protected))
+            // リツイート済
+            if (record.retweeted) {
+                contextMenu.retweet = {
+                    name : browser.i18n.getMessage('tweetUndoRetweet'),
+                    icon : 'fas fa-retweet fa-fw'
+                };
+            }
+            // 通常のツイート
+            else {
+                contextMenu.retweet = {
+                    name : browser.i18n.getMessage('tweetRetweet'),
+                    icon : 'fas fa-retweet fa-fw'
+                };
+            }
+            // protected
+            if (!record.raw.retweeted_status && record.raw.user.protected) {
                 contextMenu.retweet.disabled = true;
+            }
         };
         // 引用リツイート
         contextMenu.quote = {
@@ -702,6 +699,7 @@ const UI = {
             name : browser.i18n.getMessage('tweetOpentweeturl'),
             icon : 'fas fa-external-link-alt fa-fw'
         };
+        // TODO Need Improvement
         // 会話
         if (!/_reply_/.test(fullboxid) && record.raw.retweeted_status
             ? record.raw.retweeted_status.in_reply_to_status_id_str
@@ -715,19 +713,19 @@ const UI = {
             };
         }
         // 削除
-        if (record.meta.isMine || record.raw.retweeted)
+        if (record.meta.isMine)
             contextMenu.destroy = {
                 name : browser.i18n.getMessage('tweetDestroy'),
                 icon : 'fas fa-trash fa-fw'
             };
         // リツイートされたツイート
-        if (record.raw.retweet_count
-            || record.raw.retweeted_status && record.raw.retweeted_status.retweet_count)
+        if (record.raw.retweet_count)
             contextMenu.showretweetedusers = {
                 name : browser.i18n.getMessage('tweetShowretweetedusers'),
                 icon : 'fas fa-users fa-fw'
             };
         // 既にメタデータ取得済み
+        // TODO リツイートされた人は別窓へ
         if (record.meta.retweeters) {
             let $tweetRetweeterList = $tweetContent.find('.tweetRetweeterList'),
                 $imageTemplate      = $tweetContent.find('.tweetRetweeterImage').clone().attr('src', '').addClass('my-1');
@@ -815,7 +813,7 @@ const UI = {
                                $tweetBox.attr('data-rawcontent').replace(url.url, url.expanded_url));
             }
 
-            // pic.twitter
+            // pic.twitterのURL追加
             const media = entities.media;
             if (media && media.length) {
                 index++;
@@ -878,43 +876,42 @@ const UI = {
 
         // more
         if (/_more$/.test(fullboxid)) {
-            return this.$tweetMoreBoxTemplate.clone()
-                .attr({
-                    id            : fullboxid,
-                    'data-origid' : record.raw.id_str
-                })[0];
+            return this.$tweetMoreBoxTemplate.clone().attr({
+                id            : fullboxid,
+                'data-origid' : record.raw.id_str
+            })[0];
         }
 
         const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
               $tweetContent = $tweetBox.children('.tweetContent').eq(0),
               $tweetInline  = $tweetContent.children('.inlineTweetBox').eq(0),
-              recordStatus  = record.raw;
+              r             = record.raw;
 
         // 属性設定
         $tweetBox.attr({
-            'data-tweetid'    : recordStatus.id_str,
-            'data-screenname' : '@' + recordStatus.user.screen_name,
-            'data-listname'   : recordStatus.name,
+            'data-tweetid'    : r.id_str,
+            'data-screenname' : '@' + r.user.screen_name,
+            'data-listname'   : r.name,
         });
         // TODO
         $tweetContent.attr({
-            'data-subscriber' : recordStatus.subscriber_count,
-            'data-member'     : recordStatus.member_count,
-            'data-protected'  : recordStatus.mode == 'private'
+            'data-subscriber' : r.subscriber_count,
+            'data-member'     : r.member_count,
+            'data-protected'  : r.mode == 'private'
         });
         if (record.meta.isMine) $tweetContent.attr('data-mine', 'true');
 
         // ユーザ情報
         $tweetContent.find('.tweetUserImage')
-            .attr('src', recordStatus.user.profile_image_url_https.replace('_normal.', '_bigger.'));
-        $tweetContent.find('.listName').text(recordStatus.name);
+            .attr('src', r.user.profile_image_url_https.replace('_normal.', '_bigger.'));
+        $tweetContent.find('.listName').text(r.name);
         $tweetContent.find('.listOwnerName').attr({
-            'data-screenname' : '@' + recordStatus.user.screen_name,
-            'data-username'   : recordStatus.user.name
+            'data-screenname' : '@' + r.user.screen_name,
+            'data-username'   : r.user.name
         });
 
         // 説明
-        $tweetContent.find('.tweetText').text(recordStatus.description);
+        $tweetContent.find('.tweetText').text(r.description);
 
         /**
          * 基本メニュー
@@ -962,7 +959,7 @@ const UI = {
                 icon : 'fas fa-expand-arrows-alt fa-fw'
             };
         // スクリーンネーム
-        const sn = '@' + recordStatus.user.screen_name;
+        const sn = '@' + r.user.screen_name;
         contextMenu[sn] = {
             name : sn,
             icon : 'fas fa-at fa-fw',
@@ -986,22 +983,21 @@ const UI = {
 
         // more
         if (/_more$/.test(fullboxid)) {
-            return this.$tweetMoreBoxTemplate.clone()
-                .attr({
-                    id            : fullboxid,
-                    'data-origid' : record.raw.id_str
-                })[0];
+            return this.$tweetMoreBoxTemplate.clone().attr({
+                id            : fullboxid,
+                'data-origid' : record.raw.id_str
+            })[0];
         }
 
         const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
               $tweetContent = $tweetBox.children('.tweetContent').eq(0),
               $tweetInline  = $tweetContent.children('.inlineTweetBox').eq(0),
-              recordStatus  = record.raw;
+              r             = record.raw;
 
         // 属性設定
         $tweetBox.attr({
-            'data-tweetid'    : recordStatus.id_str,
-            'data-rawcontent' : recordStatus.message_create.message_data.text,
+            'data-tweetid'    : r.id_str,
+            'data-rawcontent' : r.message_create.message_data.text,
             'data-screenname' : '@' + record.meta.sender.screen_name
         });
         $tweetContent.attr({
@@ -1024,11 +1020,11 @@ const UI = {
 
         // 本文
         $tweetContent.find('.tweetText')
-            .text(TwitSideModule.text.unescapeHTML(recordStatus.message_create.message_data.text));
+            .text(TwitSideModule.text.unescapeHTML(r.message_create.message_data.text));
         // タイムスタンプ
         $tweetContent.find('.tweetTime')
             .text(TwitSideModule.text.convertTimeStamp(
-                TwitSideModule.text.analyzeTimestamp(parseInt(recordStatus.created_timestamp)),
+                TwitSideModule.text.analyzeTimestamp(parseInt(r.created_timestamp)),
                 TwitSideModule.config.getPref('time_locale'),
                 TwitSideModule.text.createTimeformat()
             ));
@@ -1137,40 +1133,39 @@ const UI = {
 
         // more
         if (/_more$/.test(fullboxid)) {
-            return this.$tweetMoreBoxTemplate.clone()
-                .attr({
-                    id            : fullboxid,
-                    'data-origid' : record.raw.id_str
-                })[0];
+            return this.$tweetMoreBoxTemplate.clone().attr({
+                id            : fullboxid,
+                'data-origid' : record.raw.id_str
+            })[0];
         }
 
         const $tweetBox     = this.$tweetBoxTemplate.clone().attr('id', fullboxid),
               $tweetContent = $tweetBox.children('.tweetContent').eq(0),
-              recordStatus  = record.raw;
+              r             = record.raw;
 
         // 属性設定
         $tweetBox.attr({
-            'data-userid'     : recordStatus.id_str,
-            'data-screenname' : '@' + recordStatus.screen_name
+            'data-userid'     : r.id_str,
+            'data-screenname' : '@' + r.screen_name
         });
 
         // ユーザ情報
         $tweetContent.find('.tweetUserImage')
-            .attr('src', recordStatus.profile_image_url_https.replace('_normal.', '_bigger.'));
+            .attr('src', r.profile_image_url_https.replace('_normal.', '_bigger.'));
         $tweetContent.find('.tweetUserName').attr({
-            'data-screenname' : '@' + recordStatus.screen_name,
-            'data-username'   : recordStatus.name
+            'data-screenname' : '@' + r.screen_name,
+            'data-username'   : r.name
         });
 
         // protected
-        if (recordStatus.protected)
+        if (r.protected)
             $tweetContent.attr('data-protected', 'true');
         // verified
-        if (recordStatus.verified)
+        if (r.verified)
             $tweetContent.attr('data-verified', 'true');
         // 説明
-        if (recordStatus.description)
-            $tweetContent.find('.tweetText').text(recordStatus.description);
+        if (r.description)
+            $tweetContent.find('.tweetText').text(r.description);
 
         /**
          * 基本メニュー
@@ -1233,7 +1228,7 @@ const UI = {
             visible : function() { return document.body.dataset.windowType == 'noretweet'; }
         };
         // スクリーンネーム
-        const sn = '@' + recordStatus.screen_name;
+        const sn = '@' + r.screen_name;
         contextMenu[sn] = {
             name : sn,
             icon : 'fas fa-at fa-fw',
