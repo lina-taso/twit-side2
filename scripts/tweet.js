@@ -106,6 +106,18 @@ class Tweet {
         });
     }
 
+    // 公式リツイート取り消し
+    async unretweet(optionsHash, retweetid) {
+        optionsHash['include_entities'] = 'true';
+        return await this._sendRequest('SIGNATURE', {
+            api     : 'API',
+            method  : 'POST',
+            options : optionsHash,
+            baseurl : TwitSideModule.urls.twit.apiBase,
+            url     : TwitSideModule.urls.twit.urlStatusesUnretweet + retweetid + '.json'
+        });
+    }
+
     // 指定IDのツイート読み込み
     async show(optionsHash) {
         optionsHash['tweet_mode'] = 'extended';

@@ -25,6 +25,7 @@ TwitSideModule.urls = {
         urlStatusesUpdate : '/statuses/update.json',
         urlStatusesUpdateWithMedia : '/statuses/update_with_media.json',
         urlStatusesRetweet : '/statuses/retweet/',
+        urlStatusesUnretweet : '/statuses/unretweet/',
         urlStatusesShow : '/statuses/show.json?',
         urlStatusesDestroy : '/statuses/destroy/',
 
