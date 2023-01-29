@@ -617,6 +617,22 @@ class Timeline {
             tl_type  : this._tl_type,
             columnid : this._columnid
         }, null, this._win_type);
+
+        // 元ツイートがタイムラインに存在する場合
+        if (parentId != (ZERO_FILL + result.data.retweeted_status.id_str).slice(-ZERO_FILL_LEN)
+            && this.tweetInfo((ZERO_FILL + result.data.retweeted_status.id_str).slice(-ZERO_FILL_LEN))) {
+            // ツイート再読込
+            const result_show2 = await this._tweet.show({ id : result.data.retweeted_status.id_str }).catch(error);
+
+            // 受信データを登録
+            const tweets = await this._saveTweets([result_show2.data]);
+            await TwitSideModule.windows.sendMessage({
+                reason   : TwitSideModule.UPDATE.REPLACE_LOADED,
+                tweets   : tweets,
+                tl_type  : this._tl_type,
+                columnid : this._columnid
+            }, null, this._win_type);
+        }
     }
     /*
      * V1 操作系
@@ -656,9 +672,12 @@ class Timeline {
             columnid : this._columnid
         }, null, this._win_type);
 
-        // quoteの場合は親ツイートを再読み込み
-        if (isQuote) {
-            // ツイート再読込
+        // 自分のリツイートは削除
+        if (targetTweet.meta.isMine && targetTweet.raw.retweeted_status) {
+            await this._removeTweets([targetId]);
+        }
+        // ツイート再読込
+        else {
             const result_show = await this._tweet.show({ id : parentId }).catch(error);
 
             // 受信データを登録
@@ -670,12 +689,10 @@ class Timeline {
                 columnid : this._columnid
             }, null, this._win_type);
         }
-        // それ以外は削除
-        else {
-            await this._removeTweets([targetId]);
-        }
+
         // 元ツイートがタイムラインに存在する場合
-        if (this.tweetInfo((ZERO_FILL + result.data.id_str).slice(-ZERO_FILL_LEN))) {
+        if (parentId != (ZERO_FILL + result.data.id_str).slice(-ZERO_FILL_LEN)
+            && this.tweetInfo((ZERO_FILL + result.data.id_str).slice(-ZERO_FILL_LEN))) {
             // ツイート再読込
             const result_show = await this._tweet.show({ id : result.data.id_str }).catch(error);
 
