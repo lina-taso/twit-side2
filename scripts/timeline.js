@@ -137,7 +137,7 @@ class Timeline {
         // morebox
         if (isMore) {
             // unavailable
-            if (!this.record.data[boxid]) return {};
+            if (!this.record.data[boxid]) return undefined;
 
             const idx    = this.record.ids.indexOf(boxid),
                   nextid = this.record.ids[idx+1] != null
@@ -153,7 +153,7 @@ class Timeline {
             // reply of quoted tweet
             if (isReply) {
                 // unavailable
-                if (!this.record.data[idPath[0]]) return {};
+                if (!this.record.data[idPath[0]]) return undefined;
 
                 const idx    = this.record.data[idPath[0]].quoted.replies.findIndex(reply => reply.meta.boxid === boxid),
                       nextid = this.record.data[idPath[0]].quoted.replies[idx+1] != null
@@ -161,7 +161,7 @@ class Timeline {
                       : null;
 
                 // unavailable
-                if (idx == -1) return {};
+                if (idx == -1) return undefined;
                 // result
                 return {
                     tweetinfo : structuredClone(this.record.data[idPath[0]].quoted.replies[idx]),
@@ -171,7 +171,7 @@ class Timeline {
             // quoted tweet
             else {
                 // unavailable
-                if (!this.record.data[idPath[0]]) return {};
+                if (!this.record.data[idPath[0]]) return undefined;
                 // result
                 return {
                     tweetinfo : structuredClone(this.record.data[idPath[0]].quoted),
@@ -183,7 +183,7 @@ class Timeline {
             // reply
             if (isReply) {
                 // unavailable
-                if (!this.record.data[idPath[0]]) return {};
+                if (!this.record.data[idPath[0]]) return undefined;
 
                 const idx    = this.record.data[idPath[0]].replies.findIndex(reply => reply.meta.boxid === boxid),
                       nextid = this.record.data[idPath[0]].replies[idx+1] != null
@@ -191,7 +191,7 @@ class Timeline {
                       : null;
 
                 // unavailable
-                if (idx == -1) return {};
+                if (idx == -1) return undefined;
                 // result
                 return {
                     tweetinfo : structuredClone(this.record.data[idPath[0]].replies[idx]),
@@ -201,7 +201,7 @@ class Timeline {
             // tweet
             else {
                 // unavailable
-                if (!this.record.data[boxid]) return {};
+                if (!this.record.data[boxid]) return undefined;
 
                 const idx    = this.record.ids.indexOf(boxid),
                       nextid = this.record.ids[idx+1] != null
