@@ -23,6 +23,12 @@
     "retweet_failed" : {
         "message" : "リツイート：失敗"
     },
+    "unretweet_success" : {
+        "message" : "リツイート取り消し：成功"
+    },
+    "unretweet_failed" : {
+        "message" : "リツイート取り消し：失敗"
+    },
     "favorite_success" : {
         "message" : "お気に入り追加：成功"
     },

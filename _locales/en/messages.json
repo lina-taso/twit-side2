@@ -23,6 +23,12 @@
     "retweet_failed" : {
         "message" : "Retweet failed."
     },
+    "unretweet_success" : {
+        "message" : "Undo retweet success."
+    },
+    "unretweet_failed" : {
+        "message" : "Undo retweet failed."
+    },
     "favorite_success" : {
         "message" : "Favorite success."
     },

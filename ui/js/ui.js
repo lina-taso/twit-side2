@@ -643,7 +643,7 @@ const UI = {
         // 公式RT
         {
             // リツイート済
-            if (record.retweeted) {
+            if (record.raw.retweeted) {
                 contextMenu.retweet = {
                     name : browser.i18n.getMessage('tweetUndoRetweet'),
                     icon : 'fas fa-retweet fa-fw'
