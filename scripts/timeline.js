@@ -607,7 +607,7 @@ class Timeline {
         await TwitSideModule.config.setPref('limit_retweet', JSON.stringify(limitHistory));
 
         // ツイート再読込
-        const result_show = await this._tweet.show({ id : parentId });
+        const result_show = await this._tweet.show({ id : parentId }).catch(error);
 
         // 受信データを登録
         const tweets = await this._saveTweets([result_show.data]);
@@ -677,7 +677,7 @@ class Timeline {
         // 元ツイートがタイムラインに存在する場合
         if (this.tweetInfo((ZERO_FILL + result.data.id_str).slice(-ZERO_FILL_LEN))) {
             // ツイート再読込
-            const result_show = await this._tweet.show({ id : result.data.id_str });
+            const result_show = await this._tweet.show({ id : result.data.id_str }).catch(error);
 
             // 受信データを登録
             const tweets = await this._saveTweets([result_show.data]);
@@ -730,7 +730,7 @@ class Timeline {
             await this._removeTweets([boxid]);
         else {
             // ツイート再読込
-            const result_show = await this._tweet.show({ id : parentId });
+            const result_show = await this._tweet.show({ id : parentId }).catch(error);
 
             // 受信データを登録
             const tweets = await this._saveTweets([result_show.data]);
@@ -830,7 +830,7 @@ class Timeline {
         const callback_show = async (result) => {
             // リツイートしたことが確認出来た
             if (result.data.current_user_retweet) {
-                const result_destroy = await this._tweet.destroy({ }, result.data.current_user_retweet.id_str);
+                const result_destroy = await this._tweet.destroy({ }, result.data.current_user_retweet.id_str).catch(error);
                 // アクション完了
                 TwitSideModule.windows.sendMessage({
                     reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
@@ -841,7 +841,7 @@ class Timeline {
                 }, null, this._win_type);
 
                 // リツイートされたツイートの再読込
-                const result_show = await this._tweet.show({ id : parentId });
+                const result_show = await this._tweet.show({ id : parentId }).catch(error);
 
                 // 受信データを登録
                 const tweets = await this._saveTweets([result_show.data]);
@@ -857,7 +857,7 @@ class Timeline {
         const callback_show_mine = async (result) => {
             // リツイートしたことが確認出来た
             if (result.data.current_user_retweet) {
-                const result_destroy = await this._tweet.destroy({ }, result.data.current_user_retweet.id_str);
+                const result_destroy = await this._tweet.destroy({ }, result.data.current_user_retweet.id_str).catch(error);
                 // アクション完了
                 TwitSideModule.windows.sendMessage({
                     reason   : TwitSideModule.UPDATE.ACTION_COMPLETED,
@@ -869,7 +869,7 @@ class Timeline {
 
                 if (isQuote) {
                     // 引用元ツイートの再読込
-                    const result_show = await this._tweet.show({ id : parentId });
+                    const result_show = await this._tweet.show({ id : parentId }).catch(error);
 
                     // 受信データを登録
                     const tweets = await this._saveTweets([result_show.data]);
@@ -898,7 +898,7 @@ class Timeline {
 
             if (isQuote) {
                 // 引用元ツイートの再読込
-                const result_show = await this._tweet.show({ id : parentId });
+                const result_show = await this._tweet.show({ id : parentId }).catch(error);
 
                 // 受信データを登録
                 const tweets = await this._saveTweets([result_show.data]);
@@ -2315,7 +2315,7 @@ class ListTimeline extends Timeline {
             return Promise.reject();
         };
 
-        const result = await this._tweet.unsubscribeList({ list_id : listid });
+        const result = await this._tweet.unsubscribeList({ list_id : listid }).catch(error);
 
         // アクション完了
         TwitSideModule.windows.sendMessage({
