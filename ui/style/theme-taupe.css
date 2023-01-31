@@ -4634,20 +4634,20 @@ a.text-dark:hover, a.text-dark:focus {
   #columnSpyContainer.bg-light .columnSpy:not(.active):hover {
     background-color: rgba(250, 239, 239, 0.2); }
 
-.tweetBox {
+.tweetBox.card {
   background-image: linear-gradient(to bottom, #312a28, #181210); }
-  .tweetBox:focus, .tweetBox:hover {
+  .tweetBox.card:focus, .tweetBox.card:hover {
     background-image: linear-gradient(to bottom, #3f3633, #271d1a); }
 
-.columnTab {
+.columnTab.card-header {
   background-image: linear-gradient(to top, transparent 10%, rgba(250, 239, 239, 0.5)); }
 
-.timelineBox::before {
+.timelineBox.card-body::before {
   background-image: radial-gradient(farthest-side at 30% 0, rgba(124, 114, 114, 0.3), transparent), radial-gradient(farthest-side at 70% 0, rgba(124, 114, 114, 0.3), transparent); }
-.timelineBox > .tweetBox {
+.timelineBox.card-body > .tweetBox {
   box-shadow: 0 1px 4px rgba(255, 255, 255, 0.125); }
 
-.tweetContent[data-forme="true"] {
+.tweetContent.card-body[data-forme="true"] {
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.05) 75%, transparent 75%, transparent); }
 
 .tweetContent[data-retweeted="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"]:not(:hover) > .fas {

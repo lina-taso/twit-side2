@@ -252,14 +252,19 @@ textarea#newTweet {
   scroll-snap-type: x mandatory; }
   [data-window-type="main"] #columnContainer {
     margin-bottom: .5rem; }
-  #columnContainer .columnTab {
+  #columnContainer .columnTab.card-header {
     flex-shrink: 0;
     justify-content: start;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    z-index: 1; }
-    #columnContainer .columnTab::before {
+    z-index: 1;
+    background-size: 100% 0%;
+    background-repeat: no-repeat;
+    transition: background-size .2s ease-in; }
+    #columnContainer .columnTab.card-header.hover {
+      background-size: 100% 100%; }
+    #columnContainer .columnTab.card-header::before {
       width: 1.2rem;
       height: 1.2rem;
       margin-right: .2rem;
@@ -301,14 +306,24 @@ textarea#newTweet {
     display: flex;
     flex-shrink: 0;
     scroll-snap-align: start;
-    transition: width .2s; }
+    transition: width .2s;
+    outline: 0; }
     #columnContainer .column[data-veil="true"] .tweetBox {
       opacity: 0 !important; }
     #columnContainer .column[data-veil="true"]:hover .tweetBox {
       opacity: 1 !important; }
   #columnContainer .timelineBox {
-    flex-grow: 1;
     overflow-y: scroll; }
+    #columnContainer .timelineBox::before {
+      display: block;
+      width: 100%;
+      height: 10px;
+      margin-top: -10px;
+      position: sticky;
+      top: 0;
+      content: '';
+      z-index: 1;
+      pointer-events: none; }
   #columnContainer .clearAllRepliesButton {
     display: flex;
     justify-content: center;
@@ -374,19 +389,23 @@ textarea#newTweet {
 [data-window-type="search"] .addColumnButton {
   display: block; }
 
-.tweetBox.tweetMoreBox {
-  width: -moz-available;
-  text-align: center;
-  cursor: pointer;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center; }
-  .tweetBox.tweetMoreBox .tweetContent {
-    flex-grow: 0; }
-  .column[data-more=""] .tweetBox.tweetMoreBox .spinner-grow {
-    display: none; }
-  .column[data-more="true"] .tweetBox.tweetMoreBox .spinner-grow {
-    display: inline-block; }
+.tweetBox.card {
+  border-radius: 0;
+  border-width: 0;
+  outline: 0; }
+  .tweetBox.card.tweetMoreBox.card {
+    width: -moz-available;
+    text-align: center;
+    cursor: pointer;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; }
+    .tweetBox.card.tweetMoreBox.card .tweetContent {
+      flex-grow: 0; }
+    .column[data-more=""] .tweetBox.card.tweetMoreBox.card .spinner-grow {
+      display: none; }
+    .column[data-more="true"] .tweetBox.card.tweetMoreBox.card .spinner-grow {
+      display: inline-block; }
 
 /*********************
   // #columnContainer
@@ -413,16 +432,6 @@ textarea#newTweet {
   width: 16px;
   height: 16px;
   margin: .25rem 0; }
-  .tweetStatus > i.tweetStatusRetweeted {
-    color: green; }
-    .tweetContent .tweetStatus > i.tweetStatusRetweeted {
-      display: flex; }
-    .tweetContent[data-retweeted=""] .tweetStatus > i.tweetStatusRetweeted {
-      display: none; }
-    .inlineTweetBox .tweetContent .tweetStatus > i.tweetStatusRetweeted {
-      display: flex; }
-    .inlineTweetBox .tweetContent[data-retweeted=""] .tweetStatus > i.tweetStatusRetweeted {
-      display: none; }
   .tweetStatus > i.tweetStatusPlace {
     cursor: pointer; }
     .tweetStatus > i.tweetStatusPlace[data-mapurl=""] {
@@ -516,11 +525,6 @@ textarea#newTweet {
     .tweetRetweeter > .tweetRetweeterName[data-screenname=""] {
       display: none; }
 
-.tweetRetweeterCount::before {
-  content: attr(data-count); }
-.tweetRetweeterCount[data-count=""] {
-  display: none; }
-
 .tweetRetweeterList {
   display: flex;
   flex-wrap: wrap; }
@@ -533,17 +537,23 @@ textarea#newTweet {
 .tweetThumbnailImage.img-thumbnail {
   width: 100%;
   height: 100px;
+  padding: 0;
+  margin: 0.05rem;
   cursor: pointer;
   object-fit: cover;
-  object-position: 50% 50%; }
+  object-position: 50% 50%;
+  border-radius: 1rem; }
   .tweetThumbnailImage.img-thumbnail:not(:hover) {
     transition: object-position .4s; }
 
 .inlineTweetBox.card {
   background-color: transparent;
-  border-style: dashed; }
+  border-style: solid;
+  border-radius: 1rem; }
   .inlineTweetBox.card:empty {
     display: none; }
+  .inlineTweetBox.card > .tweetBox.card {
+    border-radius: 1rem; }
 
 .replyTweetBox[data-open="false"] {
   display: none; }
@@ -565,7 +575,6 @@ textarea#newTweet {
 .tweetContent[data-protected="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"] {
   visibility: hidden; }
 .tweetContent[data-retweeted="true"] > .tweetMenuButtonBox > .tweetMenuButton[data-func="retweet"] > .fas {
-  color: green;
   opacity: 1; }
 .tweetContent[data-favorited=""] > .tweetMenuButtonBox > .tweetMenuButton[data-func="favorite"] > .fas {
   display: none; }
@@ -601,6 +610,12 @@ textarea#newTweet {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1020; }
+  #columnSpyContainer.show {
+    width: 80%;
+    padding: 0 1rem;
+    border-radius: 0 0 1rem 1rem;
+    transform: translate(-50%);
+    pointer-events: auto; }
   #columnSpyContainer.no-event {
     user-select: none;
     pointer-events: none; }

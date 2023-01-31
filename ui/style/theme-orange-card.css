@@ -2,5 +2,7 @@
 
 .tweetBox {
     margin: 0.5rem;
-    border-width: 1px;
+}
+.inlineTweetBox.card > .tweetBox.card {
+    margin:0;
 }
