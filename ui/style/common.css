@@ -610,7 +610,7 @@ textarea#newTweet {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1020; }
-  #columnSpyContainer.show {
+  #columnSpyContainer.show.bg-light {
     width: 80%;
     padding: 0 1rem;
     border-radius: 0 0 1rem 1rem;
