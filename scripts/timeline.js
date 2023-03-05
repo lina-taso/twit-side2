@@ -1801,9 +1801,9 @@ class DmTimeline extends Timeline {
         // エンティティ
         if (datum.message_create.message_data.entities) {
             meta.entities = datum.message_create.message_data.entities;
-            // サードパーティ画像URLの処理
-            for (let url of meta.entities.urls || [])
-                this._analyzePicURL(url.expanded_url, meta);
+        //    // サードパーティ画像URLの処理
+        //    for (let url of meta.entities.urls || [])
+        //        this._analyzePicURL(url.expanded_url, meta);
         }
         // 添付
         if (datum.message_create.message_data.attachment) {
